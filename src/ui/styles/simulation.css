@@ -1,0 +1,296 @@
+/* FloodTrace Pakistan — Disaster Simulation HUD Dock */
+
+.flood-sim-dock {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 960px;
+  background: rgba(8, 14, 26, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 180, 255, 0.35);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 180, 255, 0.15);
+  border-radius: 8px;
+  padding: 14px 20px;
+  z-index: 1200;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', monospace;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.flood-sim-dock.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.sim-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d2ff, #0077b6, transparent);
+  box-shadow: 0 0 12px #00d2ff;
+}
+
+/* Header */
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.sim-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #00f0ff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00f0ff;
+  animation: pulseSimDot 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseSimDot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 14px #00f0ff; }
+}
+
+.sim-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #00e5ff;
+}
+
+.sim-sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.05em;
+  margin-left: 6px;
+}
+
+/* Telemetry Strip */
+.sim-telemetry-strip {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.2fr 1.8fr;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+}
+
+.sim-tel-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-tel-label {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.06em;
+}
+
+.sim-tel-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-alert {
+  color: #ff3366 !important;
+}
+
+.text-warning {
+  color: #ffb703 !important;
+}
+
+/* Controls Row */
+.sim-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sim-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.sim-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(0, 240, 255, 0.4);
+}
+
+.sim-btn-primary {
+  background: rgba(0, 168, 232, 0.25);
+  border-color: #00a8e8;
+  color: #00e5ff;
+}
+
+.sim-btn-primary:hover {
+  background: rgba(0, 168, 232, 0.45);
+  box-shadow: 0 0 10px rgba(0, 168, 232, 0.4);
+}
+
+.sim-btn-danger {
+  background: rgba(230, 57, 70, 0.2);
+  border-color: rgba(230, 57, 70, 0.5);
+  color: #ff758f;
+}
+
+.sim-btn-danger:hover {
+  background: rgba(230, 57, 70, 0.35);
+  border-color: #ff3366;
+  color: #fff;
+}
+
+.sim-btn-toggle.active {
+  background: rgba(0, 230, 118, 0.2);
+  border-color: #00e676;
+  color: #69f0ae;
+}
+
+/* Timeline & Scrubber */
+.sim-timeline-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sim-time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+#sim-time-current {
+  color: #00f0ff;
+  font-weight: 600;
+}
+
+.sim-scrubber {
+  width: 100%;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.sim-scrubber::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #00f0ff;
+  border-radius: 50%;
+  border: 2px solid #0a1128;
+  box-shadow: 0 0 8px #00f0ff;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.sim-scrubber::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Speed buttons */
+.sim-speed-group {
+  display: flex;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sim-speed-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 8px;
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.sim-speed-btn.active {
+  background: rgba(0, 180, 255, 0.3);
+  color: #00f0ff;
+}
+
+.sim-speed-btn:hover:not(.active) {
+  color: #fff;
+}
+
+/* Top Bar Simulation Trigger Button */
+.sim-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.25), rgba(0, 240, 255, 0.15)) !important;
+  border: 1px solid rgba(0, 240, 255, 0.5) !important;
+  color: #00f0ff !important;
+  padding: 4px 10px !important;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.sim-trigger-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.45), rgba(0, 240, 255, 0.3)) !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.sim-trigger-btn .sim-trigger-icon {
+  font-size: 16px;
+  animation: simIconPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes simIconPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; filter: drop-shadow(0 0 6px #00f0ff); }
+}
