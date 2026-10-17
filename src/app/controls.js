@@ -5,6 +5,7 @@ import { initCockpitCloudEffects } from '../cockpitCloudEffects.js';
 import { t } from '../i18n/index.js';
 import { FloodSimulationEngine } from '../simulation/floodEngine.js';
 import { SimulationBarUI } from '../simulation/simulationBar.js';
+import { GoogleMapsUI } from '../ui/googleMapsUI.js';
 
 /** Construct the existing controls and camera presentation. */
 export function createApplicationControls({
@@ -38,6 +39,15 @@ export function createApplicationControls({
   const floodSimulationEngine = new FloodSimulationEngine(viewer);
   const simulationBarUI = new SimulationBarUI(floodSimulationEngine);
 
+  // Initialize Google Maps Light Theme UI overlay
+  const googleMapsUI = new GoogleMapsUI({
+    viewer,
+    navigation: styleManager._navigation,
+    simulationBarUI,
+    floodEngine: floodSimulationEngine,
+    styleManager,
+  });
+
   const simBtn = document.getElementById('sim-disaster-btn');
   if (simBtn) {
     simBtn.addEventListener('click', () => {
@@ -69,5 +79,6 @@ export function createApplicationControls({
     cockpitCloudEffects,
     floodSimulationEngine,
     simulationBarUI,
+    googleMapsUI,
   };
 }

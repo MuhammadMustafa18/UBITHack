@@ -1,0 +1,922 @@
+/**
+ * Google Maps Light Theme for FloodTrace Pakistan
+ * Replaces sci-fi HUD with clean, modern, high-contrast Google Maps UI.
+ */
+
+/* Hide legacy sci-fi dark HUD chrome */
+#title-bar,
+#top-center-actions,
+#command-dock,
+#style-indicator {
+  display: none !important;
+}
+
+/* ==========================================================================
+   1. Google Maps Top Bar Container & Search Box
+   ========================================================================== */
+.gmaps-top-container {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.gmaps-top-container > * {
+  pointer-events: auto;
+}
+
+/* Crisp floating white search bar */
+.gmaps-search-box {
+  background: #ffffff;
+  height: 48px;
+  width: 390px;
+  min-width: 340px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.25), 0 1px 2px rgba(60, 64, 67, 0.15);
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease, width 0.2s ease;
+}
+
+.gmaps-search-box:focus-within {
+  box-shadow: 0 3px 12px rgba(60, 64, 67, 0.35), 0 1px 3px rgba(60, 64, 67, 0.2);
+}
+
+.gmaps-icon-btn {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  color: #5f6368;
+  padding: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.gmaps-icon-btn:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+.gmaps-svg-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.gmaps-search-input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14.5px;
+  color: #202124;
+  letter-spacing: normal;
+}
+
+.gmaps-search-input::placeholder {
+  color: #70757a;
+  font-weight: 400;
+}
+
+.gmaps-search-divider {
+  width: 1px;
+  height: 24px;
+  background: #dadce0;
+  margin: 0 6px;
+}
+
+/* Blue circular action / directions button */
+.gmaps-directions-btn {
+  background: #1a73e8;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.gmaps-directions-btn:hover {
+  background: #1557b0;
+  transform: scale(1.04);
+}
+
+.gmaps-directions-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ==========================================================================
+   2. Google Maps Horizontal Category Filter Pills
+   ========================================================================== */
+.gmaps-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 0;
+  flex: 1;
+}
+
+.gmaps-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.gmaps-pill {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 18px;
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #3c4043;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.18);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.gmaps-pill:hover {
+  background: #f8f9fa;
+  border-color: #dadce0;
+  box-shadow: 0 2px 5px rgba(60, 64, 67, 0.25);
+  color: #202124;
+}
+
+.gmaps-pill.active {
+  background: #e8f0fe;
+  color: #1a73e8;
+  border-color: #1a73e8;
+  font-weight: 600;
+}
+
+.gmaps-pill-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* Featured Simulate Flood Pill */
+.gmaps-pill-featured {
+  background: #1a73e8;
+  color: #ffffff !important;
+  border-color: #1a73e8;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
+}
+
+.gmaps-pill-featured:hover {
+  background: #1557b0;
+  border-color: #1557b0;
+  box-shadow: 0 3px 8px rgba(26, 115, 232, 0.5);
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   3. Top Right NDMA Badge and Quick Actions
+   ========================================================================== */
+.gmaps-top-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.gmaps-round-btn {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #5f6368;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.2);
+  transition: all 0.15s ease;
+}
+
+.gmaps-round-btn:hover {
+  background: #f1f3f4;
+  color: #202124;
+  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.3);
+}
+
+.gmaps-ndma-badge {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  height: 38px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: #137333;
+}
+
+.ndma-flag {
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   4. Google Maps Dropdown Card for POIs / Search Results
+   ========================================================================== */
+.gmaps-dropdown-card {
+  position: absolute;
+  top: 68px;
+  left: 12px;
+  width: 420px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 120px);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(60, 64, 67, 0.25), 0 1px 3px rgba(60, 64, 67, 0.15);
+  border: 1px solid #dadce0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: gmapsCardEnter 0.2s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.gmaps-dropdown-card.hidden {
+  display: none !important;
+}
+
+@keyframes gmapsCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gmaps-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.dropdown-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.gmaps-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: #70757a;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.gmaps-close-btn:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+.gmaps-dropdown-body {
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+  padding: 6px 0;
+}
+
+.gmaps-dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.gmaps-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.item-icon-col {
+  font-size: 20px;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.item-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.item-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a73e8;
+}
+
+.item-region {
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 1px;
+}
+
+.item-desc {
+  font-size: 12px;
+  color: #70757a;
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.item-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-danger {
+  background: #fce8e6;
+  color: #c5221f;
+}
+
+.badge-warning {
+  background: #fef7e0;
+  color: #b06000;
+}
+
+.badge-primary {
+  background: #e8f0fe;
+  color: #1967d2;
+}
+
+.badge-info {
+  background: #e6f4ea;
+  color: #137333;
+}
+
+/* ==========================================================================
+   5. Bottom-Left Floating Layers Widget
+   ========================================================================== */
+.gmaps-layers-widget {
+  position: absolute;
+  bottom: 24px;
+  left: 16px;
+  z-index: 999;
+}
+
+.gmaps-layers-card {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(60, 64, 67, 0.35);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background: url('https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=2') center/cover no-repeat #2d3748;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gmaps-layers-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(60, 64, 67, 0.45);
+}
+
+.layers-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 60%);
+}
+
+.gmaps-layers-label {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.layers-icon-svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Layers Popover Menu */
+.gmaps-layers-menu {
+  position: absolute;
+  bottom: 72px;
+  left: 0;
+  width: 280px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(60, 64, 67, 0.25);
+  border: 1px solid #dadce0;
+  padding: 12px;
+  animation: gmapsCardEnter 0.2s ease;
+}
+
+.gmaps-layers-menu.hidden {
+  display: none !important;
+}
+
+.layers-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 8px;
+}
+
+.layers-types-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.layer-type-opt {
+  flex: 1;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #3c4043;
+  font-weight: 500;
+}
+
+.layer-type-opt.active {
+  border-color: #1a73e8;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.layer-type-preview {
+  width: 100%;
+  height: 48px;
+  border-radius: 6px;
+  background: #e0e0e0;
+}
+
+.preview-sat {
+  background: linear-gradient(135deg, #1b3a4b 0%, #2e5339 100%);
+}
+
+.preview-terrain {
+  background: linear-gradient(135deg, #c2a649 0%, #856d28 100%);
+}
+
+.preview-street {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+}
+
+.layers-divider {
+  height: 1px;
+  background: #dadce0;
+  margin: 10px 0;
+}
+
+.layers-toggles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.layer-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #3c4043;
+  cursor: pointer;
+  user-select: none;
+}
+
+.layer-toggle-row input {
+  display: none;
+}
+
+.toggle-switch {
+  width: 32px;
+  height: 18px;
+  background: #dadce0;
+  border-radius: 10px;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.layer-toggle-row input:checked + .toggle-switch {
+  background: #1a73e8;
+}
+
+.layer-toggle-row input:checked + .toggle-switch::after {
+  transform: translateX(14px);
+}
+
+/* ==========================================================================
+   6. Bottom-Right Google Maps Navigation Capsule
+   ========================================================================== */
+.gmaps-nav-capsule {
+  position: absolute;
+  bottom: 24px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 999;
+}
+
+.gmaps-nav-btn {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #5f6368;
+  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.2);
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.gmaps-nav-btn:hover {
+  background: #f1f3f4;
+  color: #202124;
+  box-shadow: 0 3px 8px rgba(60, 64, 67, 0.3);
+}
+
+.gmaps-nav-group {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.2);
+  overflow: hidden;
+}
+
+.gmaps-nav-group .gmaps-nav-btn {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.gmaps-nav-divider {
+  height: 1px;
+  background: #dadce0;
+  margin: 0 4px;
+}
+
+.gmaps-nav-tilt {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #3c4043;
+}
+
+.gmaps-compass-needle {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  transition: transform 0.1s linear;
+}
+
+.needle-north {
+  position: absolute;
+  top: 3px;
+  left: 9px;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 9px solid #ea4335;
+}
+
+.needle-south {
+  position: absolute;
+  bottom: 3px;
+  left: 9px;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 9px solid #bdc1c6;
+}
+
+/* ==========================================================================
+   7. Bottom-Center Google Maps Status & Legend Strip
+   ========================================================================== */
+.gmaps-bottom-status {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 998;
+  pointer-events: none;
+}
+
+.gmaps-status-pill {
+  pointer-events: auto;
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  height: 38px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(60, 64, 67, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.status-indicator-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #1a73e8;
+  box-shadow: 0 0 6px rgba(26, 115, 232, 0.6);
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.status-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3c4043;
+}
+
+.status-legend-bar {
+  display: flex;
+  height: 6px;
+  width: 70px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.legend-normal { flex: 1; background: #34a853; }
+.legend-alert { flex: 1; background: #fbbc04; }
+.legend-high { flex: 1; background: #ff7043; }
+.legend-critical { flex: 1; background: #ea4335; }
+
+.status-metric {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+.gmaps-status-action-btn {
+  background: #e8f0fe;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a73e8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gmaps-status-action-btn:hover {
+  background: #1a73e8;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   8. Flood Simulation Dock — Google Maps Light Card Restyle
+   ========================================================================== */
+#flood-sim-dock {
+  background: #ffffff !important;
+  color: #202124 !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 24px rgba(60, 64, 67, 0.28), 0 1px 3px rgba(60, 64, 67, 0.15) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+#flood-sim-dock .sim-glow {
+  display: none !important;
+}
+
+#flood-sim-dock .sim-header {
+  border-bottom: 1px solid #f1f3f4 !important;
+  padding-bottom: 8px;
+}
+
+#flood-sim-dock .sim-title {
+  color: #202124 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+}
+
+#flood-sim-dock .sim-dot {
+  background: #1a73e8 !important;
+  box-shadow: 0 0 8px rgba(26, 115, 232, 0.6) !important;
+}
+
+/* Scale tabs styled as Google pills */
+#flood-sim-dock .sim-scale-tab {
+  background: #f1f3f4 !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 16px !important;
+  color: #3c4043 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  padding: 4px 12px !important;
+  transition: all 0.15s ease !important;
+}
+
+#flood-sim-dock .sim-scale-tab:hover {
+  background: #e8eaed !important;
+  color: #202124 !important;
+}
+
+#flood-sim-dock .sim-scale-tab.active {
+  background: #e8f0fe !important;
+  border-color: #1a73e8 !important;
+  color: #1a73e8 !important;
+}
+
+#flood-sim-dock .sim-btn-danger {
+  background: #fce8e6 !important;
+  border: 1px solid #fad2cf !important;
+  color: #c5221f !important;
+  border-radius: 16px !important;
+  font-weight: 600 !important;
+}
+
+#flood-sim-dock .sim-btn-danger:hover {
+  background: #c5221f !important;
+  color: #ffffff !important;
+}
+
+/* Telemetry items */
+#flood-sim-dock .sim-tel-item {
+  background: #f8f9fa !important;
+  border: 1px solid #e8eaed !important;
+  border-radius: 8px !important;
+}
+
+#flood-sim-dock .sim-tel-label {
+  color: #5f6368 !important;
+  font-weight: 600 !important;
+}
+
+#flood-sim-dock .sim-tel-val {
+  color: #202124 !important;
+}
+
+#flood-sim-dock .text-alert {
+  color: #d93025 !important;
+}
+
+#flood-sim-dock .text-warning {
+  color: #b06000 !important;
+}
+
+/* Stepper and Play buttons */
+#flood-sim-dock .sim-btn-step {
+  background: #ffffff !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 20px !important;
+  color: #3c4043 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15) !important;
+}
+
+#flood-sim-dock .sim-btn-step:hover {
+  background: #f1f3f4 !important;
+  color: #202124 !important;
+}
+
+#flood-sim-dock .sim-btn-primary {
+  background: #1a73e8 !important;
+  border: none !important;
+  border-radius: 20px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.35) !important;
+}
+
+#flood-sim-dock .sim-btn-primary:hover {
+  background: #1557b0 !important;
+}
+
+#flood-sim-dock .sim-btn-toggle {
+  background: #ffffff !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 20px !important;
+  color: #3c4043 !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15) !important;
+}
+
+#flood-sim-dock .sim-btn-toggle.active {
+  background: #e8f0fe !important;
+  border-color: #1a73e8 !important;
+  color: #1a73e8 !important;
+}
+
+/* Scrubber Timeline */
+#flood-sim-dock .sim-time-labels {
+  color: #5f6368 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+#flood-sim-dock .sim-scrubber {
+  accent-color: #1a73e8 !important;
+}
+
+/* Toast styling */
+#toast {
+  background: #323232 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 14px !important;
+  border: none !important;
+}
