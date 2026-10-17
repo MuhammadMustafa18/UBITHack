@@ -242,10 +242,16 @@ export class SimulationBarUI {
 
     const maxLabel = this.container.querySelector('#sim-time-max');
     if (maxLabel) {
-      if (tel.timeScale === 'minute') maxLabel.textContent = '180 min (3h)';
-      else if (tel.timeScale === 'hourly') maxLabel.textContent = '72h (3 Days)';
-      else if (tel.timeScale === 'daily') maxLabel.textContent = 'Day 14 / 14';
-      else if (tel.timeScale === 'weekly') maxLabel.textContent = 'Week 8 / 8';
+      if (tel.timeScale === 'minute') {
+        const h = Math.round(tel.maxUnits / 60);
+        maxLabel.textContent = `${Math.round(tel.maxUnits)}m (${h}h) • CONTINUOUS`;
+      } else if (tel.timeScale === 'hourly') {
+        maxLabel.textContent = `${Math.round(tel.maxUnits)}h • CONTINUOUS`;
+      } else if (tel.timeScale === 'daily') {
+        maxLabel.textContent = `${Math.round(tel.maxUnits)} Days • CONTINUOUS`;
+      } else if (tel.timeScale === 'weekly') {
+        maxLabel.textContent = `${Math.round(tel.maxUnits)} Weeks • CONTINUOUS`;
+      }
     }
 
     // Stepper labels

@@ -119,7 +119,7 @@ export class FloodSimulationEngine {
 
   stepForward() {
     const scale = TIME_SCALES[this.timeScale];
-    this.seekUnits(Math.min(scale.maxUnits, this.scaleUnits + scale.step));
+    this.seekUnits(this.scaleUnits + scale.step);
   }
 
   stepBackward() {
@@ -129,7 +129,10 @@ export class FloodSimulationEngine {
 
   seekUnits(units) {
     const scale = TIME_SCALES[this.timeScale];
-    this.scaleUnits = Math.max(0, Math.min(scale.maxUnits, Number(units) || 0));
+    this.scaleUnits = Math.max(0, Number(units) || 0);
+    if (this.scaleUnits >= scale.maxUnits) {
+      scale.maxUnits = Math.ceil(this.scaleUnits + scale.step * 20);
+    }
     this._syncSimHoursFromUnits();
     this._updateVisuals();
     this._notify();
@@ -137,67 +140,76 @@ export class FloodSimulationEngine {
 
   _syncSimHoursFromUnits() {
     if (this.timeScale === 'minute') {
-      this.simHours = (this.scaleUnits / 180) * 3.0;
+      this.simHours = this.scaleUnits / 60.0;
     } else if (this.timeScale === 'hourly') {
       this.simHours = this.scaleUnits;
     } else if (this.timeScale === 'daily') {
-      this.simHours = (this.scaleUnits / 14) * 72.0;
+      this.simHours = this.scaleUnits * 24.0;
     } else if (this.timeScale === 'weekly') {
-      if (this.scaleUnits <= 3) {
-        this.simHours = (this.scaleUnits / 3) * 70.0;
-      } else {
-        this.simHours = 70.0;
-      }
+      this.simHours = this.scaleUnits * 168.0;
     }
   }
 
   getFormattedTime() {
     if (this.timeScale === 'minute') {
       const totalMin = Math.round(this.scaleUnits);
-      const h = Math.floor(totalMin / 60);
-      const m = totalMin % 60;
+      const days = Math.floor(totalMin / 1440);
+      const rem = totalMin % 1440;
+      const h = Math.floor(rem / 60);
+      const m = rem % 60;
+      if (days > 0) {
+        return `T+${days}d ${h}h ${String(m).padStart(2, '0')}m (${totalMin}m)`;
+      }
       return `T+${h}h ${String(m).padStart(2, '0')}m (${totalMin}m)`;
     } else if (this.timeScale === 'hourly') {
       const h = Math.floor(this.scaleUnits);
       const m = Math.floor((this.scaleUnits - h) * 60);
+      const days = Math.floor(h / 24);
+      const remH = h % 24;
+      if (days > 0) {
+        return `DAY ${days + 1} • T+${String(remH).padStart(2, '0')}:${String(m).padStart(2, '0')}h (${h}h)`;
+      }
       return `T+${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}h`;
     } else if (this.timeScale === 'daily') {
       const d = Math.floor(this.scaleUnits);
       const h = Math.floor((this.scaleUnits - d) * 24);
-      return `DAY ${String(d + 1).padStart(2, '0')} / 14 (+${h}h)`;
+      return `DAY ${d + 1} (+${h}h)`;
     } else if (this.timeScale === 'weekly') {
       const w = Math.floor(this.scaleUnits);
-      if (w <= 2) return `WEEK ${w + 1} of 8 (Surge Inflow)`;
-      if (w <= 4) return `WEEK ${w + 1} of 8 (Peak Inundation)`;
-      return `WEEK ${w + 1} of 8 (Receding Waters)`;
+      return `WEEK ${w + 1} (Continuous Drainage)`;
     }
     return `T+${Math.round(this.simHours)}h`;
   }
 
   getCurrentTelemetry() {
     const scale = TIME_SCALES[this.timeScale];
-    const waypoints = this.waypoints;
-
+    const lastWp = waypoints[waypoints.length - 1];
     let currentWp = waypoints[0];
     let nextWp = waypoints[1] || currentWp;
 
-    for (let i = 0; i < waypoints.length - 1; i++) {
-      if (this.simHours >= waypoints[i].timeHours) {
-        currentWp = waypoints[i];
-        nextWp = waypoints[i + 1] || currentWp;
+    if (this.simHours >= lastWp.timeHours) {
+      currentWp = lastWp;
+      nextWp = lastWp;
+    } else {
+      for (let i = 0; i < waypoints.length - 1; i++) {
+        if (this.simHours >= waypoints[i].timeHours) {
+          currentWp = waypoints[i];
+          nextWp = waypoints[i + 1] || currentWp;
+        }
       }
     }
 
     const duration = Math.max(0.1, nextWp.timeHours - currentWp.timeHours);
-    const frac = Math.min(
+    const frac = currentWp === nextWp ? 1 : Math.min(
       1,
       Math.max(0, (this.simHours - currentWp.timeHours) / duration),
     );
 
-    const recedeMultiplier =
-      this.timeScale === 'weekly' && this.scaleUnits > 4
-        ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
-        : 1.0;
+    const overTimeHours = Math.max(0, this.simHours - lastWp.timeHours);
+    const drainageFactor = Math.max(0.25, 1.0 - (overTimeHours / 96.0) * 0.75);
+    const recedeMultiplier = (this.timeScale === 'weekly' && this.scaleUnits > 4
+      ? Math.max(0.25, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.75)
+      : 1.0) * drainageFactor;
 
     const baseDischarge =
       currentWp.dischargeCusecs +
@@ -340,9 +352,9 @@ export class FloodSimulationEngine {
         const scale = TIME_SCALES[this.timeScale];
         this.scaleUnits += this.speed * deltaSeconds;
 
+        // Continuous flow: never arbitrarily stop playing!
         if (this.scaleUnits >= scale.maxUnits) {
-          this.scaleUnits = scale.maxUnits;
-          this.playing = false;
+          scale.maxUnits = Math.ceil(this.scaleUnits + scale.step * 20);
         }
 
         this._syncSimHoursFromUnits();
