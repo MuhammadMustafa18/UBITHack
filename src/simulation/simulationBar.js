@@ -70,7 +70,7 @@ export class SimulationBarUI {
           <button class="sim-speed-btn" data-speed="40" type="button">40x</button>
         </div>
 
-        <button id="sim-follow-btn" class="sim-btn sim-btn-toggle active" type="button" title="Automatically track the leading flood wave with 3D camera">
+        <button id="sim-follow-btn" class="sim-btn sim-btn-toggle" type="button" title="Automatically track the leading flood wave with 3D camera">
           <span class="sim-icon">🎯</span> FOLLOW WAVE
         </button>
       </div>

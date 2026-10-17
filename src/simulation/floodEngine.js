@@ -20,7 +20,7 @@ export class FloodSimulationEngine {
     this.simHours = 0;
     this.maxHours = 72;
     this.speed = 5; // hours per real second = 5x
-    this.followCrest = true;
+    this.followCrest = false;
 
     this._listeners = new Set();
     this._animationFrame = null;
@@ -443,24 +443,24 @@ export class FloodSimulationEngine {
   _updateVisuals() {
     if (!this.active || !this.viewer) return;
 
-    // Follow camera if enabled
+    // Follow camera only if explicitly enabled by user
     if (this.followCrest && this.playing) {
       const tel = this.getCurrentTelemetry();
       const camera = this.viewer.camera;
 
-      // Adjust camera distance based on mountain gorge vs wide plain
-      const rangeM = tel.crestAlt > 1000 ? 12000 : 35000;
-      const pitchDeg = tel.crestAlt > 1000 ? -38 : -45;
+      // Preserve user's orientation and altitude
+      const currentHeading = camera.heading;
+      const currentPitch = camera.pitch;
+      const currentHeight = camera.positionCartographic?.height || 25000;
 
       camera.lookAt(
         Cesium.Cartesian3.fromDegrees(tel.crestLon, tel.crestLat),
         new Cesium.HeadingPitchRange(
-          Cesium.Math.toRadians(180), // Looking South down the Indus Basin
-          Cesium.Math.toRadians(pitchDeg),
-          rangeM,
+          currentHeading,
+          currentPitch,
+          Math.max(5000, currentHeight),
         ),
       );
-      // Unlock transform so user can still pan/tilt freely
       camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
     }
   }
