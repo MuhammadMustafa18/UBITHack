@@ -247,7 +247,7 @@ export class FloodSimulationEngine {
     });
     this._entities.push(this._glacierPulseEntity);
 
-    // 2. Dynamic Flood Water Corridor
+    // 2. Dynamic Flood Water Corridor (central river torrent)
     this._corridorEntity = this.viewer.entities.add({
       name: 'Dynamic Flood Wave Inundation Corridor',
       corridor: {
@@ -265,6 +265,71 @@ export class FloodSimulationEngine {
       },
     });
     this._entities.push(this._corridorEntity);
+
+    // 2b. Dynamic Radial Lateral Spillover Pools (Water grows outwards laterally)
+    for (const wp of INDUS_FLOW_WAYPOINTS) {
+      // Core deep floodwater expanding outward
+      const poolEntity = this.viewer.entities.add({
+        name: `${wp.name} - Lateral Inundation Pool`,
+        position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat),
+        ellipse: {
+          semiMajorAxis: new Cesium.CallbackProperty(() => {
+            if (this.simHours < wp.timeHours) return 0;
+            const elapsed = this.simHours - wp.timeHours;
+            const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
+            return wp.radialSpillRadiusM * progress;
+          }, false),
+          semiMinorAxis: new Cesium.CallbackProperty(() => {
+            if (this.simHours < wp.timeHours) return 0;
+            const elapsed = this.simHours - wp.timeHours;
+            const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
+            return wp.radialSpillRadiusM * progress * 0.75;
+          }, false),
+          material: new Cesium.ColorMaterialProperty(
+            new Cesium.CallbackProperty(() => {
+              if (this.simHours < wp.timeHours) {
+                return Cesium.Color.fromCssColorString('#0077b6').withAlpha(0);
+              }
+              const elapsed = this.simHours - wp.timeHours;
+              const alpha = Math.min(0.68, 0.2 + (elapsed / 14.0) * 0.48);
+              return Cesium.Color.fromCssColorString('#0077b6').withAlpha(alpha);
+            }, false),
+          ),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+      });
+      this._entities.push(poolEntity);
+
+      // Outer shallow flood silt watermark expanding even wider
+      const edgeEntity = this.viewer.entities.add({
+        name: `${wp.name} - Shallow Inundation Edge`,
+        position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat),
+        ellipse: {
+          semiMajorAxis: new Cesium.CallbackProperty(() => {
+            if (this.simHours < wp.timeHours) return 0;
+            const elapsed = this.simHours - wp.timeHours;
+            const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
+            return wp.radialSpillRadiusM * progress * 1.35;
+          }, false),
+          semiMinorAxis: new Cesium.CallbackProperty(() => {
+            if (this.simHours < wp.timeHours) return 0;
+            const elapsed = this.simHours - wp.timeHours;
+            const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
+            return wp.radialSpillRadiusM * progress * 1.05;
+          }, false),
+          material: new Cesium.ColorMaterialProperty(
+            new Cesium.CallbackProperty(() => {
+              if (this.simHours < wp.timeHours) {
+                return Cesium.Color.fromCssColorString('#00b4d8').withAlpha(0);
+              }
+              return Cesium.Color.fromCssColorString('#00b4d8').withAlpha(0.25);
+            }, false),
+          ),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+      });
+      this._entities.push(edgeEntity);
+    }
 
     // 3. Flood Wave Leading Crest Marker
     this._crestMarkerEntity = this.viewer.entities.add({
