@@ -10,6 +10,14 @@
  */
 
 import * as Cesium from 'cesium';
+import { PakistanLayersManager } from '../layers/pakistanLayers.js';
+import { PredictiveHeatmaps } from '../simulation/predictiveHeatmaps.js';
+import {
+  FLOOD_SCENARIOS,
+  FLOOD_MAGNITUDES,
+  TIME_SCALES,
+} from '../simulation/flowData.js';
+
 
 export const ICONS = {
   simulate: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>`,
@@ -275,6 +283,18 @@ export class GoogleMapsUI {
     this.activeCategory = null;
     this.layersMenuOpen = false;
 
+    // Simulation dialog state
+    this.selectedScenarioKey = this.floodEngine?.scenarioKey || 'dam_breach';
+    this.selectedMagnitudeKey = this.floodEngine?.magnitudeKey || 'high';
+    this.selectedTimeScale = this.floodEngine?.timeScale || 'hourly';
+    this.resourceManagementEnabled = false;
+
+    // 3D Pakistan Map Labels, Population & Resource Overlays
+    this.pakistanLayers = new PakistanLayersManager(this.viewer);
+
+    // Predictive affected-area polygon heatmaps ahead of flood wave
+    this.predictiveHeatmaps = new PredictiveHeatmaps(this.viewer, this.floodEngine);
+
     this._init();
   }
 
@@ -410,14 +430,29 @@ export class GoogleMapsUI {
             <span>Flood Inundation Corridor</span>
           </label>
           <label class="layer-toggle-row">
+            <input type="checkbox" id="gmaps-check-predictive" checked />
+            <span class="toggle-switch"></span>
+            <span>Predictive Impact Polygons</span>
+          </label>
+          <label class="layer-toggle-row">
+            <input type="checkbox" id="gmaps-check-pop" />
+            <span class="toggle-switch"></span>
+            <span>Population Density Heatmap</span>
+          </label>
+          <label class="layer-toggle-row">
+            <input type="checkbox" id="gmaps-check-resources" />
+            <span class="toggle-switch"></span>
+            <span>Relief &amp; Fleet Resources</span>
+          </label>
+          <label class="layer-toggle-row">
+            <input type="checkbox" id="gmaps-check-labels" checked />
+            <span class="toggle-switch"></span>
+            <span>3D Map Labels &amp; Barrages</span>
+          </label>
+          <label class="layer-toggle-row">
             <input type="checkbox" id="gmaps-check-cctv" checked />
             <span class="toggle-switch"></span>
             <span>River CCTV Gauge Cameras</span>
-          </label>
-          <label class="layer-toggle-row">
-            <input type="checkbox" id="gmaps-check-fleet" checked />
-            <span class="toggle-switch"></span>
-            <span>Relief Aircraft &amp; Boats</span>
           </label>
           <label class="layer-toggle-row">
             <input type="checkbox" id="gmaps-check-weather" />
@@ -488,7 +523,8 @@ export class GoogleMapsUI {
 
   _bindEvents() {
     // 1. Simulation triggers
-    document.getElementById('gmaps-pill-simulate')?.addEventListener('click', () => {
+    document.getElementById('gmaps-pill-simulate')?.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (this.activeCategory === 'simulate') {
         this._closeDropdown();
       } else {
@@ -496,20 +532,29 @@ export class GoogleMapsUI {
       }
     });
 
-    document.getElementById('gmaps-directions-btn')?.addEventListener('click', () => {
-      this.simulationBarUI?.toggle();
-      this._closeDropdown();
+    document.getElementById('gmaps-directions-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (this.activeCategory === 'simulate') {
+        this._closeDropdown();
+      } else {
+        this._showSimulationScenarioCard();
+      }
     });
 
-    document.getElementById('gmaps-status-sim-btn')?.addEventListener('click', () => {
-      this.simulationBarUI?.toggle();
-      this._closeDropdown();
+    document.getElementById('gmaps-status-sim-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (this.activeCategory === 'simulate') {
+        this._closeDropdown();
+      } else {
+        this._showSimulationScenarioCard();
+      }
     });
 
     // 2. Category Pills (Glaciers, Dams, Hotspots)
     const pills = document.querySelectorAll('.gmaps-pill[data-category]');
     pills.forEach((pill) => {
-      pill.addEventListener('click', () => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
         const cat = pill.dataset.category;
         if (this.activeCategory === cat) {
           this._closeDropdown();
@@ -554,8 +599,13 @@ export class GoogleMapsUI {
       this._showToast('River CCTV Feeds toggled');
     });
 
-    document.getElementById('gmaps-pill-fleet')?.addEventListener('click', () => {
-      this._showToast('Rescue 1122 & Military aircraft tracking active');
+    document.getElementById('gmaps-pill-fleet')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const checkResources = document.getElementById('gmaps-check-resources');
+      const newState = checkResources ? !checkResources.checked : !this.pakistanLayers.resourcesVisible;
+      if (checkResources) checkResources.checked = newState;
+      this.pakistanLayers.setResourcesVisible(newState);
+      this._showToast(newState ? 'Relief fleet & military bases overlay: ACTIVE' : 'Relief fleet overlay hidden');
     });
 
     document.getElementById('gmaps-pill-weather')?.addEventListener('click', () => {
@@ -661,12 +711,27 @@ export class GoogleMapsUI {
       });
     });
 
+    // Layer details checkboxes
+    document.getElementById('gmaps-check-predictive')?.addEventListener('change', (e) => {
+      this.predictiveHeatmaps?.setVisible(e.target.checked);
+    });
+    document.getElementById('gmaps-check-pop')?.addEventListener('change', (e) => {
+      this.pakistanLayers?.setPopulationVisible(e.target.checked);
+    });
+    document.getElementById('gmaps-check-resources')?.addEventListener('change', (e) => {
+      this.pakistanLayers?.setResourcesVisible(e.target.checked);
+    });
+    document.getElementById('gmaps-check-labels')?.addEventListener('change', (e) => {
+      this.pakistanLayers?.setLabelsVisible(e.target.checked);
+    });
+
     // Close dropdown on outside click
     document.addEventListener('click', (e) => {
       if (
         !e.target.closest('#gmaps-dropdown-card') &&
-        !e.target.closest('.gmaps-pill[data-category]') &&
-        !e.target.closest('#gmaps-search-box')
+        !e.target.closest('.gmaps-pill') &&
+        !e.target.closest('#gmaps-search-box') &&
+        !e.target.closest('#gmaps-status-sim-btn')
       ) {
         this._closeDropdown();
       }
@@ -690,97 +755,266 @@ export class GoogleMapsUI {
     const card = document.getElementById('gmaps-dropdown-card');
     if (!card) return;
 
+    card.classList.add('sim-dialog-mode');
+    card.classList.remove('hidden');
+
+    this._renderForecastDialog(card);
+  }
+
+  _renderForecastDialog(card) {
+    const sc = FLOOD_SCENARIOS[this.selectedScenarioKey] || FLOOD_SCENARIOS.glacier;
+    const mag = FLOOD_MAGNITUDES[this.selectedMagnitudeKey] || FLOOD_MAGNITUDES.high;
+    const firstWp = sc.waypoints?.[0] || {};
+    const mult = mag.multiplier || 1.0;
+    const estDischarge = Math.round((firstWp.dischargeCusecs || 350000) * mult);
+    const estStageRise = (Number(firstWp.stageRiseM || 6.0) * Math.sqrt(mult)).toFixed(1);
+    const originRegion = sc.origin?.region || sc.region;
+    const stageStatus = firstWp.status || 'FORECAST STAGE';
+    const crestLoc = firstWp.name || sc.origin?.name || 'Head Basin Entry';
+
+    const scenariosList = [
+      { key: 'glacier', title: 'Glacier GLOF', desc: 'Hunza / Passu Moraine Ice Dam Breach', badge: 'High Altitude', icon: ICONS.glacier, cls: 'badge-danger' },
+      { key: 'dam_breach', title: 'Indian Dam Release', desc: 'Baglihar / Salal Transboundary Surge', badge: 'Border Release', icon: ICONS.dam, cls: 'badge-warning' },
+      { key: 'rain', title: 'Hill Torrents &amp; Rain', desc: 'Koh-e-Suleman Rod-Kohi Flash Flood', badge: 'Flash Torrents', icon: ICONS.weather, cls: 'badge-primary' },
+      { key: 'riverine', title: 'Riverine Super Flood', desc: 'Kabul &amp; Indus Levee Ruptures', badge: 'National Cataclysm', icon: ICONS.dam, cls: 'badge-danger' },
+      { key: 'cyclone', title: 'Arabian Sea Cyclone', desc: 'Thatta &amp; Karachi Delta Storm Surge', badge: 'Coastal Surge', icon: ICONS.cyclone, cls: 'badge-info' },
+    ];
+
+    const magnitudesList = [
+      { key: 'moderate', label: 'Moderate', mult: '0.5x' },
+      { key: 'high', label: 'High', mult: '1.0x' },
+      { key: 'very_high', label: 'Very High', mult: '1.6x' },
+      { key: 'super_flood', label: 'Super Flood', mult: '2.6x' },
+    ];
+
     card.innerHTML = `
-      <div class="gmaps-dropdown-header">
-        <div class="dropdown-header-title">
-          <span class="header-icon">${ICONS.simulate}</span>
-          <span>Select Flood Scenario &amp; Origin</span>
+      <div class="sim-forecast-header">
+        <div class="sim-forecast-title-row">
+          <span class="sim-forecast-dot"></span>
+          <span class="sim-forecast-title">Disaster Forecast Engine</span>
         </div>
-        <button id="gmaps-dropdown-close" class="gmaps-close-btn" type="button" aria-label="Close">✕</button>
+        <div class="sim-forecast-scales">
+          <button class="sim-forecast-scale-btn ${this.selectedTimeScale === 'minute' ? 'active' : ''}" data-scale="minute" type="button">MINUTE</button>
+          <button class="sim-forecast-scale-btn ${this.selectedTimeScale === 'hourly' ? 'active' : ''}" data-scale="hourly" type="button">HOURLY</button>
+          <button class="sim-forecast-scale-btn ${this.selectedTimeScale === 'daily' ? 'active' : ''}" data-scale="daily" type="button">DAILY</button>
+          <button class="sim-forecast-scale-btn ${this.selectedTimeScale === 'weekly' ? 'active' : ''}" data-scale="weekly" type="button">WEEKLY</button>
+        </div>
+        <button id="sim-dialog-close" class="gmaps-close-btn" type="button" aria-label="Close">✕</button>
       </div>
-      <div class="gmaps-dropdown-body">
-        <div style="padding: 6px 16px 10px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #f1f3f4;">
-          Choose from 5 physically and geographically accurate flood origins across Pakistan:
-        </div>
 
-        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="glacier" role="button" tabindex="0">
-          <div class="item-icon-col">${ICONS.glacier}</div>
-          <div class="item-info-col">
-            <div class="item-name-row">
-              <span class="item-title">1. Glacier GLOF (Hunza / Karakoram)</span>
-              <span class="item-badge badge-danger">High Altitude</span>
-            </div>
-            <div class="item-region">Shisper / Passu Moraine Ice Dam Breach</div>
-            <div class="item-desc">High-altitude moraine rupture bursting into Hunza-Gilgit gorge down to Tarbela Dam.</div>
+      <div class="sim-forecast-body">
+        <!-- Flood Type & Origin -->
+        <div>
+          <div class="sim-section-header">Flood Type &amp; Origin:</div>
+          <div class="sim-scenarios-grid">
+            ${scenariosList.map((item) => `
+              <div class="sim-scenario-card ${this.selectedScenarioKey === item.key ? 'active' : ''}" data-scenario="${item.key}" role="button" tabindex="0">
+                <div class="sim-scenario-left">
+                  <div class="sim-scenario-icon">${item.icon}</div>
+                  <div>
+                    <div class="sim-scenario-title">${item.title}</div>
+                    <div style="font-size: 11px; color: #5f6368;">${item.desc}</div>
+                  </div>
+                </div>
+                <span class="sim-scenario-badge ${item.cls}">${item.badge}</span>
+              </div>
+            `).join('')}
           </div>
         </div>
 
-        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="dam_breach" role="button" tabindex="0">
-          <div class="item-icon-col">${ICONS.dam}</div>
-          <div class="item-info-col">
-            <div class="item-name-row">
-              <span class="item-title">2. Indian Dam Release / Transboundary Surge</span>
-              <span class="item-badge badge-warning">Border Release</span>
-            </div>
-            <div class="item-region">Baglihar / Salal (Chenab) &amp; Bhakra (Sutlej)</div>
-            <div class="item-desc">Sudden emergency dam spillway release flooding Sialkot, Kasur, Head Marala, and Punjab plains.</div>
+        <!-- Magnitude (Severity) -->
+        <div>
+          <div class="sim-section-header">Magnitude (Severity):</div>
+          <div class="sim-mag-row">
+            ${magnitudesList.map((m) => `
+              <div class="sim-mag-btn ${this.selectedMagnitudeKey === m.key ? 'active' : ''}" data-mag="${m.key}" role="button" tabindex="0">
+                <span class="sim-mag-title">${m.label}</span>
+                <span class="sim-mag-mult">(${m.mult})</span>
+              </div>
+            `).join('')}
           </div>
         </div>
 
-        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="rain" role="button" tabindex="0">
-          <div class="item-icon-col">${ICONS.weather}</div>
-          <div class="item-info-col">
-            <div class="item-name-row">
-              <span class="item-title">3. Monsoon Cloudburst &amp; Hill Torrents</span>
-              <span class="item-badge badge-primary">Flash Torrents</span>
+        <!-- Telemetry Details Box -->
+        <div class="sim-telemetry-box">
+          <div class="sim-telemetry-grid">
+            <div class="sim-tel-cell sim-tel-cell-full">
+              <span class="sim-tel-label">Origin / Region</span>
+              <span class="sim-tel-val" id="dialog-tel-region">${originRegion}</span>
             </div>
-            <div class="item-region">Koh-e-Suleman (Rajanpur &amp; DG Khan Ranges)</div>
-            <div class="item-desc">Violent Rod-Kohi hill torrents tearing down mountain ravines and washing agricultural bunds.</div>
+            <div class="sim-tel-cell sim-tel-cell-full">
+              <span class="sim-tel-label">Stage / Status</span>
+              <span class="sim-tel-val" id="dialog-tel-status" style="color: #d93025;">${stageStatus}</span>
+            </div>
+            <div class="sim-tel-cell sim-tel-cell-full">
+              <span class="sim-tel-label">Crest Location</span>
+              <span class="sim-tel-val" id="dialog-tel-crest">${crestLoc}</span>
+            </div>
+            <div class="sim-tel-cell">
+              <span class="sim-tel-label">Est. Discharge</span>
+              <span class="sim-tel-val" id="dialog-tel-discharge" style="color: #1a73e8; font-family: monospace;">${estDischarge.toLocaleString()} Cusecs</span>
+            </div>
+            <div class="sim-tel-cell">
+              <span class="sim-tel-label">Stage Rise</span>
+              <span class="sim-tel-val" id="dialog-tel-stage" style="color: #ea4335; font-family: monospace;">+${estStageRise} m</span>
+            </div>
           </div>
         </div>
 
-        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="riverine" role="button" tabindex="0">
-          <div class="item-icon-col">${ICONS.dam}</div>
-          <div class="item-info-col">
-            <div class="item-name-row">
-              <span class="item-title">4. Riverine Levee Rupture (2022 Super Flood)</span>
-              <span class="item-badge badge-danger">National Cataclysm</span>
+        <!-- Feature Toggles -->
+        <div class="sim-toggles-container">
+          <label class="sim-toggle-row">
+            <div class="sim-toggle-info">
+              <span class="sim-toggle-name">Resource Management &amp; Relief Dispatch</span>
+              <span class="sim-toggle-sub" id="dialog-resource-status">${this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY' : 'STANDBY (NON-FUNCTIONAL)'}</span>
             </div>
-            <div class="item-region">Kabul &amp; Indus Confluence (Nowshera -> Sindh)</div>
-            <div class="item-desc">Bank-full monsoon crest breaking major river levees, forming the 100km Sindh inland lake.</div>
-          </div>
+            <input type="checkbox" id="dialog-resource-toggle" ${this.resourceManagementEnabled ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
+          </label>
+          <div style="height: 1px; background: #e8eaed;"></div>
+          <label class="sim-toggle-row">
+            <div class="sim-toggle-info">
+              <span class="sim-toggle-name">Predictive Impact Heatmap (Polygons)</span>
+              <span class="sim-toggle-sub">Projected downstream floodplains ahead of crest</span>
+            </div>
+            <input type="checkbox" id="dialog-predictive-toggle" ${this.predictiveHeatmaps?.visible ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
+          </label>
+          <div style="height: 1px; background: #e8eaed;"></div>
+          <label class="sim-toggle-row">
+            <div class="sim-toggle-info">
+              <span class="sim-toggle-name">Population Density Heatmap</span>
+              <span class="sim-toggle-sub">Indus Basin exposed population density gradient</span>
+            </div>
+            <input type="checkbox" id="dialog-pop-toggle" ${this.pakistanLayers?.populationVisible ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
+          </label>
+          <div style="height: 1px; background: #e8eaed;"></div>
+          <label class="sim-toggle-row">
+            <div class="sim-toggle-info">
+              <span class="sim-toggle-name">Relief Resources &amp; Fleet Overlay</span>
+              <span class="sim-toggle-sub">Army Aviation heliports, depots &amp; rescue flotillas</span>
+            </div>
+            <input type="checkbox" id="dialog-relief-toggle" ${this.pakistanLayers?.resourcesVisible ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
+          </label>
         </div>
 
-        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="cyclone" role="button" tabindex="0">
-          <div class="item-icon-col">${ICONS.cyclone}</div>
-          <div class="item-info-col">
-            <div class="item-name-row">
-              <span class="item-title">5. Arabian Sea Cyclone &amp; Coastal Surge</span>
-              <span class="item-badge badge-info">Coastal Surge</span>
-            </div>
-            <div class="item-region">Arabian Sea / Thatta &amp; Karachi Delta Coast</div>
-            <div class="item-desc">Category 4 cyclone pushing 5-meter seawater storm surge 60km inland into Indus Delta.</div>
-          </div>
+        <!-- Action Buttons -->
+        <div class="sim-dialog-actions">
+          <button id="dialog-start-btn" class="gmaps-dialog-start-btn" type="button">
+            ▶ START SIMULATION
+          </button>
+          ${this.floodEngine?.active ? `
+            <button id="dialog-exit-btn" class="gmaps-dialog-exit-btn" type="button">
+              ✕ EXIT
+            </button>
+          ` : ''}
         </div>
       </div>
     `;
 
-    card.classList.remove('hidden');
-
-    card.querySelectorAll('.gmaps-scenario-item').forEach((elem) => {
+    // 1. Scenario selection (DO NOT AUTO START!)
+    card.querySelectorAll('.sim-scenario-card').forEach((elem) => {
       elem.addEventListener('click', () => {
-        const scenarioKey = elem.dataset.scenario;
-        this.floodEngine?.setScenario(scenarioKey);
-        this.simulationBarUI?.show();
-        this.floodEngine?.start();
-        this._closeDropdown();
-        this._showToast(`Started: ${elem.querySelector('.item-title').textContent}`);
+        const key = elem.dataset.scenario;
+        this.selectedScenarioKey = key;
+        card.querySelectorAll('.sim-scenario-card').forEach((c) => c.classList.remove('active'));
+        elem.classList.add('active');
+        this._updateDialogTelemetry(card);
       });
     });
 
-    card.querySelector('#gmaps-dropdown-close')?.addEventListener('click', () => {
+    // 2. Magnitude selection (DO NOT AUTO START!)
+    card.querySelectorAll('.sim-mag-btn').forEach((elem) => {
+      elem.addEventListener('click', () => {
+        const key = elem.dataset.mag;
+        this.selectedMagnitudeKey = key;
+        card.querySelectorAll('.sim-mag-btn').forEach((b) => b.classList.remove('active'));
+        elem.classList.add('active');
+        this._updateDialogTelemetry(card);
+      });
+    });
+
+    // 3. Time scale selection
+    card.querySelectorAll('.sim-forecast-scale-btn').forEach((elem) => {
+      elem.addEventListener('click', () => {
+        const scale = elem.dataset.scale;
+        this.selectedTimeScale = scale;
+        card.querySelectorAll('.sim-forecast-scale-btn').forEach((b) => b.classList.remove('active'));
+        elem.classList.add('active');
+      });
+    });
+
+    // 4. Feature toggles
+    card.querySelector('#dialog-resource-toggle')?.addEventListener('change', (e) => {
+      this.resourceManagementEnabled = e.target.checked;
+      const statusEl = card.querySelector('#dialog-resource-status');
+      if (statusEl) {
+        statusEl.textContent = this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY' : 'STANDBY (NON-FUNCTIONAL)';
+      }
+      this._showToast(this.resourceManagementEnabled ? 'Resource management allocation enabled' : 'Resource management standby');
+    });
+
+    card.querySelector('#dialog-predictive-toggle')?.addEventListener('change', (e) => {
+      this.predictiveHeatmaps?.setVisible(e.target.checked);
+      const mainCheck = document.getElementById('gmaps-check-predictive');
+      if (mainCheck) mainCheck.checked = e.target.checked;
+    });
+
+    card.querySelector('#dialog-pop-toggle')?.addEventListener('change', (e) => {
+      this.pakistanLayers?.setPopulationVisible(e.target.checked);
+      const mainCheck = document.getElementById('gmaps-check-pop');
+      if (mainCheck) mainCheck.checked = e.target.checked;
+    });
+
+    card.querySelector('#dialog-relief-toggle')?.addEventListener('change', (e) => {
+      this.pakistanLayers?.setResourcesVisible(e.target.checked);
+      const mainCheck = document.getElementById('gmaps-check-resources');
+      if (mainCheck) mainCheck.checked = e.target.checked;
+    });
+
+    // 5. Start button (Explicit user launch)
+    card.querySelector('#dialog-start-btn')?.addEventListener('click', () => {
+      this.floodEngine?.setScenario(this.selectedScenarioKey);
+      this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
+      this.floodEngine?.setTimeScale(this.selectedTimeScale);
+      this.simulationBarUI?.show();
+      this.floodEngine?.start();
+      this._closeDropdown();
+      const activeSc = FLOOD_SCENARIOS[this.selectedScenarioKey];
+      this._showToast(`Simulation started: ${activeSc?.name || 'Flood Forecast'}`);
+    });
+
+    // 6. Exit button
+    card.querySelector('#dialog-exit-btn')?.addEventListener('click', () => {
+      this.floodEngine?.exit();
+      this.simulationBarUI?.hide();
+      this._closeDropdown();
+      this._showToast('Disaster forecast simulation stopped');
+    });
+
+    // 7. Close button
+    card.querySelector('#sim-dialog-close')?.addEventListener('click', () => {
       this._closeDropdown();
     });
+  }
+
+  _updateDialogTelemetry(card) {
+    const sc = FLOOD_SCENARIOS[this.selectedScenarioKey] || FLOOD_SCENARIOS.glacier;
+    const mag = FLOOD_MAGNITUDES[this.selectedMagnitudeKey] || FLOOD_MAGNITUDES.high;
+    const firstWp = sc.waypoints?.[0] || {};
+    const mult = mag.multiplier || 1.0;
+    const estDischarge = Math.round((firstWp.dischargeCusecs || 350000) * mult);
+    const estStageRise = (Number(firstWp.stageRiseM || 6.0) * Math.sqrt(mult)).toFixed(1);
+
+    const elRegion = card.querySelector('#dialog-tel-region');
+    const elStatus = card.querySelector('#dialog-tel-status');
+    const elCrest = card.querySelector('#dialog-tel-crest');
+    const elDischarge = card.querySelector('#dialog-tel-discharge');
+    const elStage = card.querySelector('#dialog-tel-stage');
+
+    if (elRegion) elRegion.textContent = sc.origin?.region || sc.region;
+    if (elStatus) elStatus.textContent = firstWp.status || 'FORECAST STAGE';
+    if (elCrest) elCrest.textContent = firstWp.name || sc.origin?.name || 'Head Basin Entry';
+    if (elDischarge) elDischarge.textContent = `${estDischarge.toLocaleString()} Cusecs`;
+    if (elStage) elStage.textContent = `+${estStageRise} m`;
   }
 
   _showCategoryDropdown(categoryKey) {
@@ -926,11 +1160,12 @@ export class GoogleMapsUI {
 
   _closeDropdown() {
     this.activeCategory = null;
-    document.querySelectorAll('.gmaps-pill[data-category]').forEach((p) => {
+    document.querySelectorAll('.gmaps-pill').forEach((p) => {
       p.classList.remove('active');
     });
     const card = document.getElementById('gmaps-dropdown-card');
     card?.classList.add('hidden');
+    card?.classList.remove('sim-dialog-mode');
   }
 
   flyToLocation(target) {
@@ -978,4 +1213,10 @@ export class GoogleMapsUI {
       toast.classList.remove('visible');
     }, 2800);
   }
+
+  destroy() {
+    this.pakistanLayers?.destroy();
+    this.predictiveHeatmaps?.destroy();
+  }
 }
+
