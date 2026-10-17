@@ -11,10 +11,21 @@
 
 import * as Cesium from 'cesium';
 
+export const ICONS = {
+  simulate: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>`,
+  glacier: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="m14 6-3.75 5 2.85 3.8-1.6 1.2L7 10l-6 8h22L14 6z"/></svg>`,
+  dam: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M21 12c-1.19 0-2.27-.47-3.07-1.23-.74.77-1.8 1.23-2.93 1.23-1.14 0-2.19-.47-2.93-1.23-.75.76-1.81 1.23-3.07 1.23s-2.32-.47-3.07-1.23C5.19 11.53 4.14 12 3 12c-.55 0-1-.45-1-1s.45-1 1-1c.6 0 1.15-.24 1.55-.63C5.35 8.57 6.4 8 7.6 8s2.25.57 3.05 1.37c.4-.39.95-.63 1.55-.63s1.15.24 1.55.63C14.55 8.57 15.6 8 16.8 8s2.25.57 3.05 1.37c.4-.39.95-.63 1.55-.63.55 0 1 .45 1 1s-.45 1-1.4 1.26zm0 5c-1.19 0-2.27-.47-3.07-1.23-.74.77-1.8 1.23-2.93 1.23-1.14 0-2.19-.47-2.93-1.23-.75.76-1.81 1.23-3.07 1.23s-2.32-.47-3.07-1.23C5.19 16.53 4.14 17 3 17c-.55 0-1-.45-1-1s.45-1 1-1c.6 0 1.15-.24 1.55-.63C5.35 13.57 6.4 13 7.6 13s2.25.57 3.05 1.37c.4-.39.95-.63 1.55-.63s1.15.24 1.55.63C14.55 13.57 15.6 13 16.8 13s2.25.57 3.05 1.37c.4-.39.95-.63 1.55-.63.55 0 1 .45 1 1s-.45 1-1.4 1.26z"/></svg>`,
+  cctv: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>`,
+  hotspot: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
+  fleet: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
+  weather: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>`,
+  pin: `<svg viewBox="0 0 24 24" class="gmaps-item-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
+};
+
 export const PAKISTAN_LOCATIONS = {
   glaciers: {
     title: 'Glaciers & GLOF Lakes',
-    icon: '🏔️',
+    icon: ICONS.glacier,
     items: [
       {
         id: 'shisper',
@@ -72,7 +83,7 @@ export const PAKISTAN_LOCATIONS = {
   },
   dams: {
     title: 'Dams & Barrages',
-    icon: '🌊',
+    icon: ICONS.dam,
     items: [
       {
         id: 'tarbela',
@@ -169,7 +180,7 @@ export const PAKISTAN_LOCATIONS = {
   },
   hotspots: {
     title: 'Flood Hotspots',
-    icon: '🚨',
+    icon: ICONS.hotspot,
     items: [
       {
         id: 'nowshera',
@@ -308,31 +319,31 @@ export class GoogleMapsUI {
       <!-- Google Maps Category Filter Pills -->
       <div id="gmaps-filter-bar" class="gmaps-filter-bar" role="toolbar" aria-label="Map categories">
         <button id="gmaps-pill-simulate" class="gmaps-pill gmaps-pill-featured" type="button" title="Simulate Glacial Lake Outburst & Downstream Flooding">
-          <span class="gmaps-pill-icon">⚡</span>
+          <span class="gmaps-pill-icon">${ICONS.simulate}</span>
           <span>Simulate Flood</span>
         </button>
         <button class="gmaps-pill" data-category="glaciers" type="button" title="Karakoram Glaciers & GLOF Lakes">
-          <span class="gmaps-pill-icon">🏔️</span>
+          <span class="gmaps-pill-icon">${ICONS.glacier}</span>
           <span>Glaciers &amp; GLOF</span>
         </button>
         <button class="gmaps-pill" data-category="dams" type="button" title="National Dams & Indus River Barrages">
-          <span class="gmaps-pill-icon">🌊</span>
+          <span class="gmaps-pill-icon">${ICONS.dam}</span>
           <span>Dams &amp; Barrages</span>
         </button>
         <button id="gmaps-pill-cctv" class="gmaps-pill" type="button" title="Live River & Barrage CCTV Feeds">
-          <span class="gmaps-pill-icon">📹</span>
+          <span class="gmaps-pill-icon">${ICONS.cctv}</span>
           <span>Live CCTVs</span>
         </button>
         <button class="gmaps-pill" data-category="hotspots" type="button" title="High-Risk Flood Hotspots">
-          <span class="gmaps-pill-icon">🚨</span>
+          <span class="gmaps-pill-icon">${ICONS.hotspot}</span>
           <span>Flood Hotspots</span>
         </button>
         <button id="gmaps-pill-fleet" class="gmaps-pill" type="button" title="Rescue 1122 &amp; Military Fleet">
-          <span class="gmaps-pill-icon">🚁</span>
+          <span class="gmaps-pill-icon">${ICONS.fleet}</span>
           <span>Relief Fleet</span>
         </button>
         <button id="gmaps-pill-weather" class="gmaps-pill" type="button" title="Live Precipitation &amp; Weather Radar">
-          <span class="gmaps-pill-icon">🌦️</span>
+          <span class="gmaps-pill-icon">${ICONS.weather}</span>
           <span>Weather &amp; Radar</span>
         </button>
       </div>
@@ -755,7 +766,7 @@ export class GoogleMapsUI {
         .map(
           (item) => `
         <div class="gmaps-dropdown-item" data-id="${item.id}" role="button" tabindex="0">
-          <div class="item-icon-col">📍</div>
+          <div class="item-icon-col">${ICONS.pin}</div>
           <div class="item-info-col">
             <div class="item-name-row">
               <span class="item-title">${item.name}</span>

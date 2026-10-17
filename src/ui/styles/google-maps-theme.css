@@ -178,8 +178,30 @@
 }
 
 .gmaps-pill-icon {
-  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.gmaps-pill-icon svg,
+.gmaps-pill-svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.gmaps-item-svg,
+.item-icon-col svg,
+.dropdown-header-title svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  color: #1a73e8;
+  flex-shrink: 0;
 }
 
 /* Featured Simulate Flood Pill */
