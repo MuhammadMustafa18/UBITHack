@@ -1,57 +1,68 @@
-# FireTrace: 3D Wildfire Forensic Analysis & Geospatial Dashboard
+# FloodTrace Pakistan 🌊
+### AI-Powered 3D Flood Inundation Predictor, River Forensics & Disaster Rescue Digital Twin
 
-An interactive, high-precision 3D geospatial dashboard for wildfire forensic analysis, multi-UAV aerial fleet tracking, and incident command logistics — inspired by cutting-edge digital twin geospatial defense and fire-mapping systems.
+Developed for **UBITHack**, **FloodTrace Pakistan** is a next-generation 3D geospatial dashboard engineered for flood early-warning, dynamic water level rise prediction, and joint disaster response coordination across Pakistan's most vulnerable river basins (Kabul/Swat rivers, Indus Basin, and hill-torrent corridors).
 
 ---
 
-## 🗺️ Key Features
+## 🇵🇰 Pakistan Basins & Incident Presets
 
-### 1. 3D Mountain Topography & Active Fire Front
-- **Procedural Canyon Landscape**: Accurate elevation terrain representing the San Gabriel Mountain range (peaking at Mesa Peak at 1,892 m).
-- **Burn Scar & dNBR Heatmaps**: Time-scrubbed burn scar polygons with glowing active fire front emitters and emissive embers.
-- **Isochrone Spread Lines**: Sequential contour progression lines with spread directional vectors (`Aug 14 18:00`, `Aug 15 00:00`, `Aug 15 06:00`, `Aug 15 12:00`).
-- **Interactive Terrain Probe**: Real-time raycasting inspection displaying elevation, slope, aspect, fuel type, and time burned on mouse hover.
-- **2D / 3D Orthographic Switcher**: Seamlessly toggle between top-down topographic contour maps and 3D oblique perspective.
+- **Nowshera & Swat Confluence (Khyber Pakhtunkhwa)**: Mountain canyon flash flood surge through gorge bottlenecks into residential floodplains.
+- **Sukkur Barrage & Dadu Basin (Sindh)**: High monsoonal Indus discharge, breach dynamics, and agricultural inundation.
+- **Taunsa & Rajanpur Hill Torrents (South Punjab)**: Sulaiman range flash floods overflowing into rural communities.
+- **Charsadda & Kabul River Basin (KPK)**: Pre-breach river swelling and Warsak Dam spillway management.
 
-### 2. Live Drone Fleet Telemetry & Picture-in-Picture (PIP) HUD
-- **6 Airborne UAVs**: Tracks fixed-wing, hexacopters, and quadcopters (`FT-01 Kestrel` to `FT-06 Wren`) with orbit rings and altitude guidance lines.
-- **Gimbal HUD Overlay**: Realistic UAV reticle with artificial horizon pitch ladders, heading tape, and target coordinate tracking.
-- **Sensor Palette Switching**:
-  - **EO (Electro-Optical)**: Natural daylight optical feed with smoke plume visualization.
-  - **IR (Infrared FLIR)**: False-color thermal heatmap highlighting high-temperature hotspots up to 983 °C.
-- **Ride-Along Chase Camera**: Dynamic camera damping that locks onto any drone or vehicle for a chase-cam perspective.
+---
 
-### 3. Resource Logistics & Command Operations
-- **13 Active Units**: VLAT tankers (DC-10), large tankers (C-130Q), helitankers (S-64 Skycrane), wildland engines (E-31, E-45), and Hotshot hand crews (C-7, C-14).
-- **Canyon Road Navigation**: Animated ground units patrolling winding mountain passes.
-- **Air Ops Drop Log**: Real-time retardant and water drop tracking with geographic coordinates.
+## 🗺️ Core Capabilities
 
-### 4. Forensic Timeline & Multi-Metric Graphs
-- **Play/Pause/Scrubbing**: Seamless forensic replay from ignition (Aug 14, 14:26) to containment (Aug 18, 11:20) with 1x, 2x, 5x, and 10x playback speeds.
-- **Key Forensic Events**: Quick jump bookmarks for Ignition, Rapid Growth, Spot Fire, Ridge Crossing, and Containment.
-- **Context-Aware Analytics**:
-  - **Incident Mode**: Fire Area (acres), Rate of Spread (chains/hr), and Elevation Profile.
-  - **Drones Mode**: Altitude (ft AGL), Max Temperature in View (°C), and Battery Discharge (%).
-  - **Resources Mode**: Retardant Dropped (gal), Fire Line Built (chains), and Personnel Assigned.
+### 1. 3D Hydrological Topography & Dynamic Flood Rise
+- **River Basin Elevation Topography**: 3D terrain profile rendering river channels, floodplain contours, agricultural plots, ring bunds, and vulnerable highway bridges (Nowshera GT Road Bridge).
+- **Dynamic Water Rise & Depth Color Ramp**:
+  - `0.5m – 1.5m`: Translucent cyan (ankle to waist depth).
+  - `1.5m – 3.5m`: Aqua/teal (ground floor submergence, vehicles drowned).
+  - `3.5m – 8.0m+`: Dark navy torrent (rooftops submerged, swift currents up to 2.8 m/s).
+- **Breach Zone Simulation**: Interactive Western Ring Bund rupture with rush water vector visualization.
+- **Real-Time Flood Probe**: Hover anywhere across the basin to calculate:
+  - Exact coordinates (GPS WGS84)
+  - Ground Elevation (`m MSL`)
+  - Water Inundation Depth (`m`)
+  - Flow Velocity (`m/s`)
+  - Infrastructure Risk & Evacuation Urgency
+
+### 2. Multi-Agency Rescue Fleet & Thermal FLIR Body Heat Detection
+- **Rescue 1122 & NDMA Drone Fleet**: Fixed-wing VTOLs and heavy quadcopters (`Shaheen-1`, `Uqab-2`, `Burraq-3`, `Baaz-4`, `Huma-5`, `Ababeel-6`).
+- **Thermal FLIR 8-14µm Sensor Mode**:
+  - Differentiates cold floodwaters (21 °C) from stranded human body heat (37.2 °C).
+  - Automatically identifies and bounds clusters of stranded families on rooftops and isolated trees.
+- **Ride-Along Chase Camera**: Smooth camera damping locks onto any aircraft, rescue boat, or drone for a first-person tactical view.
+
+### 3. Relief Operations & Joint Command Logistics
+- **Pakistan Army Aviation**: Mil Mi-17 heavy helicopters (ration drops & roof winching) and Bell 412s.
+- **Pakistan Navy & Rescue 1122**: Zodiac inflatable boats and fiberglass rescue craft conducting door-to-door boat evacuations.
+- **Frontier Works Organization (FWO)**: Heavy bulldozers constructing emergency secondary ring embankments and high-capacity dewatering pumps.
+- **Live Rescue & Evacuation Log**: Real-time counter of citizens rescued, children air-lifted, and ration packs delivered.
+
+### 4. Hydrological Timeline & Discharge Analytics
+- **Monsoon Deluge Progression**: Scrub forward and backward between pre-surge warning (Jul 26) through Super Flood crest (285,000 cusecs on Jul 28) to recession and dewatering.
+- **Synchronized Charts**:
+  - River Discharge Inflow vs Outflow (`cusecs`)
+  - Inundated Farmland & Residential Area (`sq km` / `acres`)
+  - Water Depth Progression (`meters`)
+  - Displaced Citizen Count (~62,400 affected)
 
 ---
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
-- **3D Graphics Engine**: Three.js (WebGL shaders, procedural heightmaps, instanced foliage, dynamic lighting)
-- **Styling**: Tailwind CSS (custom sand/tactical HUD theme)
+- **3D Geospatial Engine**: Three.js (dynamic water rise shaders, procedural river valleys, instanced buildings, tactical lighting)
+- **Styling**: Tailwind CSS (Tactical Dark Navy / Cyan HUD)
 - **Icons**: Lucide React
 
 ---
 
 ## 🚀 Getting Started
-
-### Prerequisites
-- Node.js (v18+)
-- npm or pnpm
-
-### Installation
 
 ```bash
 # Clone the repository
@@ -65,11 +76,4 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:5173` to explore the 3D dashboard.
-
-### Production Build
-
-```bash
-npm run build
-npm run preview
-```
+Visit `http://localhost:5173` to explore FloodTrace Pakistan.

@@ -13,6 +13,7 @@ export interface DroneTelemetry {
   id: string;
   name: string;
   type: string;
+  agency: 'Rescue 1122' | 'NDMA' | 'PDMA' | 'Pakistan Army';
   callsign: string;
   mission: string;
   task: string;
@@ -35,13 +36,14 @@ export interface DroneTelemetry {
   };
   status: 'active' | 'orbit' | 'survey' | 'patrol' | 'relay';
   color: string;
-  targetSpotTemp: number; // °C
+  targetTemp: number; // °C (e.g. human body 37.2°C vs water 21°C)
+  survivorsDetected?: number;
 }
 
 export interface ResourceUnit {
   id: string;
   name: string;
-  category: 'AIRCRAFT' | 'ENGINES & TENDERS' | 'CREWS & DOZERS';
+  category: 'AIRCRAFT' | 'BOATS & TEAMS' | 'HEAVY ENGINEERING';
   subType: string;
   statusText: string;
   statusType: 'inbound' | 'final' | 'dropping' | 'reload' | 'protect' | 'patrol' | 'hold';
@@ -55,16 +57,16 @@ export interface ResourceUnit {
     lng: number;
     formatted: string;
   };
-  division?: string;
+  sector?: string;
 }
 
-export interface AirOpsLogEntry {
+export interface EvacLogEntry {
   id: string;
   callsign: string;
   action: string;
-  volume: string;
-  type: 'retardant' | 'water';
-  division: string;
+  rescuedCount: number;
+  type: 'airlift' | 'boat' | 'ration' | 'bund';
+  sector: string;
   coords: string;
   time: string;
 }
@@ -72,19 +74,21 @@ export interface AirOpsLogEntry {
 export interface KeyEvent {
   id: string;
   title: string;
-  timestamp: string; // "Aug 14, 14:26"
-  timeValue: number; // normalized 0 to 100 on scrubber
-  type: 'ignition' | 'growth' | 'spot' | 'ridge' | 'containment';
+  timestamp: string; // "Jul 26, 06:00"
+  timeValue: number; // 0 to 100 on scrubber
+  type: 'alert' | 'surge' | 'breach' | 'crest' | 'recession';
   color: string;
   description: string;
-  areaAcres: number;
+  dischargeCusecs: number;
+  inundatedSqKm: number;
 }
 
-export interface TerrainProbeData {
-  elevationM: number;
-  slopeDeg: number;
-  aspect: string;
-  burnedTimeAgo: string;
-  fuelType: string;
+export interface FloodProbeData {
+  groundElevationM: number;
+  waterDepthM: number;
+  waterVelocityMs: number;
+  inundationStatus: 'Safe (Dry)' | 'Moderate Inundation' | 'Severe Submergence' | 'Critical Torrent';
+  infrastructureRisk: string;
+  evacuationStatus: string;
   coords: string;
 }

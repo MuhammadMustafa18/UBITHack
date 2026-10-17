@@ -5,7 +5,7 @@ import {
   KEY_EVENTS, 
   DRONE_FLEET, 
   RESOURCE_UNITS, 
-  AIR_OPS_LOG 
+  EVAC_LOGS 
 } from './data/mockIncidentData';
 import { Header } from './components/Header';
 import { Map3DViewport } from './components/Map3DViewport';
@@ -16,13 +16,14 @@ import { DronePipFeed } from './components/DronePipFeed';
 export function App() {
   const [currentMode, setCurrentMode] = useState<ViewMode>('Incident');
   const [layers, setLayers] = useState<LayerState[]>(INITIAL_LAYERS);
-  const [timelineProgress, setTimelineProgress] = useState<number>(38); // Starts around Aug 15 04:00 as seen in video
+  const [timelineProgress, setTimelineProgress] = useState<number>(48); // Nowshera Ring Bund Breach moment
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const [selectedIncident, setSelectedIncident] = useState<string>('Nowshera & Swat Confluence');
 
-  // Selected entities (defaulting to FT-06 and E-45 as featured in video)
-  const [selectedDrone, setSelectedDrone] = useState<DroneTelemetry>(DRONE_FLEET[5]); // FT-06 Wren
-  const [selectedResource, setSelectedResource] = useState<ResourceUnit>(RESOURCE_UNITS[8]); // E-45 Type 1 Engine
+  // Selected entities
+  const [selectedDrone, setSelectedDrone] = useState<DroneTelemetry>(DRONE_FLEET[1]); // 1122-UAV-02 Uqab
+  const [selectedResource, setSelectedResource] = useState<ResourceUnit>(RESOURCE_UNITS[0]); // Pak Army Mi-17
   const [dronePipOpen, setDronePipOpen] = useState<boolean>(false);
   const [rideAlongActive, setRideAlongActive] = useState<boolean>(false);
 
@@ -39,7 +40,6 @@ export function App() {
     );
   };
 
-  // Automatically open PIP feed when switching to Drones mode
   const handleSelectMode = (mode: ViewMode) => {
     setCurrentMode(mode);
     if (mode === 'Drones') {
@@ -77,15 +77,14 @@ export function App() {
     };
   }, [isPlaying, playbackSpeed]);
 
-  // Compute realistic current timestamp string from 0-100 progress
+  // Compute realistic current timestamp string from 0-100 progress (Jul 26 to Jul 30)
   const getCurrentTimeString = (prog: number): string => {
-    const startMs = new Date('2024-08-14T06:00:00Z').getTime();
-    const endMs = new Date('2024-08-18T12:00:00Z').getTime();
+    const startMs = new Date('2024-07-26T06:00:00Z').getTime();
+    const endMs = new Date('2024-07-30T12:00:00Z').getTime();
     const curMs = startMs + (endMs - startMs) * (prog / 100);
     const date = new Date(curMs);
 
-    const monthNames = ['Aug'];
-    const month = monthNames[0];
+    const month = 'Jul';
     const day = date.getUTCDate();
     const hours = String(date.getUTCHours()).padStart(2, '0');
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
@@ -93,7 +92,7 @@ export function App() {
     return `${month} ${day}, ${hours}:${minutes}`;
   };
 
-  // Keyboard controls (Space to Play/Pause, Arrow keys to Seek)
+  // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -111,12 +110,13 @@ export function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#18191c]">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0a0f17]">
       {/* Top Header Bar */}
       <Header
         currentMode={currentMode}
         onSelectMode={handleSelectMode}
-        selectedIncident="Ridgeview Incident"
+        selectedIncident={selectedIncident}
+        onSelectIncident={setSelectedIncident}
       />
 
       {/* Main Workspace (3D Viewport + Right Sidebar) */}
@@ -167,7 +167,7 @@ export function App() {
           resources={RESOURCE_UNITS}
           selectedResource={selectedResource}
           onSelectResource={(r) => setSelectedResource(r)}
-          airOpsLogs={AIR_OPS_LOG}
+          evacLogs={EVAC_LOGS}
           onOpenDroneCamera={() => setDronePipOpen(true)}
           onToggleRideAlong={() => setRideAlongActive(!rideAlongActive)}
           rideAlongActive={rideAlongActive}
