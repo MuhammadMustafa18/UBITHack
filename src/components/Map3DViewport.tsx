@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import { ViewMode, LayerState, DroneTelemetry, ResourceUnit, FloodProbeData } from '../types';
-import { Compass, Maximize2, RotateCcw, Map, Eye, Layers, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { PAKISTAN_3D_BUILDINGS } from '../data/mockPakistanBuildings';
+import { Compass, Maximize2, RotateCcw, Map, Eye, Layers, ShieldAlert, AlertTriangle, Mountain, Building2 } from 'lucide-react';
 
 interface Map3DViewportProps {
   currentMode: ViewMode;
@@ -53,6 +54,9 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
 
   const [basemapStyle, setBasemapStyle] = useState<'satellite' | 'dark' | 'topo'>('satellite');
   const [zoomLevel, setZoomLevel] = useState('12.5x');
+  const [terrainExaggeration, setTerrainExaggeration] = useState<number>(2.2); // 3D Elevation multiplier
+  const [show3DBuildings, setShow3DBuildings] = useState<boolean>(true);
+  const [selectedBuilding, setSelectedBuilding] = useState<any | null>(null);
   const [floodProbe, setFloodProbe] = useState<FloodProbeData | null>(null);
   const [hoverScreenPos, setHoverScreenPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -156,6 +160,47 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
     });
 
     map.on('load', () => {
+      // 0. Add Real 3D Terrain DEM Elevation (AWS Open Data Terrarium - Global Coverage including Pakistan)
+      try {
+        map.addSource('terrain-dem', {
+          type: 'raster-dem',
+          tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          encoding: 'terrarium',
+          maxzoom: 15,
+        });
+
+        map.setTerrain({
+          source: 'terrain-dem',
+          exaggeration: terrainExaggeration,
+        });
+      } catch (err) {
+        console.warn('Terrain initialization notice:', err);
+      }
+
+      // 0b. Add 3D Extruded Buildings (like cartesiancs/map3d)
+      map.addSource('pakistan-3d-buildings', {
+        type: 'geojson',
+        data: PAKISTAN_3D_BUILDINGS,
+      });
+
+      map.addLayer({
+        id: '3d-buildings-layer',
+        type: 'fill-extrusion',
+        source: 'pakistan-3d-buildings',
+        paint: {
+          'fill-extrusion-color': [
+            'case',
+            ['boolean', ['get', 'critical'], false],
+            '#ef4444', // Red for critical shelters/hospitals
+            '#f1f5f9', // Clean architectural white/gray
+          ],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-base': ['get', 'min_height'],
+          'fill-extrusion-opacity': 0.95,
+        },
+      });
+
       // 1. Add Pakistani Major Rivers GeoJSON Source (Indus, Kabul, Swat, Chenab, Jhelum)
       map.addSource('pakistan-rivers', {
         type: 'geojson',
@@ -364,6 +409,32 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
       map.remove();
     };
   }, [basemapStyle]);
+
+  // Synchronize dynamic 3D Terrain elevation exaggeration
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    try {
+      if (terrainExaggeration > 0) {
+        if (map.getSource('terrain-dem')) {
+          map.setTerrain({ source: 'terrain-dem', exaggeration: terrainExaggeration });
+        }
+      } else {
+        map.setTerrain(null);
+      }
+    } catch (err) {
+      console.warn('Error setting terrain:', err);
+    }
+  }, [terrainExaggeration]);
+
+  // Synchronize 3D buildings visibility
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    if (map.getLayer('3d-buildings-layer')) {
+      map.setLayoutProperty('3d-buildings-layer', 'visibility', show3DBuildings ? 'visible' : 'none');
+    }
+  }, [show3DBuildings]);
 
   // Synchronize dynamic flood depth layer opacity and scale with timelineProgress
   useEffect(() => {
@@ -579,6 +650,37 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
         </div>
       )}
 
+      {/* 3D Building Inspection Card (cartesiancs/map3d) */}
+      {selectedBuilding && (
+        <div className="absolute top-16 right-4 z-30 bg-[#0b1320]/95 text-white p-3 rounded-lg shadow-2xl border border-amber-500/50 max-w-[280px] backdrop-blur-md">
+          <div className="flex justify-between items-start pb-1 border-b border-gray-700/60">
+            <span className="font-bold text-amber-400 text-xs">{selectedBuilding.name}</span>
+            <button
+              onClick={() => setSelectedBuilding(null)}
+              className="text-gray-400 hover:text-white text-xs px-1"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-1 mt-1 text-[11px]">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Extruded Height</span>
+              <span className="font-mono font-bold text-white">{selectedBuilding.height} meters ({selectedBuilding.floors || 3} Floors)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Structure Type</span>
+              <span className="text-cyan-300 font-semibold capitalize">{selectedBuilding.type}</span>
+            </div>
+            {selectedBuilding.survivors && (
+              <div className="flex justify-between text-red-400 font-bold bg-red-950/40 p-1 rounded border border-red-800/40 mt-1">
+                <span>Rooftop Survivors</span>
+                <span className="font-mono">{selectedBuilding.survivors} Persons Stranded</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Floating Bottom-Right Tactical Map Controls */}
       <div className="absolute bottom-4 right-4 z-20 flex items-center space-x-3 bg-[#0b1320]/95 border border-[#23354a] px-3 py-1.5 rounded-lg shadow-2xl text-xs font-medium text-white backdrop-blur-md">
         {/* Basemap Switcher (Satellite vs Dark vs Topo) */}
@@ -606,6 +708,35 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
             }`}
           >
             OpenStreetMap
+          </button>
+        </div>
+
+        {/* 3D Elevation Relief (AWS Open Data DEM) */}
+        <div className="flex items-center space-x-1 pl-2 border-l border-[#23354a]">
+          <Mountain className="w-3.5 h-3.5 text-cyan-400" />
+          <button
+            onClick={() => {
+              const next = terrainExaggeration === 2.2 ? 1.4 : terrainExaggeration === 1.4 ? 0 : 2.2;
+              setTerrainExaggeration(next);
+            }}
+            className="px-2 py-0.5 rounded bg-[#162232] hover:bg-[#1f2f45] border border-[#2b3e57] text-[11px] font-bold text-cyan-300 transition"
+            title="Toggle 3D Elevation Relief (AWS Open Data DEM)"
+          >
+            3D Relief: {terrainExaggeration > 0 ? `${terrainExaggeration}x` : 'OFF'}
+          </button>
+        </div>
+
+        {/* 3D Extruded Buildings (map3d) */}
+        <div className="flex items-center space-x-1">
+          <Building2 className="w-3.5 h-3.5 text-amber-400" />
+          <button
+            onClick={() => setShow3DBuildings(!show3DBuildings)}
+            className={`px-2 py-0.5 rounded border border-[#2b3e57] text-[11px] font-bold transition ${
+              show3DBuildings ? 'bg-[#ea580c] text-white shadow-sm' : 'bg-[#162232] text-gray-400 hover:text-white'
+            }`}
+            title="Toggle 3D Extruded Buildings (OpenStreetMap)"
+          >
+            3D Buildings: {show3DBuildings ? 'ON' : 'OFF'}
           </button>
         </div>
 
