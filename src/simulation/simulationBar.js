@@ -86,11 +86,6 @@ export class SimulationBarUI {
           <input id="sim-scrubber" class="sim-scrubber" type="range" min="0" max="72" step="1" value="0" />
         </div>
 
-        <!-- Speeds -->
-        <div id="sim-speed-container" class="sim-speed-group">
-          <!-- Dynamically populated per active scale -->
-        </div>
-
         <!-- Follow Wave -->
         <button id="sim-follow-btn" class="sim-btn sim-btn-toggle" type="button" title="Smoothly track the leading flood wave with 3D camera">
           <span class="sim-icon">🎯</span> FOLLOW WAVE
@@ -118,7 +113,6 @@ export class SimulationBarUI {
         this.engine.setTimeScale(scaleKey);
         tabs.forEach((t) => t.classList.remove('active'));
         tab.classList.add('active');
-        this._updateSpeedButtons();
       });
     });
 
@@ -154,38 +148,9 @@ export class SimulationBarUI {
       followBtn.classList.toggle('active', this.engine.followCrest);
     });
 
-    this._updateSpeedButtons();
-
     // Subscribe to engine telemetry updates
     this._unsubscribe = this.engine.subscribe((tel) => {
       this._updateUI(tel);
-    });
-  }
-
-  _updateSpeedButtons() {
-    const scale = TIME_SCALES[this.engine.timeScale];
-    const container = this.container.querySelector('#sim-speed-container');
-    if (!container || !scale) return;
-
-    container.innerHTML = scale.speedOptions
-      .map(
-        (spd) => `
-        <button class="sim-speed-btn ${this.engine.speed === spd ? 'active' : ''}" data-speed="${spd}" type="button">
-          ${spd}x
-        </button>
-      `,
-      )
-      .join('');
-
-    container.querySelectorAll('.sim-speed-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const speed = Number(btn.dataset.speed);
-        this.engine.setSpeed(speed);
-        container
-          .querySelectorAll('.sim-speed-btn')
-          .forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
     });
   }
 

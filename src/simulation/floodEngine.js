@@ -292,7 +292,7 @@ export class FloodSimulationEngine {
         this._lastRealTime = now;
 
         const scale = TIME_SCALES[this.timeScale];
-        this.scaleUnits += deltaSec * this.speed * 2.0;
+        this.scaleUnits += deltaSec * (scale.defaultSpeed || 1.0);
 
         if (this.scaleUnits >= scale.maxUnits) {
           this.scaleUnits = scale.maxUnits;
