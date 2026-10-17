@@ -12,11 +12,13 @@
 import * as Cesium from 'cesium';
 import { PakistanLayersManager } from '../layers/pakistanLayers.js';
 import { PredictiveHeatmaps } from '../simulation/predictiveHeatmaps.js';
+import { CountryThreatPolygons } from '../simulation/countryThreatPolygons.js';
 import {
   FLOOD_SCENARIOS,
   FLOOD_MAGNITUDES,
   TIME_SCALES,
 } from '../simulation/flowData.js';
+
 
 
 export const ICONS = {
@@ -295,6 +297,9 @@ export class GoogleMapsUI {
     // Predictive affected-area polygon heatmaps ahead of flood wave
     this.predictiveHeatmaps = new PredictiveHeatmaps(this.viewer, this.floodEngine);
 
+    // Country Threat Polygons dividing the entire country during flood simulation
+    this.countryThreatPolygons = new CountryThreatPolygons(this.viewer, this.floodEngine);
+
     this._init();
   }
 
@@ -433,6 +438,11 @@ export class GoogleMapsUI {
             <input type="checkbox" id="gmaps-check-predictive" checked />
             <span class="toggle-switch"></span>
             <span>Predictive Impact Polygons</span>
+          </label>
+          <label class="layer-toggle-row">
+            <input type="checkbox" id="gmaps-check-country-threat" checked />
+            <span class="toggle-switch"></span>
+            <span>Country Threat Polygons</span>
           </label>
           <label class="layer-toggle-row">
             <input type="checkbox" id="gmaps-check-pop" />
@@ -715,6 +725,10 @@ export class GoogleMapsUI {
     document.getElementById('gmaps-check-predictive')?.addEventListener('change', (e) => {
       this.predictiveHeatmaps?.setVisible(e.target.checked);
     });
+    document.getElementById('gmaps-check-country-threat')?.addEventListener('change', (e) => {
+      if (e.target.checked) this.countryThreatPolygons?.enable();
+      else this.countryThreatPolygons?.disable();
+    });
     document.getElementById('gmaps-check-pop')?.addEventListener('change', (e) => {
       this.pakistanLayers?.setPopulationVisible(e.target.checked);
     });
@@ -881,6 +895,14 @@ export class GoogleMapsUI {
           <div style="height: 1px; background: #e8eaed;"></div>
           <label class="sim-toggle-row">
             <div class="sim-toggle-info">
+              <span class="sim-toggle-name">Country Threat Polygons &amp; Demographics</span>
+              <span class="sim-toggle-sub">Provincial threat levels, age breakdown &amp; resources on hover</span>
+            </div>
+            <input type="checkbox" id="dialog-country-threat-toggle" ${this.countryThreatPolygons?.active ? 'checked' : 'checked'} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
+          </label>
+          <div style="height: 1px; background: #e8eaed;"></div>
+          <label class="sim-toggle-row">
+            <div class="sim-toggle-info">
               <span class="sim-toggle-name">Population Density Heatmap</span>
               <span class="sim-toggle-sub">Indus Basin exposed population density gradient</span>
             </div>
@@ -955,6 +977,13 @@ export class GoogleMapsUI {
     card.querySelector('#dialog-predictive-toggle')?.addEventListener('change', (e) => {
       this.predictiveHeatmaps?.setVisible(e.target.checked);
       const mainCheck = document.getElementById('gmaps-check-predictive');
+      if (mainCheck) mainCheck.checked = e.target.checked;
+    });
+
+    card.querySelector('#dialog-country-threat-toggle')?.addEventListener('change', (e) => {
+      if (e.target.checked) this.countryThreatPolygons?.enable();
+      else this.countryThreatPolygons?.disable();
+      const mainCheck = document.getElementById('gmaps-check-country-threat');
       if (mainCheck) mainCheck.checked = e.target.checked;
     });
 
@@ -1217,6 +1246,7 @@ export class GoogleMapsUI {
   destroy() {
     this.pakistanLayers?.destroy();
     this.predictiveHeatmaps?.destroy();
+    this.countryThreatPolygons?.destroy();
   }
 }
 
