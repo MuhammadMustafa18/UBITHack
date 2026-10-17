@@ -272,25 +272,23 @@ export class FloodSimulationEngine {
       const poolEntity = this.viewer.entities.add({
         name: `${wp.name} - Lateral Inundation Pool`,
         position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat),
+        show: new Cesium.CallbackProperty(() => {
+          return this.simHours > wp.timeHours;
+        }, false),
         ellipse: {
           semiMajorAxis: new Cesium.CallbackProperty(() => {
-            if (this.simHours < wp.timeHours) return 0;
-            const elapsed = this.simHours - wp.timeHours;
+            const elapsed = Math.max(0, this.simHours - wp.timeHours);
             const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
-            return wp.radialSpillRadiusM * progress;
+            return Math.max(50.0, wp.radialSpillRadiusM * progress);
           }, false),
           semiMinorAxis: new Cesium.CallbackProperty(() => {
-            if (this.simHours < wp.timeHours) return 0;
-            const elapsed = this.simHours - wp.timeHours;
+            const elapsed = Math.max(0, this.simHours - wp.timeHours);
             const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
-            return wp.radialSpillRadiusM * progress * 0.75;
+            return Math.max(35.0, wp.radialSpillRadiusM * progress * 0.75);
           }, false),
           material: new Cesium.ColorMaterialProperty(
             new Cesium.CallbackProperty(() => {
-              if (this.simHours < wp.timeHours) {
-                return Cesium.Color.fromCssColorString('#0077b6').withAlpha(0);
-              }
-              const elapsed = this.simHours - wp.timeHours;
+              const elapsed = Math.max(0, this.simHours - wp.timeHours);
               const alpha = Math.min(0.68, 0.2 + (elapsed / 14.0) * 0.48);
               return Cesium.Color.fromCssColorString('#0077b6').withAlpha(alpha);
             }, false),
@@ -304,26 +302,22 @@ export class FloodSimulationEngine {
       const edgeEntity = this.viewer.entities.add({
         name: `${wp.name} - Shallow Inundation Edge`,
         position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat),
+        show: new Cesium.CallbackProperty(() => {
+          return this.simHours > wp.timeHours;
+        }, false),
         ellipse: {
           semiMajorAxis: new Cesium.CallbackProperty(() => {
-            if (this.simHours < wp.timeHours) return 0;
-            const elapsed = this.simHours - wp.timeHours;
+            const elapsed = Math.max(0, this.simHours - wp.timeHours);
             const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
-            return wp.radialSpillRadiusM * progress * 1.35;
+            return Math.max(70.0, wp.radialSpillRadiusM * progress * 1.35);
           }, false),
           semiMinorAxis: new Cesium.CallbackProperty(() => {
-            if (this.simHours < wp.timeHours) return 0;
-            const elapsed = this.simHours - wp.timeHours;
+            const elapsed = Math.max(0, this.simHours - wp.timeHours);
             const progress = Math.min(1, Math.sqrt(elapsed / 10.0));
-            return wp.radialSpillRadiusM * progress * 1.05;
+            return Math.max(50.0, wp.radialSpillRadiusM * progress * 1.05);
           }, false),
           material: new Cesium.ColorMaterialProperty(
-            new Cesium.CallbackProperty(() => {
-              if (this.simHours < wp.timeHours) {
-                return Cesium.Color.fromCssColorString('#00b4d8').withAlpha(0);
-              }
-              return Cesium.Color.fromCssColorString('#00b4d8').withAlpha(0.25);
-            }, false),
+            Cesium.Color.fromCssColorString('#00b4d8').withAlpha(0.25),
           ),
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
