@@ -4,6 +4,57 @@
  * to the Arabian Sea delta, including river reaches, elevations, and inundation zones.
  */
 
+export const TIME_SCALES = {
+  minute: {
+    id: 'minute',
+    label: 'MINUTE',
+    fullName: 'MINUTE (FLASH FLOOD)',
+    description: 'Moraine breach & steep mountain gorge torrent (0 - 180 min)',
+    unit: 'min',
+    maxUnits: 180,
+    step: 5,
+    equivalentHoursMultiplier: 1 / 60,
+    defaultSpeed: 2,
+    speedOptions: [1, 2, 5, 10],
+  },
+  hourly: {
+    id: 'hourly',
+    label: 'HOURLY',
+    fullName: 'HOURLY (BASIN SURGE)',
+    description: 'National Indus river reach propagation (0 - 72 hours)',
+    unit: 'hr',
+    maxUnits: 72,
+    step: 1,
+    equivalentHoursMultiplier: 1,
+    defaultSpeed: 5,
+    speedOptions: [1, 5, 15, 40],
+  },
+  daily: {
+    id: 'daily',
+    label: 'DAILY',
+    fullName: 'DAILY (TRANSIT)',
+    description: 'Full Indus Basin spillage from mountains to sea (Day 1 - 14)',
+    unit: 'day',
+    maxUnits: 14,
+    step: 1,
+    equivalentHoursMultiplier: 24,
+    defaultSpeed: 0.5,
+    speedOptions: [0.2, 0.5, 1, 2],
+  },
+  weekly: {
+    id: 'weekly',
+    label: 'WEEKLY',
+    fullName: 'WEEKLY (BASIN POOLING)',
+    description: '2022 Super Flood: Sindh bathtub formation & drainage (Week 1 - 8)',
+    unit: 'week',
+    maxUnits: 8,
+    step: 1,
+    equivalentHoursMultiplier: 168,
+    defaultSpeed: 0.25,
+    speedOptions: [0.1, 0.25, 0.5, 1],
+  },
+};
+
 export const GLOF_ORIGIN = {
   name: 'Shisper Glacier Ice Dam Breach',
   region: 'Hunza Valley, Gilgit-Baltistan',
