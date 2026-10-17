@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import * as maplibregl from 'maplibre-gl';
 import { ViewMode, LayerState, DroneTelemetry, ResourceUnit, FloodProbeData } from '../types';
-import { Compass, Maximize2, RotateCcw, Waves, AlertTriangle } from 'lucide-react';
+import { Compass, Maximize2, RotateCcw, Map, Eye, Layers, ShieldAlert, AlertTriangle } from 'lucide-react';
 
 interface Map3DViewportProps {
   currentMode: ViewMode;
@@ -15,7 +15,21 @@ interface Map3DViewportProps {
   resources: ResourceUnit[];
   rideAlongActive: boolean;
   onExitRideAlong: () => void;
+  selectedIncident: string;
 }
+
+// Major Pakistani River Barrages & Dams with real GPS coordinates
+export const PAKISTAN_BARRAGES = [
+  { name: 'Tarbela Dam', lat: 34.088, lng: 72.698, discharge: '265,000 cusecs', status: 'High Inflow' },
+  { name: 'Warsak Dam', lat: 34.168, lng: 71.358, discharge: '142,000 cusecs', status: 'Spillways Open' },
+  { name: 'Nowshera Gauge', lat: 34.015, lng: 71.975, discharge: '285,000 cusecs', status: 'Super Flood Crest' },
+  { name: 'Mangla Dam', lat: 33.146, lng: 73.647, discharge: '120,000 cusecs', status: 'Normal Regulated' },
+  { name: 'Chashma Barrage', lat: 32.435, lng: 71.378, discharge: '310,000 cusecs', status: 'High Flood' },
+  { name: 'Taunsa Barrage', lat: 30.706, lng: 70.849, discharge: '345,000 cusecs', status: 'High Flood Warning' },
+  { name: 'Guddu Barrage', lat: 28.421, lng: 69.704, discharge: '510,000 cusecs', status: 'Very High Flood' },
+  { name: 'Sukkur Barrage', lat: 27.697, lng: 68.854, discharge: '490,000 cusecs', status: 'Critical Surge' },
+  { name: 'Kotri Barrage', lat: 25.434, lng: 68.318, discharge: '280,000 cusecs', status: 'Moderate Flood' },
+];
 
 export const Map3DViewport: React.FC<Map3DViewportProps> = ({
   currentMode,
@@ -29,550 +43,453 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
   resources,
   rideAlongActive,
   onExitRideAlong,
+  selectedIncident,
 }) => {
-  const mountRef = useRef<HTMLDivElement>(null);
-  const canvasMountRef = useRef<HTMLDivElement>(null);
-  const [is2DMode, setIs2DMode] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState('18.2x');
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const droneMarkersRef = useRef<{ [id: string]: maplibregl.Marker }>({});
+  const resourceMarkersRef = useRef<{ [id: string]: maplibregl.Marker }>({});
+  const barrageMarkersRef = useRef<maplibregl.Marker[]>([]);
+
+  const [basemapStyle, setBasemapStyle] = useState<'satellite' | 'dark' | 'topo'>('satellite');
+  const [zoomLevel, setZoomLevel] = useState('12.5x');
   const [floodProbe, setFloodProbe] = useState<FloodProbeData | null>(null);
   const [hoverScreenPos, setHoverScreenPos] = useState<{ x: number; y: number } | null>(null);
 
-  // References to Three.js objects
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const terrainMeshRef = useRef<THREE.Mesh | null>(null);
-  const floodWaterMeshRef = useRef<THREE.Mesh | null>(null);
-  const droneObjectsRef = useRef<{ [id: string]: THREE.Group }>({});
-  const resourceObjectsRef = useRef<{ [id: string]: THREE.Group }>({});
-  const animationFrameRef = useRef<number | null>(null);
-
-  // Camera animation state
-  const cameraTargetRef = useRef(new THREE.Vector3(0, 10, -5));
-  const isDraggingRef = useRef(false);
-  const previousMousePositionRef = useRef({ x: 0, y: 0 });
-  const cameraSphericalRef = useRef({ radius: 135, theta: Math.PI / 3.8, phi: Math.PI / 3.4 });
-
-  useEffect(() => {
-    if (!canvasMountRef.current) return;
-    const canvasContainer = canvasMountRef.current;
-    const width = canvasContainer.clientWidth || 800;
-    const height = canvasContainer.clientHeight || 600;
-
-    // 1. Scene setup
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#94a3b8'); // Monsoonal cloudy daylight haze
-    scene.fog = new THREE.FogExp2('#94a3b8', 0.0028);
-    sceneRef.current = scene;
-
-    // 2. Camera setup
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.5, 2000);
-    camera.position.set(65, 75, 105);
-    camera.lookAt(0, 8, -5);
-    cameraRef.current = camera;
-
-    // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
-    canvasContainer.innerHTML = '';
-    canvasContainer.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-
-    // 4. Monsoon Lighting
-    const ambientLight = new THREE.AmbientLight('#cbd5e1', 1.2);
-    scene.add(ambientLight);
-
-    const monsoonSun = new THREE.DirectionalLight('#f1f5f9', 1.9);
-    monsoonSun.position.set(90, 140, 70);
-    monsoonSun.castShadow = true;
-    monsoonSun.shadow.mapSize.width = 2048;
-    monsoonSun.shadow.mapSize.height = 2048;
-    monsoonSun.shadow.camera.near = 10;
-    monsoonSun.shadow.camera.far = 400;
-    monsoonSun.shadow.bias = -0.0005;
-    scene.add(monsoonSun);
-
-    // 5. Build Pakistan River Basin Topography (Nowshera / Kabul-Swat Basin)
-    const terrainSize = 250;
-    const segments = 160;
-    const terrainGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, segments, segments);
-    terrainGeo.rotateX(-Math.PI / 2);
-
-    const posAttr = terrainGeo.attributes.position;
-    const vertexColors: number[] = [];
-
-    // Realistically carve river channel, floodplains, and surrounding foothills
-    const getTerrainHeight = (x: number, z: number) => {
-      // Swat/Kabul winding river path: z ≈ sin(x * 0.04) * 22
-      const riverCenterZ = Math.sin(x * 0.04) * 24;
-      const distFromRiver = Math.abs(z - riverCenterZ);
-
-      // Deep riverbed channel
-      let elevation = 0;
-      if (distFromRiver < 14) {
-        // Riverbed lowest channel
-        elevation = 3 + (distFromRiver / 14) * 5;
-      } else if (distFromRiver < 42) {
-        // Floodplain agricultural basin (vulnerable to inundation)
-        elevation = 8 + Math.sin(x * 0.06) * 1.5 + (distFromRiver - 14) * 0.25;
-      } else {
-        // Surrounding foothills & ridges (Cherat / Malakand foothills)
-        const hillProfile = (distFromRiver - 42) * 0.65;
-        const mountainNoise = Math.sin(x * 0.08 + z * 0.05) * 6 + Math.cos(x * 0.03) * 14;
-        elevation = 15 + hillProfile + mountainNoise;
-      }
-
-      return Math.max(2, elevation);
-    };
-
-    for (let i = 0; i < posAttr.count; i++) {
-      const vx = posAttr.getX(i);
-      const vz = posAttr.getZ(i);
-      const vy = getTerrainHeight(vx, vz);
-      posAttr.setY(i, vy);
-
-      // Color coding: Silt/soil, agricultural green fields, mountain stone, paved roads
-      const riverCenterZ = Math.sin(vx * 0.04) * 24;
-      const distFromRiver = Math.abs(vz - riverCenterZ);
-      const isGTRoad = Math.abs(vz - (riverCenterZ + 24)) < 2.2; // GT Road highway along basin
-
-      if (isGTRoad) {
-        // N-5 / GT Road highway
-        vertexColors.push(0.28, 0.30, 0.34);
-      } else if (distFromRiver < 16) {
-        // Riverbed wet clay & sand banks
-        vertexColors.push(0.48, 0.44, 0.38);
-      } else if (distFromRiver < 45) {
-        // Alluvial agricultural fields (sugarcane / wheat / maize)
-        const isPatch = (Math.sin(vx * 0.15) * Math.cos(vz * 0.15)) > 0;
-        if (isPatch) {
-          vertexColors.push(0.38, 0.48, 0.32); // Green crops
-        } else {
-          vertexColors.push(0.55, 0.50, 0.42); // Wet fertile silt
-        }
-      } else {
-        // Rocky arid foothills
-        vertexColors.push(0.58, 0.54, 0.48);
-      }
-    }
-
-    terrainGeo.setAttribute('color', new THREE.Float32BufferAttribute(vertexColors, 3));
-    terrainGeo.computeVertexNormals();
-
-    const terrainMat = new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 0.88,
-      metalness: 0.08,
-      flatShading: false,
-    });
-
-    const terrainMesh = new THREE.Mesh(terrainGeo, terrainMat);
-    terrainMesh.receiveShadow = true;
-    terrainMesh.castShadow = false;
-    scene.add(terrainMesh);
-    terrainMeshRef.current = terrainMesh;
-
-    // 6. Dynamic Flood Water Inundation Surface (Rises dynamically with discharge!)
-    const waterGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, 64, 64);
-    waterGeo.rotateX(-Math.PI / 2);
-    const waterMat = new THREE.MeshStandardMaterial({
-      color: '#0284c7', // Swollen monsoonal river blue
-      transparent: true,
-      opacity: 0.82,
-      roughness: 0.15,
-      metalness: 0.25,
-      depthWrite: false,
-    });
-    const floodWaterMesh = new THREE.Mesh(waterGeo, waterMat);
-    floodWaterMesh.position.y = 7.5; // Baseline water elevation
-    scene.add(floodWaterMesh);
-    floodWaterMeshRef.current = floodWaterMesh;
-
-    // 7. 3D Levees / Flood Protection Ring Bund & Breach Site
-    const bundPoints: THREE.Vector3[] = [];
-    for (let bx = -70; bx <= 70; bx += 4) {
-      const bz = Math.sin(bx * 0.04) * 24 + 18; // Bund wall along south bank
-      const by = getTerrainHeight(bx, bz);
-      bundPoints.push(new THREE.Vector3(bx, by + 1.2, bz));
-    }
-    const bundGeo = new THREE.BufferGeometry().setFromPoints(bundPoints);
-    const bundMat = new THREE.LineBasicMaterial({ color: '#f59e0b', linewidth: 4 });
-    const bundLine = new THREE.Line(bundGeo, bundMat);
-    scene.add(bundLine);
-
-    // Breach Site Emitter marker (Nowshera Western Ring Bund)
-    const breachMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.5, 2.5, 0.8, 16),
-      new THREE.MeshBasicMaterial({ color: '#ef4444' })
-    );
-    breachMesh.position.set(-15, 11, 24);
-    scene.add(breachMesh);
-
-    // 8. Nowshera GT Road Bridge across River Channel
-    const bridgeGroup = new THREE.Group();
-    const bridgeDeck = new THREE.Mesh(
-      new THREE.BoxGeometry(4.2, 0.8, 38),
-      new THREE.MeshStandardMaterial({ color: '#475569', roughness: 0.7 })
-    );
-    bridgeDeck.position.set(20, 14, 0);
-    bridgeGroup.add(bridgeDeck);
-
-    // Bridge Piers
-    for (let pz = -12; pz <= 12; pz += 12) {
-      const pier = new THREE.Mesh(
-        new THREE.CylinderGeometry(1.2, 1.4, 12, 8),
-        new THREE.MeshStandardMaterial({ color: '#334155', roughness: 0.8 })
-      );
-      pier.position.set(20, 8, pz);
-      bridgeGroup.add(pier);
-    }
-    scene.add(bridgeGroup);
-
-    // 9. Village Clusters / Residential Dwellings on the Plain
-    const villageGroup = new THREE.Group();
-    const houseGeo = new THREE.BoxGeometry(2.5, 2.2, 2.5);
-    const houseMat = new THREE.MeshStandardMaterial({ color: '#e2e8f0', roughness: 0.6 });
-    const roofGeo = new THREE.ConeGeometry(2.2, 1.2, 4);
-    roofGeo.rotateY(Math.PI / 4);
-    const roofMat = new THREE.MeshStandardMaterial({ color: '#b91c1c', roughness: 0.5 });
-
-    const houseCoords = [
-      [-12, 28], [-18, 32], [-22, 26], [8, 26], [14, 30], [28, 28], [-35, 34], [-40, 28]
-    ];
-
-    houseCoords.forEach(([hx, hz]) => {
-      const hy = getTerrainHeight(hx, hz);
-      const house = new THREE.Mesh(houseGeo, houseMat);
-      house.position.set(hx, hy + 1.1, hz);
-      const roof = new THREE.Mesh(roofGeo, roofMat);
-      roof.position.set(hx, hy + 2.8, hz);
-      villageGroup.add(house, roof);
-    });
-    scene.add(villageGroup);
-
-    // 10. Rescue 1122 & NDMA Drones
-    drones.forEach((drone) => {
-      const droneGroup = new THREE.Group();
-
-      // Drone Body (Cyan/White Rescue UAV styling)
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(2.0, 0.4, 2.0),
-        new THREE.MeshStandardMaterial({ color: '#0f172a', metalness: 0.8, roughness: 0.2 })
-      );
-      droneGroup.add(body);
-
-      // Rotors
-      const rotorGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.08, 8);
-      const rotorMat = new THREE.MeshBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.7 });
-      const offsets = [[-1.2, 0.3, -1.2], [1.2, 0.3, -1.2], [-1.2, 0.3, 1.2], [1.2, 0.3, 1.2]];
-      offsets.forEach(([ox, oy, oz]) => {
-        const rotor = new THREE.Mesh(rotorGeo, rotorMat);
-        rotor.position.set(ox, oy, oz);
-        droneGroup.add(rotor);
-      });
-
-      // Orbit Ring on ground/water
-      const orbitRing = new THREE.Mesh(
-        new THREE.RingGeometry(16, 16.5, 48),
-        new THREE.MeshBasicMaterial({ color: drone.color, transparent: true, opacity: 0.35, side: THREE.DoubleSide })
-      );
-      orbitRing.rotateX(-Math.PI / 2);
-      orbitRing.position.y = -drone.altitude * 0.015;
-      droneGroup.add(orbitRing);
-
-      const droneX = (drone.position.lng - 71.97) * 1800;
-      const droneZ = (drone.position.lat - 34.01) * 1800;
-      const baseAlt = getTerrainHeight(droneX, droneZ);
-      droneGroup.position.set(droneX, baseAlt + drone.altitude * 0.015, droneZ);
-
-      scene.add(droneGroup);
-      droneObjectsRef.current[drone.id] = droneGroup;
-    });
-
-    // 11. Pak Army Aviation Mi-17 & Navy Zodiac Boats
-    resources.forEach((res) => {
-      const resGroup = new THREE.Group();
-
-      if (res.category === 'AIRCRAFT') {
-        // Mi-17 Heavy Helicopter model
-        const heloBody = new THREE.Mesh(
-          new THREE.CylinderGeometry(1.2, 1.4, 7, 8),
-          new THREE.MeshStandardMaterial({ color: '#334155', metalness: 0.6 })
-        );
-        heloBody.rotateX(Math.PI / 2);
-
-        // Main Rotor Blades
-        const mainRotor = new THREE.Mesh(
-          new THREE.BoxGeometry(14, 0.05, 0.8),
-          new THREE.MeshBasicMaterial({ color: '#0f172a' })
-        );
-        mainRotor.position.y = 1.6;
-        resGroup.add(heloBody, mainRotor);
-
-        resGroup.position.set(-18, 28, 30); // Hovering over submerged school roof
-      } else if (res.category === 'BOATS & TEAMS') {
-        // Zodiac Rescue Boat (Inflatable black pontoon + orange floor)
-        const boatHull = new THREE.Mesh(
-          new THREE.TorusGeometry(1.8, 0.45, 8, 16),
-          new THREE.MeshStandardMaterial({ color: '#1e293b', roughness: 0.5 })
-        );
-        boatHull.rotateX(Math.PI / 2);
-        const boatFloor = new THREE.Mesh(
-          new THREE.BoxGeometry(2.2, 0.1, 3.2),
-          new THREE.MeshStandardMaterial({ color: '#ea580c' })
-        );
-        resGroup.add(boatHull, boatFloor);
-        resGroup.position.set(8, 12, 28);
-      }
-
-      scene.add(resGroup);
-      resourceObjectsRef.current[res.id] = resGroup;
-    });
-
-    // 12. Animation loop
-    const clock = new THREE.Clock();
-
-    const animate = () => {
-      animationFrameRef.current = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
-
-      // Dynamic water ripple & flow motion
-      if (floodWaterMeshRef.current) {
-        floodWaterMeshRef.current.position.y += Math.sin(elapsedTime * 2) * 0.005;
-      }
-
-      // Animate drone flight orbits
-      drones.forEach((d) => {
-        const obj = droneObjectsRef.current[d.id];
-        if (obj) {
-          const orbitSpeed = d.id === 'UAV-02' ? 0.25 : 0.18;
-          const orbitDist = 20 + parseInt(d.id.slice(-1)) * 3;
-          const curAngle = elapsedTime * orbitSpeed + parseInt(d.id.slice(-1));
-          const nx = -10 + Math.cos(curAngle) * orbitDist;
-          const nz = 18 + Math.sin(curAngle) * orbitDist;
-          const gh = getTerrainHeight(nx, nz);
-          obj.position.x = nx;
-          obj.position.z = nz;
-          obj.position.y = Math.max(14, gh) + d.altitude * 0.015;
-          obj.rotation.y = -curAngle + Math.PI / 2;
-        }
-      });
-
-      // Animate Navy Zodiac navigating flooded street
-      const boatObj = resourceObjectsRef.current['res-4'];
-      if (boatObj && floodWaterMeshRef.current) {
-        const boatT = elapsedTime * 0.3;
-        boatObj.position.x = Math.sin(boatT) * 18;
-        boatObj.position.z = 26 + Math.cos(boatT * 0.5) * 8;
-        boatObj.position.y = floodWaterMeshRef.current.position.y + 0.1;
-      }
-
-      // Camera Ride-along tracking
-      if (rideAlongActive && selectedDrone && cameraRef.current) {
-        const dMesh = droneObjectsRef.current[selectedDrone.id];
-        if (dMesh) {
-          const chaseOffset = new THREE.Vector3(0, 5, -16).applyQuaternion(dMesh.quaternion);
-          cameraRef.current.position.lerp(dMesh.position.clone().add(chaseOffset), 0.08);
-          cameraRef.current.lookAt(dMesh.position);
-        }
-      } else if (rideAlongActive && selectedResource && cameraRef.current) {
-        const rMesh = resourceObjectsRef.current[selectedResource.id];
-        if (rMesh) {
-          const chaseOffset = new THREE.Vector3(0, 8, -20);
-          cameraRef.current.position.lerp(rMesh.position.clone().add(chaseOffset), 0.08);
-          cameraRef.current.lookAt(rMesh.position);
-        }
-      } else if (cameraRef.current && !isDraggingRef.current) {
-        // Orbit camera view
-        const { radius, theta, phi } = cameraSphericalRef.current;
-        const cx = cameraTargetRef.current.x + radius * Math.sin(phi) * Math.sin(theta);
-        const cy = cameraTargetRef.current.y + radius * Math.cos(phi);
-        const cz = cameraTargetRef.current.z + radius * Math.sin(phi) * Math.cos(theta);
-
-        cameraRef.current.position.lerp(new THREE.Vector3(cx, cy, cz), 0.05);
-        cameraRef.current.lookAt(cameraTargetRef.current);
-      }
-
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    // Resize
-    const handleResize = () => {
-      if (!canvasMountRef.current || !cameraRef.current || !rendererRef.current) return;
-      const w = canvasMountRef.current.clientWidth;
-      const h = canvasMountRef.current.clientHeight;
-      cameraRef.current.aspect = w / h;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(w, h);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      if (canvasContainer && renderer.domElement && canvasContainer.contains(renderer.domElement)) {
-        canvasContainer.removeChild(renderer.domElement);
-      }
-      renderer.dispose();
-    };
-  }, [drones, resources]);
-
-  // Synchronize dynamic flood water level with timelineProgress
-  useEffect(() => {
-    if (!floodWaterMeshRef.current) return;
-    // Water level rises from normal river gauge (5.5m) to Super Flood crest (16.5m)
-    const waterLevel = 5.5 + (timelineProgress / 100) * 11.0;
-    floodWaterMeshRef.current.position.y = waterLevel;
-
-    // Dynamically update water material opacity & color depth
-    const mat = floodWaterMeshRef.current.material as THREE.MeshStandardMaterial;
-    if (mat) {
-      if (timelineProgress > 50) {
-        // Super flood dangerous turbid silt water
-        mat.color.set('#0369a1');
-        mat.opacity = 0.88;
-      } else {
-        mat.color.set('#0284c7');
-        mat.opacity = 0.78;
-      }
-    }
-  }, [timelineProgress]);
-
-  // Mouse Controls & Flood Depth Probe
-  const handleMouseDown = (e: React.MouseEvent) => {
-    isDraggingRef.current = true;
-    previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
-    if (rideAlongActive) {
-      onExitRideAlong();
+  // Basemap style definitions (free, high-performance tiles covering entire Pakistan)
+  const getMapStyle = (type: 'satellite' | 'dark' | 'topo'): maplibregl.StyleSpecification => {
+    if (type === 'satellite') {
+      return {
+        version: 8,
+        sources: {
+          'esri-satellite': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            ],
+            tileSize: 256,
+            attribution: 'Esri World Imagery, NASA, USGS',
+            maxzoom: 19,
+          },
+          'carto-labels': {
+            type: 'raster',
+            tiles: [
+              'https://a.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}@2x.png',
+            ],
+            tileSize: 256,
+            maxzoom: 19,
+          },
+        },
+        layers: [
+          { id: 'esri-satellite-layer', type: 'raster', source: 'esri-satellite' },
+          { id: 'carto-labels-layer', type: 'raster', source: 'carto-labels', minzoom: 4 },
+        ],
+      };
+    } else if (type === 'dark') {
+      return {
+        version: 8,
+        sources: {
+          'carto-dark': {
+            type: 'raster',
+            tiles: [
+              'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            ],
+            tileSize: 256,
+            attribution: '© OpenStreetMap, © CARTO',
+            maxzoom: 19,
+          },
+        },
+        layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }],
+      };
+    } else {
+      return {
+        version: 8,
+        sources: {
+          'osm-tiles': {
+            type: 'raster',
+            tiles: [
+              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            ],
+            tileSize: 256,
+            attribution: '© OpenStreetMap contributors',
+            maxzoom: 19,
+          },
+        },
+        layers: [{ id: 'osm-layer', type: 'raster', source: 'osm-tiles' }],
+      };
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!mountRef.current || !cameraRef.current || !terrainMeshRef.current || !floodWaterMeshRef.current) return;
+  // Initialize MapLibre GL instance
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
 
-    const rect = mountRef.current.getBoundingClientRect();
-    const mouse = new THREE.Vector2(
-      ((e.clientX - rect.left) / rect.width) * 2 - 1,
-      -((e.clientY - rect.top) / rect.height) * 2 + 1
-    );
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: getMapStyle(basemapStyle),
+      center: [71.975, 34.015], // Nowshera & Swat Confluence initial center
+      zoom: 12.0,
+      pitch: 52, // 3D oblique tilt perspective
+      bearing: -24,
+      attributionControl: false,
+      maxBounds: [
+        [60.0, 23.0], // Southwest boundary (Balochistan / Arabian Sea coast)
+        [78.0, 37.5], // Northeast boundary (K2 / Gilgit-Baltistan)
+      ],
+    });
 
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, cameraRef.current);
-    const intersects = raycaster.intersectObject(terrainMeshRef.current);
+    mapRef.current = map;
 
-    if (intersects.length > 0 && !isDraggingRef.current) {
-      const p = intersects[0].point;
-      const groundElev = Math.round(270 + p.y * 3.5);
-      const currentWaterY = floodWaterMeshRef.current.position.y;
-      const depth = Math.max(0, Number(((currentWaterY - p.y) * 1.2).toFixed(1)));
+    map.on('zoom', () => {
+      setZoomLevel(`${map.getZoom().toFixed(1)}x`);
+    });
+
+    map.on('load', () => {
+      // 1. Add Pakistani Major Rivers GeoJSON Source (Indus, Kabul, Swat, Chenab, Jhelum)
+      map.addSource('pakistan-rivers', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            // Kabul & Swat River Path (KP)
+            {
+              type: 'Feature',
+              properties: { name: 'Kabul River', danger: 'Critical' },
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [71.358, 34.168], // Warsak
+                  [71.742, 34.150], // Charsadda
+                  [71.975, 34.015], // Nowshera
+                  [72.245, 33.892], // Confluence with Indus at Attock
+                ],
+              },
+            },
+            // Main Indus River Spine across all Pakistan
+            {
+              type: 'Feature',
+              properties: { name: 'Indus River', danger: 'Super Flood Surge' },
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [75.635, 35.297], // Skardu (Gilgit-Baltistan)
+                  [74.341, 35.920], // Gilgit
+                  [72.698, 34.088], // Tarbela Dam
+                  [72.245, 33.892], // Attock Gorge
+                  [71.685, 32.932], // Kalabagh
+                  [71.378, 32.435], // Chashma Barrage
+                  [70.849, 30.706], // Taunsa Barrage
+                  [70.435, 29.112], // Mithankot (Panjnad confluence)
+                  [69.704, 28.421], // Guddu Barrage (Sindh)
+                  [68.854, 27.697], // Sukkur Barrage
+                  [68.318, 25.434], // Kotri Barrage
+                  [68.185, 24.520], // Indus Delta / Arabian Sea
+                ],
+              },
+            },
+          ],
+        },
+      });
+
+      // Render River Polylines
+      map.addLayer({
+        id: 'pakistan-rivers-layer',
+        type: 'line',
+        source: 'pakistan-rivers',
+        paint: {
+          'line-color': '#38bdf8',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 6, 2, 12, 8],
+          'line-opacity': 0.85,
+        },
+      });
+
+      // 2. Add Dynamic Inundation Flood Zone GeoJSON Source
+      map.addSource('flood-inundation', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            // Nowshera Basin Inundated Zone
+            {
+              type: 'Feature',
+              properties: { zone: 'Nowshera Floodplain', depth: '3.8m' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [
+                  [
+                    [71.935, 34.035],
+                    [72.015, 34.040],
+                    [72.030, 33.995],
+                    [71.955, 33.980],
+                    [71.935, 34.035],
+                  ],
+                ],
+              },
+            },
+            // Charsadda Basin
+            {
+              type: 'Feature',
+              properties: { zone: 'Charsadda Inundation', depth: '2.5m' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [
+                  [
+                    [71.710, 34.170],
+                    [71.780, 34.165],
+                    [71.770, 34.120],
+                    [71.715, 34.130],
+                    [71.710, 34.170],
+                  ],
+                ],
+              },
+            },
+            // Sukkur / Dadu Inundation Zone
+            {
+              type: 'Feature',
+              properties: { zone: 'Sukkur-Dadu Spill', depth: '4.2m' },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [
+                  [
+                    [68.780, 27.750],
+                    [68.950, 27.740],
+                    [68.920, 27.620],
+                    [68.750, 27.650],
+                    [68.780, 27.750],
+                  ],
+                ],
+              },
+            },
+          ],
+        },
+      });
+
+      map.addLayer({
+        id: 'flood-inundation-fill',
+        type: 'fill',
+        source: 'flood-inundation',
+        paint: {
+          'fill-color': '#0284c7',
+          'fill-opacity': 0.65,
+        },
+      });
+
+      map.addLayer({
+        id: 'flood-inundation-outline',
+        type: 'line',
+        source: 'flood-inundation',
+        paint: {
+          'line-color': '#38bdf8',
+          'line-width': 2.5,
+          'line-dasharray': [2, 2],
+        },
+      });
+
+      // 3. Add Barrage & Dam HTML Markers across Pakistan
+      PAKISTAN_BARRAGES.forEach((barrage) => {
+        const el = document.createElement('div');
+        el.className = 'flex flex-col items-center cursor-pointer group';
+        el.innerHTML = `
+          <div class="px-2 py-0.5 rounded bg-black/85 border border-cyan-400/60 text-[10px] font-bold text-white shadow-xl whitespace-nowrap flex items-center space-x-1 group-hover:scale-110 transition">
+            <span class="w-2 h-2 rounded-full ${barrage.status.includes('Super') ? 'bg-red-500 animate-ping' : 'bg-cyan-400'}"></span>
+            <span>${barrage.name}</span>
+          </div>
+          <div class="text-[8px] font-mono text-cyan-300 bg-black/70 px-1 rounded mt-0.5">${barrage.discharge}</div>
+        `;
+
+        el.addEventListener('click', () => {
+          map.flyTo({ center: [barrage.lng, barrage.lat], zoom: 13, pitch: 50, duration: 1500 });
+        });
+
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([barrage.lng, barrage.lat])
+          .addTo(map);
+
+        barrageMarkersRef.current.push(marker);
+      });
+    });
+
+    // Mouse Move Probe on real coordinates
+    map.on('mousemove', (e: maplibregl.MapMouseEvent) => {
+      const { lng, lat } = e.lngLat;
+      const zoom = map.getZoom();
+
+      // Estimate depth based on proximity to Nowshera river center and timeline
+      const distToNowshera = Math.sqrt((lng - 71.975) ** 2 + (lat - 34.015) ** 2);
+      const isWet = distToNowshera < 0.08 && timelineProgress > 15;
+      const calcDepth = isWet ? Number(((timelineProgress / 100) * 5.8).toFixed(1)) : 0;
 
       let status: FloodProbeData['inundationStatus'] = 'Safe (Dry)';
       let evac = 'Normal Monitoring';
-      let risk = 'High Ground Foothills';
+      let risk = 'High Ground / Inland';
 
-      if (depth > 3.5) {
+      if (calcDepth > 3.5) {
         status = 'Critical Torrent';
-        evac = 'MANDATORY AIR-EVACUATION (Red Alert)';
-        risk = 'Nowshera Residential Sector B (Rooftops submerged)';
-      } else if (depth > 1.2) {
+        evac = 'MANDATORY AIR-EVAC (Red Zone)';
+        risk = 'Nowshera Sector B (Rooftops submerged)';
+      } else if (calcDepth > 1.0) {
         status = 'Severe Submergence';
-        evac = 'URGENT RESCUE 1122 BOAT EVAC';
-        risk = 'GT Road Corridor & Agricultural land';
-      } else if (depth > 0) {
+        evac = 'RESCUE 1122 BOAT EVAC';
+        risk = 'GT Road Corridor & Farmland';
+      } else if (calcDepth > 0) {
         status = 'Moderate Inundation';
-        evac = 'Vehicular Transit Closed';
-        risk = 'Low-lying bund perimeter';
+        evac = 'Roadway Waterlogged';
+        risk = 'Embankment Perimeter';
       }
 
       setFloodProbe({
-        groundElevationM: groundElev,
-        waterDepthM: depth,
-        waterVelocityMs: depth > 0 ? Number((1.2 + depth * 0.45).toFixed(1)) : 0,
+        groundElevationM: Math.round(275 + (lat - 33) * 120),
+        waterDepthM: calcDepth,
+        waterVelocityMs: calcDepth > 0 ? Number((1.2 + calcDepth * 0.4).toFixed(1)) : 0,
         inundationStatus: status,
         infrastructureRisk: risk,
         evacuationStatus: evac,
-        coords: `34°00.${Math.abs(Math.round(p.z * 10))}'N 71°58.${Math.abs(Math.round(p.x * 10))}'E`,
+        coords: `${lat.toFixed(4)}°N ${lng.toFixed(4)}°E`,
       });
-      setHoverScreenPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    } else if (!isDraggingRef.current) {
-      setFloodProbe(null);
+      setHoverScreenPos({ x: e.point.x, y: e.point.y });
+    });
+
+    return () => {
+      map.remove();
+    };
+  }, [basemapStyle]);
+
+  // Synchronize dynamic flood depth layer opacity and scale with timelineProgress
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    if (map.getLayer('flood-inundation-fill')) {
+      const opacity = 0.2 + (timelineProgress / 100) * 0.65;
+      map.setPaintProperty('flood-inundation-fill', 'fill-opacity', opacity);
     }
+  }, [timelineProgress]);
 
-    // Camera Orbiting
-    if (isDraggingRef.current) {
-      const deltaX = e.clientX - previousMousePositionRef.current.x;
-      const deltaY = e.clientY - previousMousePositionRef.current.y;
+  // Fly to incident basin when top dropdown changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
 
-      cameraSphericalRef.current.theta -= deltaX * 0.005;
-      cameraSphericalRef.current.phi = Math.max(
-        0.1,
-        Math.min(Math.PI / 2 - 0.05, cameraSphericalRef.current.phi - deltaY * 0.005)
-      );
-
-      previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
+    if (selectedIncident.includes('Nowshera')) {
+      map.flyTo({ center: [71.975, 34.015], zoom: 12.2, pitch: 52, bearing: -24, duration: 1800 });
+    } else if (selectedIncident.includes('Sukkur')) {
+      map.flyTo({ center: [68.854, 27.697], zoom: 12.0, pitch: 48, bearing: -15, duration: 1800 });
+    } else if (selectedIncident.includes('Taunsa') || selectedIncident.includes('Rajanpur')) {
+      map.flyTo({ center: [70.849, 30.706], zoom: 11.5, pitch: 45, bearing: 0, duration: 1800 });
+    } else if (selectedIncident.includes('Charsadda')) {
+      map.flyTo({ center: [71.742, 34.150], zoom: 12.0, pitch: 50, bearing: -20, duration: 1800 });
     }
-  };
+  }, [selectedIncident]);
 
-  const handleMouseUp = () => {
-    isDraggingRef.current = false;
-  };
+  // Render & Animate Rescue 1122 & NDMA Drones on Real Map
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    cameraSphericalRef.current.radius = Math.max(
-      25,
-      Math.min(260, cameraSphericalRef.current.radius + e.deltaY * 0.1)
-    );
-    const mag = (260 / cameraSphericalRef.current.radius).toFixed(1);
-    setZoomLevel(`${mag}x`);
-  };
+    drones.forEach((drone) => {
+      let marker = droneMarkersRef.current[drone.id];
 
-  const toggle2D3D = () => {
-    setIs2DMode(!is2DMode);
-    if (!is2DMode) {
-      // Top down ortho perspective
-      cameraSphericalRef.current.phi = 0.05;
-      cameraSphericalRef.current.radius = 175;
-    } else {
-      // 3D Oblique perspective
-      cameraSphericalRef.current.phi = Math.PI / 3.4;
-      cameraSphericalRef.current.radius = 135;
+      if (!marker) {
+        const el = document.createElement('div');
+        el.className = 'cursor-pointer flex flex-col items-center group';
+        el.innerHTML = `
+          <div class="relative flex items-center justify-center">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-400 animate-ping absolute"></div>
+            <div class="w-6 h-6 rounded-full bg-[#0b1320] border-2 border-cyan-400 flex items-center justify-center shadow-lg group-hover:scale-125 transition">
+              <span class="text-[9px] font-bold text-white">🚁</span>
+            </div>
+          </div>
+          <div class="px-1.5 py-0.2 rounded bg-black/90 text-[9px] font-mono text-cyan-300 font-bold border border-cyan-500/40 mt-1 whitespace-nowrap shadow-md">
+            ${drone.callsign} (${drone.altitude}ft)
+          </div>
+        `;
+
+        el.addEventListener('click', () => {
+          onSelectDrone(drone);
+          map.flyTo({ center: [drone.position.lng, drone.position.lat], zoom: 13.5, pitch: 55, duration: 1200 });
+        });
+
+        marker = new maplibregl.Marker({ element: el })
+          .setLngLat([drone.position.lng, drone.position.lat])
+          .addTo(map);
+
+        droneMarkersRef.current[drone.id] = marker;
+      } else {
+        marker.setLngLat([drone.position.lng, drone.position.lat]);
+      }
+    });
+  }, [drones]);
+
+  // Render Rescue Units (Mi-17, Navy Zodiacs)
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    resources.forEach((res) => {
+      let marker = resourceMarkersRef.current[res.id];
+
+      if (!marker) {
+        const el = document.createElement('div');
+        el.className = 'cursor-pointer flex flex-col items-center group';
+        el.innerHTML = `
+          <div class="px-1.5 py-0.5 rounded ${res.category === 'AIRCRAFT' ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[9px] font-bold shadow-lg border border-white/30 whitespace-nowrap group-hover:scale-110 transition flex items-center space-x-1">
+            <span>${res.category === 'AIRCRAFT' ? '✈' : '🚤'}</span>
+            <span>${res.name}</span>
+          </div>
+        `;
+
+        el.addEventListener('click', () => {
+          onSelectResource(res);
+          map.flyTo({ center: [res.position.lng, res.position.lat], zoom: 13, pitch: 45, duration: 1200 });
+        });
+
+        marker = new maplibregl.Marker({ element: el })
+          .setLngLat([res.position.lng, res.position.lat])
+          .addTo(map);
+
+        resourceMarkersRef.current[res.id] = marker;
+      }
+    });
+  }, [resources]);
+
+  // Handle Ride-Along Follow Camera
+  useEffect(() => {
+    if (!mapRef.current || !rideAlongActive) return;
+    const map = mapRef.current;
+
+    if (selectedDrone) {
+      map.flyTo({
+        center: [selectedDrone.position.lng, selectedDrone.position.lat],
+        zoom: 14.5,
+        pitch: 65,
+        bearing: selectedDrone.heading,
+        duration: 1000,
+      });
+    } else if (selectedResource) {
+      map.flyTo({
+        center: [selectedResource.position.lng, selectedResource.position.lat],
+        zoom: 14,
+        pitch: 60,
+        duration: 1000,
+      });
     }
-  };
+  }, [rideAlongActive, selectedDrone, selectedResource]);
 
   return (
-    <div
-      ref={mountRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onWheel={handleWheel}
-      className="relative w-full h-full cursor-grab active:cursor-grabbing overflow-hidden bg-[#1e293b]"
-    >
-      {/* Three.js Isolated Canvas Container */}
-      <div ref={canvasMountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+    <div className="relative w-full h-full overflow-hidden bg-[#070d16]">
+      {/* Real Full Pakistan WebGL Map Container */}
+      <div ref={mapContainerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* Compass Rose */}
+      {/* Top Left Compass Rose */}
       <div className="absolute top-4 left-4 z-10 flex flex-col items-center pointer-events-none">
-        <div className="w-10 h-10 rounded-full border border-cyan-500/30 bg-[#0f172a]/80 backdrop-blur-sm flex items-center justify-center shadow-lg">
+        <div className="w-10 h-10 rounded-full border border-cyan-500/40 bg-[#0b1320]/90 backdrop-blur-md flex items-center justify-center shadow-2xl">
           <Compass className="w-6 h-6 text-cyan-400" />
         </div>
       </div>
 
       {/* Ride-Along Active Banner */}
       {rideAlongActive && (
-        <div className="absolute top-4 left-20 z-20 bg-[#0284c7] text-white px-3 py-1.5 rounded-md shadow-lg flex items-center space-x-2 text-xs font-semibold animate-pulse border border-cyan-300/40">
-          <span>RESCUE CHASE CAMERA: {selectedDrone?.name || selectedResource?.name}</span>
+        <div className="absolute top-4 left-20 z-20 bg-[#0284c7] text-white px-3 py-1.5 rounded-md shadow-2xl flex items-center space-x-2 text-xs font-semibold animate-pulse border border-cyan-300/40">
+          <span>CHASE CAM ACTIVE: {selectedDrone?.name || selectedResource?.name}</span>
           <button
             onClick={onExitRideAlong}
             className="bg-black/40 hover:bg-black/60 px-2 py-0.5 rounded text-[11px] ml-2"
@@ -582,30 +499,48 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
         </div>
       )}
 
-      {/* Basin Landmarks Overlay */}
-      <div className="absolute top-[32%] right-[28%] pointer-events-none text-xs font-bold text-white flex items-center space-x-1 drop-shadow-md">
-        <span className="text-cyan-400">▲</span>
-        <span>Nowshera Bypass Bridge (GT Road)</span>
+      {/* Top Center Quick National Zoom Buttons */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-1 bg-[#0b1320]/90 border border-cyan-500/30 p-1 rounded-lg shadow-2xl backdrop-blur-md text-xs">
+        <button
+          onClick={() => mapRef.current?.flyTo({ center: [69.345, 30.375], zoom: 5.8, pitch: 20, bearing: 0, duration: 1800 })}
+          className="px-2.5 py-1 rounded bg-[#162334] hover:bg-[#0284c7] text-gray-200 hover:text-white transition font-medium"
+        >
+          🇵🇰 All Pakistan
+        </button>
+        <button
+          onClick={() => mapRef.current?.flyTo({ center: [71.975, 34.015], zoom: 12.2, pitch: 52, bearing: -24, duration: 1500 })}
+          className="px-2.5 py-1 rounded bg-[#162334] hover:bg-[#0284c7] text-gray-200 hover:text-white transition font-medium"
+        >
+          Nowshera (KP)
+        </button>
+        <button
+          onClick={() => mapRef.current?.flyTo({ center: [68.854, 27.697], zoom: 12.0, pitch: 48, bearing: -15, duration: 1500 })}
+          className="px-2.5 py-1 rounded bg-[#162334] hover:bg-[#0284c7] text-gray-200 hover:text-white transition font-medium"
+        >
+          Sukkur (Sindh)
+        </button>
+        <button
+          onClick={() => mapRef.current?.flyTo({ center: [70.849, 30.706], zoom: 11.5, pitch: 45, bearing: 0, duration: 1500 })}
+          className="px-2.5 py-1 rounded bg-[#162334] hover:bg-[#0284c7] text-gray-200 hover:text-white transition font-medium"
+        >
+          Taunsa (Punjab)
+        </button>
       </div>
 
-      {/* Breach Site Floating Indicator */}
-      <div className="absolute bottom-[46%] left-[36%] pointer-events-none bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-lg animate-bounce flex items-center space-x-1">
-        <AlertTriangle className="w-3 h-3" />
-        <span>Western Ring Bund Breach (2.8 m/s)</span>
-      </div>
-
-      {/* Interactive Flood Depth Probe Tooltip */}
+      {/* Real Coordinates & Inundation Hover Probe Tooltip */}
       {floodProbe && hoverScreenPos && (
         <div
           style={{
-            left: `${hoverScreenPos.x + 16}px`,
-            top: `${hoverScreenPos.y - 45}px`,
+            left: `${hoverScreenPos.x + 18}px`,
+            top: `${hoverScreenPos.y - 40}px`,
           }}
-          className="absolute z-30 pointer-events-none bg-[#0b1320]/95 text-white p-3 rounded-lg text-[11px] shadow-2xl border border-cyan-500/30 max-w-[280px] backdrop-blur-md"
+          className="absolute z-30 pointer-events-none bg-[#070d16]/95 text-white p-3 rounded-lg text-[11px] shadow-2xl border border-cyan-500/40 max-w-[280px] backdrop-blur-md"
         >
           <div className="font-bold text-cyan-400 flex items-center justify-between pb-1 border-b border-gray-700/60">
             <span>{floodProbe.inundationStatus}</span>
-            <span className="font-mono text-white text-[10px]">{floodProbe.waterDepthM > 0 ? `${floodProbe.waterDepthM}m Depth` : 'Dry'}</span>
+            <span className="font-mono text-white text-[10px]">
+              {floodProbe.waterDepthM > 0 ? `${floodProbe.waterDepthM}m Depth` : 'Dry Ground'}
+            </span>
           </div>
 
           <div className="space-y-1 mt-1.5 text-[10px]">
@@ -622,43 +557,44 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
             <div className="text-gray-300 text-[10px] pt-1">
               {floodProbe.infrastructureRisk}
             </div>
-            <div className={`font-semibold pt-1 ${floodProbe.waterDepthM > 1.5 ? 'text-red-400' : 'text-emerald-400'}`}>
+            <div className={`font-semibold pt-1 ${floodProbe.waterDepthM > 1.2 ? 'text-red-400' : 'text-emerald-400'}`}>
               {floodProbe.evacuationStatus}
             </div>
           </div>
 
           <div className="text-gray-400 text-[9px] font-mono mt-1.5 border-t border-gray-700/60 pt-1">
-            {floodProbe.coords}
+            GPS: {floodProbe.coords} (Pakistan)
           </div>
         </div>
       )}
 
-      {/* Viewport Floating Bottom-Right Controls */}
-      <div className="absolute bottom-4 right-4 z-20 flex items-center space-x-3 bg-[#0f172a]/90 border border-[#334155] px-2.5 py-1.5 rounded-lg shadow-xl text-xs font-medium text-white backdrop-blur-md">
-        {/* Scale */}
-        <div className="flex items-center space-x-1.5 pr-2 border-r border-[#334155] text-[10px] text-gray-400">
-          <span>0</span>
-          <div className="w-12 h-1 bg-cyan-500" />
-          <span>500 m</span>
-        </div>
-
-        {/* 2D / 3D Mode */}
-        <div className="flex bg-[#1e293b] rounded p-0.5 text-[11px]">
+      {/* Floating Bottom-Right Tactical Map Controls */}
+      <div className="absolute bottom-4 right-4 z-20 flex items-center space-x-3 bg-[#0b1320]/95 border border-[#23354a] px-3 py-1.5 rounded-lg shadow-2xl text-xs font-medium text-white backdrop-blur-md">
+        {/* Basemap Switcher (Satellite vs Dark vs Topo) */}
+        <div className="flex bg-[#162232] rounded p-0.5 text-[11px] border border-[#2b3e57]">
           <button
-            onClick={toggle2D3D}
+            onClick={() => setBasemapStyle('satellite')}
             className={`px-2 py-0.5 rounded font-bold transition ${
-              is2DMode ? 'bg-[#0284c7] text-white' : 'text-gray-400 hover:text-white'
+              basemapStyle === 'satellite' ? 'bg-[#0284c7] text-white shadow-sm' : 'text-gray-400 hover:text-white'
             }`}
           >
-            2D
+            Satellite
           </button>
           <button
-            onClick={toggle2D3D}
+            onClick={() => setBasemapStyle('dark')}
             className={`px-2 py-0.5 rounded font-bold transition ${
-              !is2DMode ? 'bg-[#0284c7] text-white' : 'text-gray-400 hover:text-white'
+              basemapStyle === 'dark' ? 'bg-[#0284c7] text-white shadow-sm' : 'text-gray-400 hover:text-white'
             }`}
           >
-            3D
+            Dark HUD
+          </button>
+          <button
+            onClick={() => setBasemapStyle('topo')}
+            className={`px-2 py-0.5 rounded font-bold transition ${
+              basemapStyle === 'topo' ? 'bg-[#0284c7] text-white shadow-sm' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            OpenStreetMap
           </button>
         </div>
 
@@ -667,14 +603,13 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
           {zoomLevel}
         </div>
 
-        {/* Reset Camera */}
+        {/* Reset Camera to Pakistan Overview */}
         <button
           onClick={() => {
-            cameraSphericalRef.current = { radius: 135, theta: Math.PI / 3.8, phi: Math.PI / 3.4 };
-            cameraTargetRef.current.set(0, 10, -5);
+            mapRef.current?.flyTo({ center: [69.345, 30.375], zoom: 5.8, pitch: 20, bearing: 0, duration: 1500 });
           }}
-          className="p-1 hover:bg-[#1e293b] rounded text-gray-400 hover:text-white transition"
-          title="Reset View"
+          className="p-1 hover:bg-[#162232] rounded text-gray-300 hover:text-white transition"
+          title="Reset to Pakistan Overview"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
@@ -683,12 +618,12 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
         <button
           onClick={() => {
             if (!document.fullscreenElement) {
-              mountRef.current?.requestFullscreen();
+              mapContainerRef.current?.requestFullscreen();
             } else {
               document.exitFullscreen();
             }
           }}
-          className="p-1 hover:bg-[#1e293b] rounded text-gray-400 hover:text-white transition"
+          className="p-1 hover:bg-[#162232] rounded text-gray-300 hover:text-white transition"
           title="Toggle Fullscreen"
         >
           <Maximize2 className="w-3.5 h-3.5" />

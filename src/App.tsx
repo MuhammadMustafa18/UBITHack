@@ -140,6 +140,7 @@ export function App() {
             resources={RESOURCE_UNITS}
             rideAlongActive={rideAlongActive}
             onExitRideAlong={() => setRideAlongActive(false)}
+            selectedIncident={selectedIncident}
           />
 
           {/* Picture-In-Picture Drone Camera Feed */}
