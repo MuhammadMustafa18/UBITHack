@@ -1,15 +1,16 @@
 /**
  * @module simulation/floodEngine
- * @description Real-time 3D physics-based flood & GLOF simulation engine for CesiumJS.
- * Computes downstream flood wave propagation, river corridor expansion,
- * and floodplain inundation across Pakistan with Minute, Hourly, Daily, and Weekly time scales.
+ * @description Real-time 3D physics-based multi-scenario flood simulation engine for CesiumJS.
+ * Computes downstream flood wave propagation, lateral spillage, and floodplain inundation across Pakistan
+ * for 5 flood origins (Glaciers, Indian Dam Releases, Monsoon Hill Torrents, Riverine Super Floods, Arabian Sea Cyclones)
+ * with dynamic magnitudes (Moderate, High, Very High, Super Flood).
  */
 
 import * as Cesium from 'cesium';
 import {
   TIME_SCALES,
-  GLOF_ORIGIN,
-  INDUS_FLOW_WAYPOINTS,
+  FLOOD_MAGNITUDES,
+  FLOOD_SCENARIOS,
   INUNDATION_ZONES,
 } from './flowData.js';
 
@@ -26,6 +27,12 @@ export class FloodSimulationEngine {
     this.speed = TIME_SCALES.hourly.defaultSpeed;
     this.followCrest = false;
 
+    // Scenario & Magnitude State
+    this.scenarioKey = 'glacier';
+    this.activeScenario = FLOOD_SCENARIOS.glacier;
+    this.magnitudeKey = 'high';
+    this.magnitudeMultiplier = FLOOD_MAGNITUDES.high.multiplier;
+
     this._listeners = new Set();
     this._animationFrame = null;
     this._lastRealTime = null;
@@ -34,8 +41,16 @@ export class FloodSimulationEngine {
     this._entities = [];
     this._corridorEntity = null;
     this._crestMarkerEntity = null;
-    this._glacierPulseEntity = null;
+    this._originPulseEntity = null;
     this._zoneEntities = new Map();
+  }
+
+  get waypoints() {
+    return this.activeScenario.waypoints;
+  }
+
+  get origin() {
+    return this.activeScenario.origin;
   }
 
   subscribe(callback) {
@@ -51,6 +66,44 @@ export class FloodSimulationEngine {
       } catch (err) {
         console.error('[FloodEngine] Listener error:', err);
       }
+    }
+  }
+
+  setScenario(scenarioKey) {
+    if (!FLOOD_SCENARIOS[scenarioKey]) return;
+    this.scenarioKey = scenarioKey;
+    this.activeScenario = FLOOD_SCENARIOS[scenarioKey];
+    this.scaleUnits = 0;
+    this._syncSimHoursFromUnits();
+
+    // Smoothly fly camera to this scenario's geographical start location
+    if (this.viewer && this.activeScenario.camera) {
+      const cam = this.activeScenario.camera;
+      this.viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(cam.lon, cam.lat, cam.height),
+        orientation: {
+          heading: Cesium.Math.toRadians(cam.heading || 0),
+          pitch: Cesium.Math.toRadians(cam.pitch || -35),
+          roll: 0,
+        },
+        duration: 2.2,
+      });
+    }
+
+    if (this.active) {
+      this._createPrimitives();
+      this._updateVisuals();
+      this._notify();
+    }
+  }
+
+  setMagnitude(magnitudeKey) {
+    if (!FLOOD_MAGNITUDES[magnitudeKey]) return;
+    this.magnitudeKey = magnitudeKey;
+    this.magnitudeMultiplier = FLOOD_MAGNITUDES[magnitudeKey].multiplier;
+    if (this.active) {
+      this._updateVisuals();
+      this._notify();
     }
   }
 
@@ -84,15 +137,12 @@ export class FloodSimulationEngine {
 
   _syncSimHoursFromUnits() {
     if (this.timeScale === 'minute') {
-      // 0 to 180 min maps to first 3 hours of mountain breach & Hunza gorge
       this.simHours = (this.scaleUnits / 180) * 3.0;
     } else if (this.timeScale === 'hourly') {
       this.simHours = this.scaleUnits;
     } else if (this.timeScale === 'daily') {
-      // 14 days maps across the 72-hour national river transit
       this.simHours = (this.scaleUnits / 14) * 72.0;
     } else if (this.timeScale === 'weekly') {
-      // Weeks 1-3 fill up the basin (0 to 70 hrs); Weeks 4-8 peak & drain
       if (this.scaleUnits <= 3) {
         this.simHours = (this.scaleUnits / 3) * 70.0;
       } else {
@@ -126,48 +176,53 @@ export class FloodSimulationEngine {
 
   getCurrentTelemetry() {
     const scale = TIME_SCALES[this.timeScale];
+    const waypoints = this.waypoints;
 
-    // Find active waypoint reach along the flow path
-    let currentWp = INDUS_FLOW_WAYPOINTS[0];
-    let nextWp = INDUS_FLOW_WAYPOINTS[1];
+    let currentWp = waypoints[0];
+    let nextWp = waypoints[1] || currentWp;
 
-    for (let i = 0; i < INDUS_FLOW_WAYPOINTS.length - 1; i++) {
-      if (this.simHours >= INDUS_FLOW_WAYPOINTS[i].timeHours) {
-        currentWp = INDUS_FLOW_WAYPOINTS[i];
-        nextWp = INDUS_FLOW_WAYPOINTS[i + 1] || currentWp;
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      if (this.simHours >= waypoints[i].timeHours) {
+        currentWp = waypoints[i];
+        nextWp = waypoints[i + 1] || currentWp;
       }
     }
 
-    // Interpolation fraction between waypoints
     const duration = Math.max(0.1, nextWp.timeHours - currentWp.timeHours);
     const frac = Math.min(
       1,
       Math.max(0, (this.simHours - currentWp.timeHours) / duration),
     );
 
-    // Receding factor for weekly mode
     const recedeMultiplier =
       this.timeScale === 'weekly' && this.scaleUnits > 4
         ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
         : 1.0;
 
+    const baseDischarge =
+      currentWp.dischargeCusecs +
+      (nextWp.dischargeCusecs - currentWp.dischargeCusecs) * frac;
     const discharge = Math.round(
-      (currentWp.dischargeCusecs +
-        (nextWp.dischargeCusecs - currentWp.dischargeCusecs) * frac) *
-        recedeMultiplier,
+      baseDischarge * this.magnitudeMultiplier * recedeMultiplier,
     );
+
+    const baseStage =
+      currentWp.stageRiseM +
+      (nextWp.stageRiseM - currentWp.stageRiseM) * frac;
     const stageRise = Number(
       (
-        (currentWp.stageRiseM +
-          (nextWp.stageRiseM - currentWp.stageRiseM) * frac) *
+        baseStage *
+        Math.sqrt(this.magnitudeMultiplier) *
         recedeMultiplier
       ).toFixed(1),
     );
 
-    // Interpolated crest coordinates
     const crestLat = currentWp.lat + (nextWp.lat - currentWp.lat) * frac;
     const crestLon = currentWp.lon + (nextWp.lon - currentWp.lon) * frac;
     const crestAlt = currentWp.alt + (nextWp.alt - currentWp.alt) * frac;
+
+    const magInfo =
+      FLOOD_MAGNITUDES[this.magnitudeKey] || FLOOD_MAGNITUDES.high;
 
     return {
       active: this.active,
@@ -175,53 +230,47 @@ export class FloodSimulationEngine {
       timeScale: this.timeScale,
       scaleUnits: this.scaleUnits,
       maxUnits: scale.maxUnits,
-      step: scale.step,
       unitLabel: scale.unit,
-      speed: this.speed,
-      speedOptions: scale.speedOptions,
+      simHours: this.simHours,
       formattedTime: this.getFormattedTime(),
-      scaleFullName: scale.fullName,
-      scaleDescription: scale.description,
+      speed: this.speed,
       followCrest: this.followCrest,
+      scenarioKey: this.scenarioKey,
+      scenarioName: this.activeScenario.name,
+      scenarioRegion: this.activeScenario.region,
+      scenarioCategory: this.activeScenario.category,
+      magnitudeKey: this.magnitudeKey,
+      magnitudeLabel: magInfo.label,
+      magnitudeSeverity: magInfo.severity,
+      magnitudeColor: magInfo.color,
       locationName: currentWp.name,
-      nextLocationName: nextWp.name,
-      status:
-        this.timeScale === 'weekly' && this.scaleUnits > 4
-          ? 'RECEDING / BASIN DRAINAGE'
-          : currentWp.status,
+      status: currentWp.status,
       dischargeCusecs: discharge,
       stageRiseM: stageRise,
       crestLat,
       crestLon,
       crestAlt,
-      percentComplete: Math.min(100, (this.scaleUnits / scale.maxUnits) * 100),
+      progressPercent: Math.min(100, (this.scaleUnits / scale.maxUnits) * 100),
     };
   }
 
-  /**
-   * Start the flood simulation
-   */
-  start() {
+  launch() {
     if (this.active) return;
     this.active = true;
     this.playing = true;
     this.scaleUnits = 0;
-    this._syncSimHoursFromUnits();
-    this._lastRealTime = performance.now();
+    this.simHours = 0;
 
     this._createPrimitives();
 
-    // Fly camera initially to Shisper Glacier breach point once
-    if (this.viewer && this.viewer.camera) {
+    // Fly camera only once on launch to the active scenario origin
+    if (this.viewer && this.activeScenario.camera) {
+      const cam = this.activeScenario.camera;
       this.viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
-          GLOF_ORIGIN.lon,
-          GLOF_ORIGIN.lat - 0.08,
-          GLOF_ORIGIN.alt + 4500,
-        ),
+        destination: Cesium.Cartesian3.fromDegrees(cam.lon, cam.lat, cam.height),
         orientation: {
-          heading: Cesium.Math.toRadians(15),
-          pitch: Cesium.Math.toRadians(-35),
+          heading: Cesium.Math.toRadians(cam.heading || 0),
+          pitch: Cesium.Math.toRadians(cam.pitch || -35),
           roll: 0,
         },
         duration: 2.2,
@@ -232,67 +281,64 @@ export class FloodSimulationEngine {
     this._notify();
   }
 
-  pause() {
-    this.playing = false;
+  start() {
+    this.launch();
+  }
+
+  play() {
+    if (!this.active) {
+      this.launch();
+      return;
+    }
+    this.playing = true;
     this._lastRealTime = null;
     this._notify();
   }
 
-  resume() {
-    if (!this.active) {
-      this.start();
-      return;
-    }
-    this.playing = true;
-    this._lastRealTime = performance.now();
+  pause() {
+    this.playing = false;
     this._notify();
   }
 
   togglePlay() {
-    if (this.playing) {
-      this.pause();
-    } else {
-      this.resume();
-    }
+    if (this.playing) this.pause();
+    else this.play();
   }
 
-  setSpeed(multiplier) {
-    this.speed = Math.max(0.1, Math.min(120, Number(multiplier) || 1));
+  toggleFollow() {
+    this.followCrest = !this.followCrest;
     this._notify();
   }
 
   toggleFollowCrest() {
-    this.followCrest = !this.followCrest;
-    this._notify();
+    this.toggleFollow();
   }
 
   exit() {
     this.active = false;
     this.playing = false;
-    this.scaleUnits = 0;
-    this.simHours = 0;
-    this._lastRealTime = null;
-
     if (this._animationFrame) {
       cancelAnimationFrame(this._animationFrame);
       this._animationFrame = null;
     }
-
     this._clearPrimitives();
     this._notify();
   }
 
   _startLoop() {
-    const tick = (now) => {
+    if (this._animationFrame) cancelAnimationFrame(this._animationFrame);
+    this._lastRealTime = null;
+
+    const tick = (timestamp) => {
       if (!this.active) return;
 
       if (this.playing) {
-        if (!this._lastRealTime) this._lastRealTime = now;
-        const deltaSec = (now - this._lastRealTime) / 1000;
-        this._lastRealTime = now;
+        if (this._lastRealTime === null) this._lastRealTime = timestamp;
+        const deltaSeconds = (timestamp - this._lastRealTime) / 1000.0;
+        this._lastRealTime = timestamp;
 
         const scale = TIME_SCALES[this.timeScale];
-        this.scaleUnits += deltaSec * (scale.defaultSpeed || 1.0);
+        this.scaleUnits += this.speed * deltaSeconds;
 
         if (this.scaleUnits >= scale.maxUnits) {
           this.scaleUnits = scale.maxUnits;
@@ -314,31 +360,34 @@ export class FloodSimulationEngine {
     this._clearPrimitives();
     if (!this.viewer || !this.viewer.entities) return;
 
-    // 1. Glacier Rupture Beacon at Shisper Glacier
-    this._glacierPulseEntity = this.viewer.entities.add({
-      name: 'GLOF Glacier Moraine Rupture Point',
+    const origin = this.origin;
+    const waypoints = this.waypoints;
+
+    // 1. Origin Rupture / Surge Beacon
+    this._originPulseEntity = this.viewer.entities.add({
+      name: `${this.activeScenario.name} - Point of Origin`,
       position: Cesium.Cartesian3.fromDegrees(
-        GLOF_ORIGIN.lon,
-        GLOF_ORIGIN.lat,
-        GLOF_ORIGIN.alt + 20,
+        origin.lon,
+        origin.lat,
+        (origin.alt || 100) + 20,
       ),
       point: {
-        pixelSize: 18,
+        pixelSize: 20,
         color: Cesium.Color.fromCssColorString('#00f0ff'),
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 3,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
       ellipse: {
-        semiMajorAxis: 1800,
-        semiMinorAxis: 1800,
+        semiMajorAxis: 2400,
+        semiMinorAxis: 2400,
         material: Cesium.Color.fromCssColorString('#00f0ff').withAlpha(0.35),
-        height: GLOF_ORIGIN.alt + 5,
+        height: (origin.alt || 100) + 5,
       },
     });
-    this._entities.push(this._glacierPulseEntity);
+    this._entities.push(this._originPulseEntity);
 
-    // 2. Dynamic Flood Water Corridor (central river torrent)
+    // 2. Dynamic Flood Water Corridor (central river reach)
     this._corridorEntity = this.viewer.entities.add({
       name: 'Dynamic Flood Wave Inundation Corridor',
       corridor: {
@@ -358,8 +407,7 @@ export class FloodSimulationEngine {
     this._entities.push(this._corridorEntity);
 
     // 2b. Dynamic Radial Lateral Spillover Pools (Water grows outwards laterally)
-    for (const wp of INDUS_FLOW_WAYPOINTS) {
-      // Core deep floodwater expanding outward
+    for (const wp of waypoints) {
       const poolEntity = this.viewer.entities.add({
         name: `${wp.name} - Lateral Inundation Pool`,
         position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat),
@@ -374,9 +422,10 @@ export class FloodSimulationEngine {
               this.timeScale === 'weekly' && this.scaleUnits > 4
                 ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
                 : 1.0;
+            const magScale = Math.sqrt(this.magnitudeMultiplier);
             return Math.max(
               50.0,
-              wp.radialSpillRadiusM * progress * recede,
+              wp.radialSpillRadiusM * progress * recede * magScale,
             );
           }, false),
           semiMinorAxis: new Cesium.CallbackProperty(() => {
@@ -386,9 +435,10 @@ export class FloodSimulationEngine {
               this.timeScale === 'weekly' && this.scaleUnits > 4
                 ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
                 : 1.0;
+            const magScale = Math.sqrt(this.magnitudeMultiplier);
             return Math.max(
               35.0,
-              wp.radialSpillRadiusM * progress * 0.75 * recede,
+              wp.radialSpillRadiusM * progress * 0.75 * recede * magScale,
             );
           }, false),
           material: new Cesium.ColorMaterialProperty(
@@ -410,7 +460,7 @@ export class FloodSimulationEngine {
       });
       this._entities.push(poolEntity);
 
-      // Outer shallow flood silt watermark expanding even wider
+      // Outer shallow flood silt watermark
       const edgeEntity = this.viewer.entities.add({
         name: `${wp.name} - Shallow Inundation Edge`,
         position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat),
@@ -425,9 +475,10 @@ export class FloodSimulationEngine {
               this.timeScale === 'weekly' && this.scaleUnits > 4
                 ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
                 : 1.0;
+            const magScale = Math.sqrt(this.magnitudeMultiplier);
             return Math.max(
               70.0,
-              wp.radialSpillRadiusM * progress * 1.35 * recede,
+              wp.radialSpillRadiusM * progress * 1.35 * recede * magScale,
             );
           }, false),
           semiMinorAxis: new Cesium.CallbackProperty(() => {
@@ -437,9 +488,10 @@ export class FloodSimulationEngine {
               this.timeScale === 'weekly' && this.scaleUnits > 4
                 ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
                 : 1.0;
+            const magScale = Math.sqrt(this.magnitudeMultiplier);
             return Math.max(
               50.0,
-              wp.radialSpillRadiusM * progress * 1.05 * recede,
+              wp.radialSpillRadiusM * progress * 1.05 * recede * magScale,
             );
           }, false),
           material: new Cesium.ColorMaterialProperty(
@@ -467,7 +519,7 @@ export class FloodSimulationEngine {
         return Cesium.Cartesian3.fromDegrees(
           tel.crestLon,
           tel.crestLat,
-          tel.crestAlt + 15,
+          (tel.crestAlt || 50) + 15,
         );
       }, false),
       point: {
@@ -486,39 +538,41 @@ export class FloodSimulationEngine {
     });
     this._entities.push(this._crestMarkerEntity);
 
-    // 4. Inundation Plain Zones
-    for (const zone of INUNDATION_ZONES) {
-      const hierarchy = Cesium.Cartesian3.fromDegreesArray(
-        zone.coordinates.flat(),
-      );
-      const zoneEntity = this.viewer.entities.add({
-        name: zone.name,
-        polygon: {
-          hierarchy,
-          material: new Cesium.ColorMaterialProperty(
-            new Cesium.CallbackProperty(() => {
-              if (this.simHours < zone.minHours) {
-                return Cesium.Color.fromCssColorString('#0096c7').withAlpha(0);
-              }
-              const progress = Math.min(
-                1,
-                (this.simHours - zone.minHours) /
-                  (zone.peakHours - zone.minHours),
-              );
-              const recede =
-                this.timeScale === 'weekly' && this.scaleUnits > 4
-                  ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
-                  : 1.0;
-              return Cesium.Color.fromCssColorString('#0096c7').withAlpha(
-                (0.2 + progress * 0.55) * recede,
-              );
-            }, false),
-          ),
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        },
-      });
-      this._zoneEntities.set(zone.id, zoneEntity);
-      this._entities.push(zoneEntity);
+    // 4. Inundation Plain Zones (for relevant scenarios)
+    if (this.scenarioKey === 'glacier' || this.scenarioKey === 'riverine') {
+      for (const zone of INUNDATION_ZONES) {
+        const hierarchy = Cesium.Cartesian3.fromDegreesArray(
+          zone.coordinates.flat(),
+        );
+        const zoneEntity = this.viewer.entities.add({
+          name: zone.name,
+          polygon: {
+            hierarchy,
+            material: new Cesium.ColorMaterialProperty(
+              new Cesium.CallbackProperty(() => {
+                if (this.simHours < zone.minHours) {
+                  return Cesium.Color.fromCssColorString('#0096c7').withAlpha(0);
+                }
+                const progress = Math.min(
+                  1,
+                  (this.simHours - zone.minHours) /
+                    (zone.peakHours - zone.minHours),
+                );
+                const recede =
+                  this.timeScale === 'weekly' && this.scaleUnits > 4
+                    ? Math.max(0.3, 1.0 - ((this.scaleUnits - 4) / 4.0) * 0.7)
+                    : 1.0;
+                return Cesium.Color.fromCssColorString('#0096c7').withAlpha(
+                  (0.2 + progress * 0.55) * recede,
+                );
+              }, false),
+            ),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          },
+        });
+        this._zoneEntities.set(zone.id, zoneEntity);
+        this._entities.push(zoneEntity);
+      }
     }
   }
 
@@ -531,35 +585,33 @@ export class FloodSimulationEngine {
     this._entities = [];
     this._corridorEntity = null;
     this._crestMarkerEntity = null;
-    this._glacierPulseEntity = null;
+    this._originPulseEntity = null;
     this._zoneEntities.clear();
   }
 
   _getActiveCorridorCartesians() {
     const activeCoords = [];
     const tel = this.getCurrentTelemetry();
+    const waypoints = this.waypoints;
 
-    // Include waypoints already passed by the flood wave
-    for (const wp of INDUS_FLOW_WAYPOINTS) {
+    for (const wp of waypoints) {
       if (this.simHours >= wp.timeHours) {
         activeCoords.push(Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat));
       }
     }
 
-    // Add current dynamic leading crest tip
     activeCoords.push(
       Cesium.Cartesian3.fromDegrees(tel.crestLon, tel.crestLat),
     );
 
-    // Cesium corridor requires at least 2 distinct positions
     if (activeCoords.length < 2) {
       const p1 = Cesium.Cartesian3.fromDegrees(
-        INDUS_FLOW_WAYPOINTS[0].lon,
-        INDUS_FLOW_WAYPOINTS[0].lat,
+        waypoints[0].lon,
+        waypoints[0].lat,
       );
       const p2 = Cesium.Cartesian3.fromDegrees(
-        INDUS_FLOW_WAYPOINTS[1].lon,
-        INDUS_FLOW_WAYPOINTS[1].lat,
+        waypoints[1] ? waypoints[1].lon : waypoints[0].lon + 0.05,
+        waypoints[1] ? waypoints[1].lat : waypoints[0].lat + 0.05,
       );
       return [p1, p2];
     }
@@ -568,25 +620,33 @@ export class FloodSimulationEngine {
   }
 
   _getActiveCorridorWidth() {
-    const tel = this.getCurrentTelemetry();
-    let currentWp = INDUS_FLOW_WAYPOINTS[0];
-    for (const wp of INDUS_FLOW_WAYPOINTS) {
+    const waypoints = this.waypoints;
+    let baseWidth = waypoints[0].normalWidthM || 200;
+    let floodWidth = waypoints[0].floodWidthM || 800;
+
+    for (const wp of waypoints) {
       if (this.simHours >= wp.timeHours) {
-        currentWp = wp;
+        baseWidth = wp.normalWidthM || baseWidth;
+        floodWidth = wp.floodWidthM || floodWidth;
       }
     }
-    return currentWp.floodWidthM || 800;
+
+    const elapsed = Math.max(0, this.simHours);
+    const progress = Math.min(1, elapsed / 8.0);
+    const magScale = Math.sqrt(this.magnitudeMultiplier);
+    const effectiveWidth =
+      (baseWidth + (floodWidth - baseWidth) * progress) * magScale;
+
+    return Math.max(50.0, effectiveWidth);
   }
 
   _updateVisuals() {
     if (!this.active || !this.viewer) return;
 
-    // Follow camera only if explicitly enabled by user
     if (this.followCrest && this.playing) {
       const tel = this.getCurrentTelemetry();
       const camera = this.viewer.camera;
 
-      // Preserve user's orientation and altitude
       const currentHeading = camera.heading;
       const currentPitch = camera.pitch;
       const currentHeight = camera.positionCartographic?.height || 25000;

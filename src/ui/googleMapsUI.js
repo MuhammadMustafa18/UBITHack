@@ -19,6 +19,7 @@ export const ICONS = {
   hotspot: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
   fleet: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
   weather: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>`,
+  cyclone: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   pin: `<svg viewBox="0 0 24 24" class="gmaps-item-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
 };
 
@@ -487,14 +488,23 @@ export class GoogleMapsUI {
 
   _bindEvents() {
     // 1. Simulation triggers
-    const triggerSim = () => {
+    document.getElementById('gmaps-pill-simulate')?.addEventListener('click', () => {
+      if (this.activeCategory === 'simulate') {
+        this._closeDropdown();
+      } else {
+        this._showSimulationScenarioCard();
+      }
+    });
+
+    document.getElementById('gmaps-directions-btn')?.addEventListener('click', () => {
       this.simulationBarUI?.toggle();
       this._closeDropdown();
-    };
+    });
 
-    document.getElementById('gmaps-pill-simulate')?.addEventListener('click', triggerSim);
-    document.getElementById('gmaps-directions-btn')?.addEventListener('click', triggerSim);
-    document.getElementById('gmaps-status-sim-btn')?.addEventListener('click', triggerSim);
+    document.getElementById('gmaps-status-sim-btn')?.addEventListener('click', () => {
+      this.simulationBarUI?.toggle();
+      this._closeDropdown();
+    });
 
     // 2. Category Pills (Glaciers, Dams, Hotspots)
     const pills = document.querySelectorAll('.gmaps-pill[data-category]');
@@ -669,6 +679,107 @@ export class GoogleMapsUI {
           layersMenu?.classList.add('hidden');
         }
       }
+    });
+  }
+
+  _showSimulationScenarioCard() {
+    this.activeCategory = 'simulate';
+    document.querySelectorAll('.gmaps-pill').forEach((p) => p.classList.remove('active'));
+    document.getElementById('gmaps-pill-simulate')?.classList.add('active');
+
+    const card = document.getElementById('gmaps-dropdown-card');
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="gmaps-dropdown-header">
+        <div class="dropdown-header-title">
+          <span class="header-icon">${ICONS.simulate}</span>
+          <span>Select Flood Scenario &amp; Origin</span>
+        </div>
+        <button id="gmaps-dropdown-close" class="gmaps-close-btn" type="button" aria-label="Close">✕</button>
+      </div>
+      <div class="gmaps-dropdown-body">
+        <div style="padding: 6px 16px 10px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #f1f3f4;">
+          Choose from 5 physically and geographically accurate flood origins across Pakistan:
+        </div>
+
+        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="glacier" role="button" tabindex="0">
+          <div class="item-icon-col">${ICONS.glacier}</div>
+          <div class="item-info-col">
+            <div class="item-name-row">
+              <span class="item-title">1. Glacier GLOF (Hunza / Karakoram)</span>
+              <span class="item-badge badge-danger">High Altitude</span>
+            </div>
+            <div class="item-region">Shisper / Passu Moraine Ice Dam Breach</div>
+            <div class="item-desc">High-altitude moraine rupture bursting into Hunza-Gilgit gorge down to Tarbela Dam.</div>
+          </div>
+        </div>
+
+        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="dam_breach" role="button" tabindex="0">
+          <div class="item-icon-col">${ICONS.dam}</div>
+          <div class="item-info-col">
+            <div class="item-name-row">
+              <span class="item-title">2. Indian Dam Release / Transboundary Surge</span>
+              <span class="item-badge badge-warning">Border Release</span>
+            </div>
+            <div class="item-region">Baglihar / Salal (Chenab) &amp; Bhakra (Sutlej)</div>
+            <div class="item-desc">Sudden emergency dam spillway release flooding Sialkot, Kasur, Head Marala, and Punjab plains.</div>
+          </div>
+        </div>
+
+        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="rain" role="button" tabindex="0">
+          <div class="item-icon-col">${ICONS.weather}</div>
+          <div class="item-info-col">
+            <div class="item-name-row">
+              <span class="item-title">3. Monsoon Cloudburst &amp; Hill Torrents</span>
+              <span class="item-badge badge-primary">Flash Torrents</span>
+            </div>
+            <div class="item-region">Koh-e-Suleman (Rajanpur &amp; DG Khan Ranges)</div>
+            <div class="item-desc">Violent Rod-Kohi hill torrents tearing down mountain ravines and washing agricultural bunds.</div>
+          </div>
+        </div>
+
+        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="riverine" role="button" tabindex="0">
+          <div class="item-icon-col">${ICONS.dam}</div>
+          <div class="item-info-col">
+            <div class="item-name-row">
+              <span class="item-title">4. Riverine Levee Rupture (2022 Super Flood)</span>
+              <span class="item-badge badge-danger">National Cataclysm</span>
+            </div>
+            <div class="item-region">Kabul &amp; Indus Confluence (Nowshera -> Sindh)</div>
+            <div class="item-desc">Bank-full monsoon crest breaking major river levees, forming the 100km Sindh inland lake.</div>
+          </div>
+        </div>
+
+        <div class="gmaps-dropdown-item gmaps-scenario-item" data-scenario="cyclone" role="button" tabindex="0">
+          <div class="item-icon-col">${ICONS.cyclone}</div>
+          <div class="item-info-col">
+            <div class="item-name-row">
+              <span class="item-title">5. Arabian Sea Cyclone &amp; Coastal Surge</span>
+              <span class="item-badge badge-info">Coastal Surge</span>
+            </div>
+            <div class="item-region">Arabian Sea / Thatta &amp; Karachi Delta Coast</div>
+            <div class="item-desc">Category 4 cyclone pushing 5-meter seawater storm surge 60km inland into Indus Delta.</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    card.classList.remove('hidden');
+
+    card.querySelectorAll('.gmaps-scenario-item').forEach((elem) => {
+      elem.addEventListener('click', () => {
+        const scenarioKey = elem.dataset.scenario;
+        this.floodEngine?.setScenario(scenarioKey);
+        this.simulationBarUI?.show();
+        this.floodEngine?.start();
+        this._closeDropdown();
+        this._showToast(`Started: ${elem.querySelector('.item-title').textContent}`);
+      });
+    });
+
+    card.querySelector('#gmaps-dropdown-close')?.addEventListener('click', () => {
+      this._closeDropdown();
     });
   }
 
