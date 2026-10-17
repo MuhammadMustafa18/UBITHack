@@ -56,7 +56,7 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
   const [floodProbe, setFloodProbe] = useState<FloodProbeData | null>(null);
   const [hoverScreenPos, setHoverScreenPos] = useState<{ x: number; y: number } | null>(null);
 
-  // Basemap style definitions (free, high-performance tiles covering entire Pakistan)
+  // Basemap style definitions (100% free, high-performance Esri & OSM tiles covering all Pakistan, zero API keys required)
   const getMapStyle = (type: 'satellite' | 'dark' | 'topo'): maplibregl.StyleSpecification => {
     if (type === 'satellite') {
       return {
@@ -71,10 +71,10 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
             attribution: 'Esri World Imagery, NASA, USGS',
             maxzoom: 19,
           },
-          'carto-labels': {
+          'esri-labels': {
             type: 'raster',
             tiles: [
-              'https://a.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}@2x.png',
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
             ],
             tileSize: 256,
             maxzoom: 19,
@@ -82,24 +82,35 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
         },
         layers: [
           { id: 'esri-satellite-layer', type: 'raster', source: 'esri-satellite' },
-          { id: 'carto-labels-layer', type: 'raster', source: 'carto-labels', minzoom: 4 },
+          { id: 'esri-labels-layer', type: 'raster', source: 'esri-labels', minzoom: 4 },
         ],
       };
     } else if (type === 'dark') {
       return {
         version: 8,
         sources: {
-          'carto-dark': {
+          'esri-dark-base': {
             type: 'raster',
             tiles: [
-              'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
             ],
             tileSize: 256,
-            attribution: '© OpenStreetMap, © CARTO',
+            attribution: 'Esri Dark Gray Canvas',
+            maxzoom: 19,
+          },
+          'esri-dark-ref': {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+            ],
+            tileSize: 256,
             maxzoom: 19,
           },
         },
-        layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }],
+        layers: [
+          { id: 'esri-dark-base-layer', type: 'raster', source: 'esri-dark-base' },
+          { id: 'esri-dark-ref-layer', type: 'raster', source: 'esri-dark-ref', minzoom: 4 },
+        ],
       };
     } else {
       return {
