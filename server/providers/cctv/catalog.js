@@ -25,6 +25,7 @@ import {
   loadVegvesenSourcesFromOpenData,
   loadNycSourcesFromOpenData,
   loadTorontoSourcesFromOpenData,
+  loadPakistanSourcesFromCatalog,
 } from './sources.js';
 
 /** Env kill switch: unset or anything but "0" means enabled. */
@@ -44,6 +45,11 @@ const envOptIn = (name) => String(process.env[name] || '').trim() === '1';
  * terms are unconfirmed.
  */
 const LIVE_PACKS = [
+  {
+    name: 'pakistan',
+    enabled: () => true,
+    load: loadPakistanSourcesFromCatalog,
+  },
   { name: 'austin', enabled: () => true, load: loadAustinSourcesFromOpenData },
   {
     name: 'caltrans',

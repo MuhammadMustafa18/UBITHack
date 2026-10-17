@@ -2784,3 +2784,50 @@ export async function loadTorontoSourcesFromOpenData() {
     return [];
   }
 }
+
+export function loadPakistanSourcesFromCatalog({
+  sourceRoot = process.cwd(),
+} = {}) {
+  const sourceFile = 'config/cctv_sources.pakistan.json';
+  const resolved = path.isAbsolute(sourceFile)
+    ? sourceFile
+    : path.resolve(sourceRoot, sourceFile);
+  let rows = [];
+  try {
+    if (!fs.existsSync(resolved)) return [];
+    const parsed = JSON.parse(fs.readFileSync(resolved, 'utf8'));
+    rows = Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn('[CCTV] Pakistan source file read error:', error);
+    return [];
+  }
+
+  const cameras = [];
+  for (const item of rows) {
+    if (!item || typeof item !== 'object') continue;
+    cameras.push({
+      id: String(item.id),
+      name: String(item.name),
+      city: String(item.city),
+      cityId: String(item.cityId || 'pakistan'),
+      provider: String(item.provider || 'NDMA / Irrigation'),
+      lat: Number(item.lat),
+      lon: Number(item.lon),
+      headingDeg: Number(item.headingDeg || 0),
+      headingConfidence: item.headingConfidence || 'high',
+      pitchDeg: Number(item.pitchDeg || -15),
+      fovDeg: Number(item.fovDeg || 60),
+      rangeM: Number(item.rangeM || 300),
+      mountHeightM: Number(item.mountHeightM || 10),
+      groundElevationM: Number(item.groundElevationM || 100),
+      feedType: 'synthetic',
+      sourceKind: 'pakistan-barrage-cctv',
+      license: item.license || 'Public NDMA / Irrigation',
+      poseSource: 'curated',
+      status: 'active',
+    });
+  }
+  console.log(`[CCTV] Loaded Pakistan Flood CCTV sources: ${cameras.length}`);
+  return cameras;
+}
+

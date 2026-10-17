@@ -1,4 +1,4 @@
-export const DEFAULT_CCTV_SOURCE_FILE = 'config/cctv_sources.austin.json';
+export const DEFAULT_CCTV_SOURCE_FILE = 'config/cctv_sources.pakistan.json';
 /** Austin Open Data portal endpoint for traffic camera records. */
 export const DEFAULT_AUSTIN_ROWS_URL =
   'https://data.austintexas.gov/api/views/b4k4-adkb/rows.json?accessType=DOWNLOAD';
