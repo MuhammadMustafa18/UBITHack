@@ -31,6 +31,7 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
   onExitRideAlong,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
+  const canvasMountRef = useRef<HTMLDivElement>(null);
   const [is2DMode, setIs2DMode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState('23.4x');
   const [hoverData, setHoverData] = useState<TerrainProbeData | null>(null);
@@ -54,10 +55,10 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
   const cameraSphericalRef = useRef({ radius: 140, theta: Math.PI / 4, phi: Math.PI / 3.2 });
 
   useEffect(() => {
-    if (!mountRef.current) return;
-    const container = mountRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    if (!canvasMountRef.current) return;
+    const canvasContainer = canvasMountRef.current;
+    const width = canvasContainer.clientWidth || 800;
+    const height = canvasContainer.clientHeight || 600;
 
     // 1. Scene setup
     const scene = new THREE.Scene();
@@ -79,8 +80,8 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
-    container.innerHTML = '';
-    container.appendChild(renderer.domElement);
+    canvasContainer.innerHTML = '';
+    canvasContainer.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // 4. Lighting
@@ -418,9 +419,9 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
 
     // Resize Handler
     const handleResize = () => {
-      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return;
-      const w = mountRef.current.clientWidth;
-      const h = mountRef.current.clientHeight;
+      if (!canvasMountRef.current || !cameraRef.current || !rendererRef.current) return;
+      const w = canvasMountRef.current.clientWidth;
+      const h = canvasMountRef.current.clientHeight;
       cameraRef.current.aspect = w / h;
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
@@ -432,6 +433,9 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
       window.removeEventListener('resize', handleResize);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (canvasContainer && renderer.domElement && canvasContainer.contains(renderer.domElement)) {
+        canvasContainer.removeChild(renderer.domElement);
       }
       renderer.dispose();
     };
@@ -546,6 +550,9 @@ export const Map3DViewport: React.FC<Map3DViewportProps> = ({
       onWheel={handleWheel}
       className="relative w-full h-full cursor-grab active:cursor-grabbing overflow-hidden bg-[#d9d3c5]"
     >
+      {/* Dedicated Three.js Canvas Container */}
+      <div ref={canvasMountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+
       {/* Compass Rose (Top Left) */}
       <div className="absolute top-4 left-4 z-10 flex flex-col items-center pointer-events-none">
         <div className="w-10 h-10 rounded-full border border-[#8f887b] bg-[#e8e3d8]/90 backdrop-blur-sm flex items-center justify-center shadow-md">
