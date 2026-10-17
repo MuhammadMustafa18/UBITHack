@@ -26,3 +26,5 @@ dist-ssr
 # Heavy media files
 *.mp4
 *.mov
+
+*.tsbuildinfo
