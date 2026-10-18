@@ -38,7 +38,6 @@ export function downstreamChain(reaches, startId) {
   while (byId.has(id)) {
     const reach = byId.get(id);
     cumKm += reach.properties.length_km;
-    if (cumKm > MAX_KM) break;
     chain.push({ reach, cumKm });
     id = reach.properties.next_down;
   }
@@ -161,6 +160,118 @@ function buildCorridor(reaches, communities, scenario) {
     (reachId) => windows.get(reachId) || null,
   );
   const path = buildPath(chain);
+  const lastPathPoint = path[path.length - 1] || { lat: 33.5, lon: 71.95, timeHours: 40 };
+
+  // Indus River Mainstem downstream continuation across the 168h (7-day) timeline
+  const indusMainstemWaypoints = [
+    {
+      id: 'indus_kalabagh',
+      name: 'Kalabagh Gorge (Plains Entry)',
+      lat: 32.96,
+      lon: 71.55,
+      timeHours: Math.max(lastPathPoint.timeHours + 4, 46),
+      dischargeCusecs: 680000,
+      stageRiseM: 6.2,
+      normalWidthM: 450,
+      floodWidthM: 4800,
+      radialSpillRadiusM: 16000,
+      status: 'PLAINS ENTRY SURGE',
+    },
+    {
+      id: 'indus_chashma',
+      name: 'Chashma Barrage',
+      lat: 32.434,
+      lon: 71.379,
+      timeHours: Math.max(lastPathPoint.timeHours + 16, 64),
+      dischargeCusecs: 780000,
+      stageRiseM: 5.8,
+      normalWidthM: 850,
+      floodWidthM: 7500,
+      radialSpillRadiusM: 26000,
+      status: 'HIGH FLOOD PULL',
+    },
+    {
+      id: 'indus_taunsa',
+      name: 'Taunsa Barrage (DG Khan)',
+      lat: 30.704,
+      lon: 70.848,
+      timeHours: Math.max(lastPathPoint.timeHours + 36, 88),
+      dischargeCusecs: 890000,
+      stageRiseM: 5.5,
+      normalWidthM: 900,
+      floodWidthM: 9200,
+      radialSpillRadiusM: 36000,
+      status: 'VERY HIGH FLOOD CREST',
+    },
+    {
+      id: 'indus_guddu',
+      name: 'Guddu Barrage (Upper Sindh)',
+      lat: 28.424,
+      lon: 69.703,
+      timeHours: Math.max(lastPathPoint.timeHours + 62, 114),
+      dischargeCusecs: 980000,
+      stageRiseM: 5.0,
+      normalWidthM: 1100,
+      floodWidthM: 12500,
+      radialSpillRadiusM: 52000,
+      status: 'SUPER FLOOD ALERT',
+    },
+    {
+      id: 'indus_sukkur',
+      name: 'Sukkur Barrage & Indus Basin',
+      lat: 27.705,
+      lon: 68.857,
+      timeHours: Math.max(lastPathPoint.timeHours + 86, 138),
+      dischargeCusecs: 1120000,
+      stageRiseM: 4.8,
+      normalWidthM: 1200,
+      floodWidthM: 18000,
+      radialSpillRadiusM: 72000,
+      status: 'CATASTROPHIC POOLING',
+    },
+    {
+      id: 'indus_kotri',
+      name: 'Kotri Barrage (Delta Head)',
+      lat: 25.439,
+      lon: 68.314,
+      timeHours: Math.max(lastPathPoint.timeHours + 110, 160),
+      dischargeCusecs: 950000,
+      stageRiseM: 4.2,
+      normalWidthM: 950,
+      floodWidthM: 12000,
+      radialSpillRadiusM: 45000,
+      status: 'DELTA SURGE DISCHARGE',
+    },
+    {
+      id: 'indus_delta',
+      name: 'Indus Delta / Arabian Sea Outflow',
+      lat: 24.12,
+      lon: 67.82,
+      timeHours: Math.max(lastPathPoint.timeHours + 120, 168),
+      dischargeCusecs: 800000,
+      stageRiseM: 3.5,
+      normalWidthM: 1800,
+      floodWidthM: 22000,
+      radialSpillRadiusM: 60000,
+      status: 'OCEANIC DISCHARGE',
+    },
+  ];
+
+  // Interpolate smooth path points connecting from lastPathPoint down through the Indus mainstem
+  let prevPt = lastPathPoint;
+  for (const stop of indusMainstemWaypoints) {
+    const steps = 8;
+    for (let s = 1; s <= steps; s++) {
+      const f = s / steps;
+      path.push({
+        lat: prevPt.lat + (stop.lat - prevPt.lat) * f,
+        lon: prevPt.lon + (stop.lon - prevPt.lon) * f,
+        timeHours: prevPt.timeHours + (stop.timeHours - prevPt.timeHours) * f,
+      });
+    }
+    prevPt = stop;
+  }
+
   const origin = { ...scenario.origin, lat: path[0].lat, lon: path[0].lon };
   const stops = ranked
     .filter((c) => c.windowH && (c.band === 'high' || c.band === 'medium'))
@@ -174,6 +285,8 @@ function buildCorridor(reaches, communities, scenario) {
       windowH: c.windowH,
       population: c.population,
       polygon: c.polygon,
+      dischargeCusecs: 450000,
+      stageRiseM: 4.5,
       status:
         c.status === 'observed_exceed'
           ? 'EXERCISE TRIGGER REACH'
@@ -197,9 +310,12 @@ function buildCorridor(reaches, communities, scenario) {
         lat: origin.lat,
         lon: origin.lon,
         timeHours: 0,
+        dischargeCusecs: 380000,
+        stageRiseM: 5.2,
         status: 'EXERCISE TRIGGER',
       },
       ...stops,
+      ...indusMainstemWaypoints,
     ],
   };
 }

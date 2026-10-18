@@ -814,6 +814,102 @@
   background: var(--cohere-coral);
 }
 
+/* Floating Origin Point Prominent Hover Callout Card */
+.origin-hover-callout {
+  position: fixed;
+  z-index: 100000;
+  width: 290px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid #ff7759;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #ffffff;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 20px rgba(255, 119, 89, 0.35);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease-out;
+  animation: gmapsCardEnter 0.16s ease-out;
+}
+
+.origin-hover-callout.hidden {
+  display: none !important;
+}
+
+.origin-hover-callout .callout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.origin-hover-callout .callout-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #ff7759;
+  background: rgba(255, 119, 89, 0.2);
+  border: 1px solid rgba(255, 119, 89, 0.45);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.origin-hover-callout .callout-elev {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.origin-hover-callout .callout-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+.origin-hover-callout .callout-region {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.origin-hover-callout .callout-desc {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  color: #cbd5e1;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.origin-hover-callout .callout-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #ff7759;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.12s ease;
+}
+
+.origin-hover-callout:hover .callout-cta,
+.origin-hover-callout .callout-cta:hover {
+  background: #ff5733;
+  transform: translateY(-1px);
+}
+
 /* Magnitude Pills Row */
 .sim-mag-row,
 .sim-mag-selector {

@@ -270,6 +270,11 @@ export class FloodSimulationEngine {
     const magInfo =
       FLOOD_MAGNITUDES[this.magnitudeKey] || FLOOD_MAGNITUDES.high;
 
+    const isPastTerminus = this.simHours >= lastWp.timeHours;
+    const currentStatus = isPastTerminus
+      ? `DRAINAGE & BASIN DISPERSION (Peak Passed +${Math.round(overTimeHours)}h)`
+      : currentWp.status || 'PROPAGATING';
+
     return {
       active: this.active,
       playing: this.playing,
@@ -291,9 +296,9 @@ export class FloodSimulationEngine {
       magnitudeColor: magInfo.color,
       dataBasis: real ? 'real' : 'illustrative',
       locationName: currentWp.name,
-      status: currentWp.status,
-      dischargeCusecs: real ? null : discharge,
-      stageRiseM: real ? null : stageRise,
+      status: currentStatus,
+      dischargeCusecs: discharge,
+      stageRiseM: stageRise,
       crestLat,
       crestLon,
       crestAlt,
@@ -453,7 +458,17 @@ export class FloodSimulationEngine {
           return this._getActiveCorridorWidth();
         }, false),
         material: new Cesium.ColorMaterialProperty(
-          Cesium.Color.fromCssColorString('#0077b6').withAlpha(0.72),
+          new Cesium.CallbackProperty(() => {
+            // Live pulsing hydraulic surge waves so water constantly ripples and flows
+            const wave = Math.sin(Date.now() * 0.005) * 0.12;
+            const lastWpHours = this.waypoints?.[this.waypoints.length - 1]?.timeHours || 168;
+            const recede = this.simHours > lastWpHours
+              ? Math.max(0.35, 1.0 - ((this.simHours - lastWpHours) / 96.0) * 0.65)
+              : 1.0;
+            return Cesium.Color.fromCssColorString('#0077b6').withAlpha(
+              (0.70 + wave) * recede,
+            );
+          }, false),
         ),
         cornerType: Cesium.CornerType.ROUNDED,
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,

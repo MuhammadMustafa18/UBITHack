@@ -2240,7 +2240,13 @@ export class GoogleMapsUI {
     if (this._originPickerActive) return;
     this._originPickerActive = true;
 
-    // Minimize dialog so user can see globe
+    // Temporarily hide background map landmark labels to declutter view
+    this._prevLabelsVisible = this.pakistanLayers?.labelsVisible;
+    if (this.pakistanLayers) {
+      this.pakistanLayers.setLabelsVisible(false);
+    }
+
+    // Minimize dialog so user can see globe clearly
     const card = document.getElementById('gmaps-dropdown-card');
     card?.classList.add('card-minimized');
     const minBtn = card?.querySelector('#sim-dialog-minimize');
@@ -2251,7 +2257,7 @@ export class GoogleMapsUI {
     banner.id = 'origin-picker-banner';
     banner.className = 'origin-picker-active-banner';
     banner.innerHTML = `
-      <span>🎯 CLICK ANY HIGHLIGHTED GATEWAY PIN ON 3D MAP TO SET ORIGIN</span>
+      <span>🎯 HOVER OVER ANY PIN TO PREVIEW INTEL • CLICK TO SET SIMULATION ORIGIN</span>
       <button id="origin-picker-cancel" class="origin-picker-cancel-btn" type="button">✕ Cancel</button>
     `;
     document.body.appendChild(banner);
@@ -2262,7 +2268,16 @@ export class GoogleMapsUI {
       if (minBtn) minBtn.textContent = '—';
     });
 
-    // Render Cesium markers for each eligible origination point
+    // Create prominent floating hover callout element
+    let hoverCalloutEl = document.getElementById('origin-hover-callout');
+    if (!hoverCalloutEl) {
+      hoverCalloutEl = document.createElement('div');
+      hoverCalloutEl.id = 'origin-hover-callout';
+      hoverCalloutEl.className = 'origin-hover-callout hidden';
+      document.body.appendChild(hoverCalloutEl);
+    }
+
+    // Render Cesium markers for each eligible origination gateway
     this._originPickerEntities = [];
     for (const pt of ELIGIBLE_ORIGINATION_POINTS) {
       const ent = this.viewer.entities.add({
@@ -2273,16 +2288,19 @@ export class GoogleMapsUI {
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 3,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         label: {
-          text: `📍 ${pt.name}\n[${pt.badge}]`,
-          font: 'bold 12px "Space Grotesk", sans-serif',
+          text: `📍 ${pt.name}`,
+          font: 'bold 12px "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif',
           fillColor: Cesium.Color.WHITE,
-          backgroundColor: Cesium.Color.fromCssColorString('#071829').withAlpha(0.85),
+          backgroundColor: Cesium.Color.fromCssColorString('#071829').withAlpha(0.88),
           showBackground: true,
-          backgroundPadding: new Cesium.Cartesian2(7, 4),
-          pixelOffset: new Cesium.Cartesian2(0, -38),
+          backgroundPadding: new Cesium.Cartesian2(8, 4),
+          pixelOffset: new Cesium.Cartesian2(0, -32),
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 4500000),
         },
       });
       ent._originData = pt;
@@ -2300,25 +2318,152 @@ export class GoogleMapsUI {
       duration: 1.8,
     });
 
-    // Screen click handler for Cesium picking
-    this._originPickerHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-    this._originPickerHandler.setInputAction((click) => {
-      const picked = this.viewer.scene.pick(click.position);
+    // Helper: Find origin entity at screen position (direct pick or proximity radius)
+    let currentHoveredEnt = null;
+    const findOriginAtPos = (screenPos) => {
+      if (!screenPos || !this.viewer) return null;
+      // 1. Direct pick
+      const picked = this.viewer.scene.pick(screenPos);
       if (Cesium.defined(picked) && picked.id && picked.id._originData) {
-        const pt = picked.id._originData;
-        this._selectOriginPoint(pt);
-        this._exitOriginPickerMode();
-        card?.classList.remove('card-minimized');
-        if (minBtn) minBtn.textContent = '—';
+        return picked.id;
+      }
+      // 2. Proximity tolerance (35px window radius) to make clicking effortless
+      let closest = null;
+      let minDist = 35;
+      for (const ent of this._originPickerEntities) {
+        const pos = ent.position?.getValue(Cesium.JulianDate.now());
+        if (!pos) continue;
+        const windowCoord = Cesium.SceneTransforms.worldToWindowCoordinates(this.viewer.scene, pos);
+        if (!windowCoord) continue;
+        const dx = windowCoord.x - screenPos.x;
+        const dy = windowCoord.y - screenPos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist) {
+          minDist = dist;
+          closest = ent;
+        }
+      }
+      return closest;
+    };
+
+    const resetEntityStyle = (ent) => {
+      if (!ent || !ent.point) return;
+      ent.point.pixelSize = 16;
+      ent.point.color = Cesium.Color.fromCssColorString('#1863dc');
+      ent.point.outlineWidth = 3;
+      ent.point.outlineColor = Cesium.Color.WHITE;
+      if (ent.label) {
+        ent.label.fillColor = Cesium.Color.WHITE;
+        ent.label.font = 'bold 12px "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif';
+        ent.label.backgroundColor = Cesium.Color.fromCssColorString('#071829').withAlpha(0.88);
+      }
+    };
+
+    const highlightEntityStyle = (ent) => {
+      if (!ent || !ent.point) return;
+      ent.point.pixelSize = 28;
+      ent.point.color = Cesium.Color.fromCssColorString('#ff7759');
+      ent.point.outlineWidth = 5;
+      ent.point.outlineColor = Cesium.Color.WHITE;
+      if (ent.label) {
+        ent.label.fillColor = Cesium.Color.fromCssColorString('#ffad9b');
+        ent.label.font = 'bold 15px "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif';
+        ent.label.backgroundColor = Cesium.Color.fromCssColorString('#17171c').withAlpha(0.96);
+      }
+    };
+
+    // Screen Space Handler for Hover and Click
+    this._originPickerHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+
+    // MOUSE_MOVE: Prominently reveal gateway name and specs on hover
+    this._originPickerHandler.setInputAction((movement) => {
+      const ent = findOriginAtPos(movement.endPosition);
+      if (ent && ent._originData) {
+        this.viewer.canvas.style.cursor = 'pointer';
+        if (currentHoveredEnt !== ent) {
+          resetEntityStyle(currentHoveredEnt);
+          currentHoveredEnt = ent;
+          highlightEntityStyle(ent);
+        }
+
+        const pt = ent._originData;
+        hoverCalloutEl.innerHTML = `
+          <div class="callout-header">
+            <span class="callout-badge">${pt.badge}</span>
+            <span class="callout-elev">${pt.alt || 500}m ASL</span>
+          </div>
+          <div class="callout-title">${pt.name}</div>
+          <div class="callout-region">📍 ${pt.region}</div>
+          <div class="callout-desc">${pt.description}</div>
+          <div class="callout-cta">
+            <span>🎯 CLICK TO SELECT THIS ORIGIN</span>
+          </div>
+        `;
+        hoverCalloutEl.classList.remove('hidden');
+
+        // Clamp callout position inside viewport
+        const calloutWidth = 300;
+        const calloutHeight = 160;
+        let x = movement.endPosition.x - calloutWidth / 2;
+        let y = movement.endPosition.y - calloutHeight - 20;
+
+        x = Math.max(16, Math.min(window.innerWidth - calloutWidth - 16, x));
+        if (y < 80) {
+          y = movement.endPosition.y + 30; // flip below if near top
+        }
+
+        hoverCalloutEl.style.left = `${x}px`;
+        hoverCalloutEl.style.top = `${y}px`;
+      } else {
+        this.viewer.canvas.style.cursor = 'default';
+        if (currentHoveredEnt) {
+          resetEntityStyle(currentHoveredEnt);
+          currentHoveredEnt = null;
+        }
+        hoverCalloutEl.classList.add('hidden');
+      }
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+    // LEFT_CLICK: Effortless selection via map pin, proximity, or hover card click
+    const handlePickSelection = (pt) => {
+      if (!pt) return;
+      this._selectOriginPoint(pt);
+      this._exitOriginPickerMode();
+      card?.classList.remove('card-minimized');
+      if (minBtn) minBtn.textContent = '—';
+      this._showToast(`🎯 Origin Selected: ${pt.name}`);
+    };
+
+    this._originPickerHandler.setInputAction((click) => {
+      const picked = findOriginAtPos(click.position);
+      if (picked && picked._originData) {
+        handlePickSelection(picked._originData);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    this._showToast('Origin picker active — click any gateway pin on 3D globe');
+    // Clicking the prominent hover callout itself also selects that origin point
+    hoverCalloutEl.onclick = () => {
+      if (currentHoveredEnt && currentHoveredEnt._originData) {
+        handlePickSelection(currentHoveredEnt._originData);
+      }
+    };
+
+    this._showToast('Origin picker active — hover any gateway pin to preview');
   }
 
   _exitOriginPickerMode() {
     this._originPickerActive = false;
     document.getElementById('origin-picker-banner')?.remove();
+
+    const hoverCalloutEl = document.getElementById('origin-hover-callout');
+    if (hoverCalloutEl) {
+      hoverCalloutEl.onclick = null;
+      hoverCalloutEl.remove();
+    }
+
+    if (this.viewer?.canvas) {
+      this.viewer.canvas.style.cursor = 'default';
+    }
 
     if (this._originPickerHandler) {
       this._originPickerHandler.destroy();
@@ -2331,6 +2476,11 @@ export class GoogleMapsUI {
       }
     }
     this._originPickerEntities = [];
+
+    // Restore background landmark labels if they were previously visible
+    if (this.pakistanLayers && this._prevLabelsVisible !== undefined) {
+      this.pakistanLayers.setLabelsVisible(this._prevLabelsVisible);
+    }
   }
 
   _selectOriginPoint(pt) {
