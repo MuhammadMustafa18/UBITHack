@@ -20,3 +20,14 @@ test('commander can initialize before the dashboard publishes incident state', (
   assert.match(context.sosSummary, /sos-101/);
   assert.doesNotMatch(context.sosSummary, /undefined/);
 });
+
+test('questions and negated commands never dispatch resources', () => {
+  let calls = 0;
+  const commander = { resourceDefenseGame: { dispatchResource() { calls += 1; return { success: false, reason: 'Test' }; } } };
+  for (const question of ['How much manpower is left?', 'Do not deploy boat', 'Should I dispatch firetruck?', 'Explain how to send crew']) {
+    assert.equal(TacticalAiCommander.prototype._handleDirectCommand.call(commander, question), null);
+  }
+  assert.equal(calls, 0);
+  assert.match(TacticalAiCommander.prototype._handleDirectCommand.call(commander, 'Deploy Boat'), /DISPATCH FAILED/);
+  assert.equal(calls, 1);
+});

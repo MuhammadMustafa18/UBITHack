@@ -296,7 +296,7 @@ export class TacticalAiCommander {
     const lower = text.toLowerCase().trim();
     if (!this.resourceDefenseGame) return null;
 
-    if (lower.includes('deploy firetruck') || lower.includes('dispatch firetruck') || lower.includes('send firetruck')) {
+    if (/^(deploy|dispatch|send) firetruck$/.test(lower)) {
       const res = this.resourceDefenseGame.dispatchResource('firetruck');
       if (res.success === false) {
         return `⚠️ **DISPATCH FAILED**: ${res.reason}`;
@@ -305,7 +305,7 @@ export class TacticalAiCommander {
       return `🚒 **FIRETRUCK DISPATCHED TO DEFENSE ZONE**\n- Target: ${st.targetState.targetWp?.name || 'Active Front'}\n- Route: High-speed arterial corridor transit deployed.\n- Remaining National Firetruck Reserve: **${st.pool.firetrucks} units**.\n- Manpower allocated: **8 specialists**.`;
     }
 
-    if (lower.includes('deploy boat') || lower.includes('dispatch boat') || lower.includes('send boat')) {
+    if (/^(deploy|dispatch|send) boat$/.test(lower)) {
       const res = this.resourceDefenseGame.dispatchResource('boat');
       if (res.success === false) {
         return `⚠️ **DISPATCH FAILED**: ${res.reason}`;
@@ -314,7 +314,7 @@ export class TacticalAiCommander {
       return `🚤 **SWIFT-WATER RESCUE FLOTILLA DISPATCHED**\n- Target: ${st.targetState.targetWp?.name || 'Active Front'}\n- Route: Inundation bypass & marine trailer convoy en route.\n- Remaining Boat Reserve: **${st.pool.boats} units**.\n- Current Safeguard Defense: **${st.targetState.safeguardPct}%**.`;
     }
 
-    if (lower.includes('deploy crew') || lower.includes('dispatch crew') || lower.includes('send crew') || lower.includes('manpower')) {
+    if (/^(deploy|dispatch|send) crew$/.test(lower)) {
       const res = this.resourceDefenseGame.dispatchResource('crew');
       if (res.success === false) {
         return `⚠️ **DISPATCH FAILED**: ${res.reason}`;
