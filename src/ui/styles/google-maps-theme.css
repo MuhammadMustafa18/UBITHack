@@ -1306,6 +1306,104 @@
   background: var(--cohere-soft-stone) !important;
 }
 
+/* Scenarios & Magnitude Selector Pills in #flood-sim-dock */
+#flood-sim-dock .sim-scenario-mag-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0 12px 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 12px);
+}
+
+#flood-sim-dock .sim-selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#flood-sim-dock .sim-selector-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cohere-muted-slate, #94a3b8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#flood-sim-dock .sim-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#flood-sim-dock .sim-chip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill, 999px);
+  color: #cbd5e1;
+  font-family: var(--font-body, inherit);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+#flood-sim-dock .sim-chip-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+#flood-sim-dock .sim-chip-pill.active {
+  background: #1863dc;
+  border-color: #38bdf8;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(24, 99, 220, 0.45);
+}
+
+#flood-sim-dock .sim-chip-pill .sim-pill-svg {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  max-width: 14px;
+  max-height: 14px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+/* Distinct color markers for magnitude severity */
+#flood-sim-dock .sim-chip-pill[data-magnitude="moderate"].active {
+  background: #0284c7;
+  border-color: #38bdf8;
+}
+
+#flood-sim-dock .sim-chip-pill[data-magnitude="high"].active {
+  background: #d97706;
+  border-color: #fbbf24;
+}
+
+#flood-sim-dock .sim-chip-pill[data-magnitude="very_high"].active {
+  background: #dc2626;
+  border-color: #f87171;
+}
+
+#flood-sim-dock .sim-chip-pill[data-magnitude="super_flood"].active {
+  background: #7c3aed;
+  border-color: #c084fc;
+}
+
 /* ==========================================================================
    10. Country Threat Polygons Hover Tooltip
    ========================================================================== */
@@ -2186,15 +2284,28 @@
 }
 
 #flood-sim-dock.sim-dock-minimized {
-  max-height: 64px !important;
-  padding: 10px 20px !important;
+  max-height: 125px !important;
+  padding: 10px 18px 12px !important;
   overflow: hidden !important;
+}
+
+#flood-sim-dock.sim-dock-minimized .sim-header {
+  margin-bottom: 8px !important;
+  padding-bottom: 6px !important;
 }
 
 #flood-sim-dock.sim-dock-minimized .sim-scenario-mag-row,
 #flood-sim-dock.sim-dock-minimized .sim-telemetry-strip,
+#flood-sim-dock.sim-dock-minimized #sim-resource-defense-container,
 #flood-sim-dock.sim-dock-minimized .res-defense-section {
   display: none !important;
+}
+
+#flood-sim-dock.sim-dock-minimized .sim-controls-row {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-top: 0 !important;
 }
 
 /* Prediction Pipeline Panel minimization */
