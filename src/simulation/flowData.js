@@ -10,7 +10,8 @@ export const TIME_SCALES = {
     id: 'minute',
     label: 'MINUTE',
     fullName: 'MINUTE (CONTINUOUS FLOW)',
-    description: 'Continuous minute-by-minute surge tracking across river systems',
+    description:
+      'Continuous minute-by-minute surge tracking across river systems',
     unit: 'min',
     maxUnits: 4320, // 72 hours of minutes (4,320 min), continuously expanding
     step: 5,
@@ -34,7 +35,8 @@ export const TIME_SCALES = {
     id: 'daily',
     label: 'DAILY',
     fullName: 'DAILY (TRANSIT)',
-    description: 'Continuous day-by-day national transit and regional inundation',
+    description:
+      'Continuous day-by-day national transit and regional inundation',
     unit: 'day',
     maxUnits: 30, // 30 days
     step: 1,
@@ -46,7 +48,8 @@ export const TIME_SCALES = {
     id: 'weekly',
     label: 'WEEKLY',
     fullName: 'WEEKLY (BASIN POOLING)',
-    description: 'Continuous week-by-week catastrophic basin pooling & drainage',
+    description:
+      'Continuous week-by-week catastrophic basin pooling & drainage',
     unit: 'week',
     maxUnits: 12, // 12 weeks
     step: 1,
@@ -68,7 +71,8 @@ export const FLOOD_MAGNITUDES = {
     severity: 'Alert Stage',
     badgeClass: 'badge-warning',
     color: '#fbbc04',
-    description: 'Localized bank overflow, canal bypass pressure, low-lying farm inundation',
+    description:
+      'Localized bank overflow, canal bypass pressure, low-lying farm inundation',
   },
   high: {
     id: 'high',
@@ -78,7 +82,8 @@ export const FLOOD_MAGNITUDES = {
     severity: 'High Warning',
     badgeClass: 'badge-primary',
     color: '#ff7043',
-    description: 'Embankment alerts, high-velocity channel flow, evacuation of kacha riverbeds',
+    description:
+      'Embankment alerts, high-velocity channel flow, evacuation of kacha riverbeds',
   },
   very_high: {
     id: 'very_high',
@@ -88,7 +93,8 @@ export const FLOOD_MAGNITUDES = {
     severity: 'Critical Emergency',
     badgeClass: 'badge-danger',
     color: '#ea4335',
-    description: 'Major levee ruptures, barrage emergency sluicing, highway cuts & settlements submerged',
+    description:
+      'Major levee ruptures, barrage emergency sluicing, highway cuts & settlements submerged',
   },
   super_flood: {
     id: 'super_flood',
@@ -98,7 +104,8 @@ export const FLOOD_MAGNITUDES = {
     severity: 'Catastrophic Super Flood',
     badgeClass: 'badge-danger',
     color: '#9c27b0',
-    description: 'National disaster scale: 1/3 of province underwater, hundred-kilometer inland lake formation',
+    description:
+      'National disaster scale: 1/3 of province underwater, hundred-kilometer inland lake formation',
   },
 };
 
@@ -111,7 +118,8 @@ export const FLOOD_SCENARIOS = {
     name: 'Glacial Outburst (GLOF)',
     category: 'glacier',
     region: 'Hunza Valley, Gilgit-Baltistan',
-    description: 'High-altitude moraine ice-dam failure sending sudden violent flash torrents through mountain gorges into Tarbela Reservoir.',
+    description:
+      'High-altitude moraine ice-dam failure sending sudden violent flash torrents through mountain gorges into Tarbela Reservoir.',
     origin: {
       name: 'Shisper Glacier Ice Dam Breach',
       region: 'Hunza Valley, Gilgit-Baltistan',
@@ -347,7 +355,8 @@ export const FLOOD_SCENARIOS = {
     name: 'Indian Dam Release / Transboundary Surge',
     category: 'dam',
     region: 'Chenab & Sutlej Basins (Sialkot / Gujrat / Kasur)',
-    description: 'Sudden high-volume discharge and structural emergency release from Indian upstream dams (Baglihar / Salal / Bhakra) cascading across eastern border plains into Punjab.',
+    description:
+      'Sudden high-volume discharge and structural emergency release from Indian upstream dams (Baglihar / Salal / Bhakra) cascading across eastern border plains into Punjab.',
     origin: {
       name: 'Baglihar Dam Inflow & Marala Headworks Entry',
       region: 'Jammu Border / Sialkot, Punjab',
@@ -485,7 +494,8 @@ export const FLOOD_SCENARIOS = {
     name: 'Monsoon Cloudburst & Hill Torrents',
     category: 'rain',
     region: 'Koh-e-Suleman (DG Khan / Rajanpur / Swat)',
-    description: 'Violent cloudbursts and flash hill torrents (Rod-Kohi) rushing down rocky barren mountain gorges, tearing through irrigation canals and sweeping agricultural flatlands.',
+    description:
+      'Violent cloudbursts and flash hill torrents (Rod-Kohi) rushing down rocky barren mountain gorges, tearing through irrigation canals and sweeping agricultural flatlands.',
     origin: {
       name: 'Koh-e-Suleman Hill Torrent Cloudburst (Kaha / Mithawan)',
       region: 'Rajanpur & DG Khan Ranges',
@@ -606,126 +616,18 @@ export const FLOOD_SCENARIOS = {
 
   riverine: {
     id: 'riverine',
-    name: 'Riverine Levee Rupture (2022 Super Flood)',
+    name: 'Swat–Kabul Riverine Surge (Real River Network)',
     category: 'riverine',
-    region: 'Kabul & Indus Rivers (Nowshera / Taunsa / Sindh)',
-    description: 'Combined bank-full riverine monsoon crest spilling over irrigation levees, creating the historic 100km wide Sindh inland lake from Sukkur to Manchar.',
+    dataBasis: 'real',
+    triggerCommunity: 'Kalam',
+    region: 'Swat → Kabul → Indus corridor, KP',
+    description:
+      'Exercise trigger on the upper Swat reach at Kalam, propagated down the HydroRIVERS network. Arrival windows assume 1–3 m/s and are illustrative; communities to watch are ranked from WorldPop, OpenStreetMap and the UNOSAT 2022 extent.',
     origin: {
-      name: 'Nowshera Kabul River Choke Point Breach',
-      region: 'Kabul River Basin, KP',
-      lat: 34.015,
-      lon: 71.985,
-      alt: 280,
-      peakDischargeCusecs: 360000,
-      timeOfBreachHours: 0,
+      name: 'Exercise trigger · Kalam reach (upper Swat)',
+      region: 'Swat River, KP',
     },
-    camera: {
-      lat: 34.015,
-      lon: 71.985,
-      height: 32000,
-      pitch: -38,
-      heading: 140,
-    },
-    waypoints: [
-      {
-        id: 'nowshera-gt-road',
-        name: 'Nowshera Kabul River Breach',
-        lat: 34.015,
-        lon: 71.985,
-        alt: 280,
-        timeHours: 0,
-        normalWidthM: 250,
-        floodWidthM: 3200,
-        radialSpillRadiusM: 14000,
-        stageRiseM: 8.2,
-        dischargeCusecs: 360000,
-        status: 'HIGH RIVERINE SURGE',
-      },
-      {
-        id: 'attock-gorge-confluence',
-        name: 'Attock River Gorge (Kabul-Indus Confluence)',
-        lat: 33.876,
-        lon: 72.235,
-        alt: 275,
-        timeHours: 6.0,
-        normalWidthM: 380,
-        floodWidthM: 4200,
-        radialSpillRadiusM: 18000,
-        stageRiseM: 9.0,
-        dischargeCusecs: 580000,
-        status: 'CHOKE POINT SPILL',
-      },
-      {
-        id: 'kalabagh-plain-outlet',
-        name: 'Kalabagh Gorge (Plains Entry)',
-        lat: 32.96,
-        lon: 71.55,
-        alt: 215,
-        timeHours: 16.0,
-        normalWidthM: 500,
-        floodWidthM: 6500,
-        radialSpillRadiusM: 28000,
-        stageRiseM: 6.2,
-        dischargeCusecs: 750000,
-        status: 'PUNJAB FLOODPLAIN EXPANSION',
-      },
-      {
-        id: 'taunsa-bund-breach',
-        name: 'Taunsa Barrage Marginal Bund Breach',
-        lat: 30.704,
-        lon: 70.848,
-        alt: 137,
-        timeHours: 32.0,
-        normalWidthM: 850,
-        floodWidthM: 11000,
-        radialSpillRadiusM: 45000,
-        stageRiseM: 5.6,
-        dischargeCusecs: 950000,
-        status: 'EMBANKMENTS OVERTOPPED',
-      },
-      {
-        id: 'guddu-sindh-inflow',
-        name: 'Guddu Barrage (Upper Sindh Inundation)',
-        lat: 28.424,
-        lon: 69.703,
-        alt: 75,
-        timeHours: 48.0,
-        normalWidthM: 1200,
-        floodWidthM: 18000,
-        radialSpillRadiusM: 65000,
-        stageRiseM: 5.0,
-        dischargeCusecs: 1150000,
-        status: 'SUPER FLOOD WAVE',
-      },
-      {
-        id: 'sukkur-khairpur-bathtub',
-        name: 'Sukkur Barrage & Khairpur Inland Lake',
-        lat: 27.705,
-        lon: 68.857,
-        alt: 58,
-        timeHours: 60.0,
-        normalWidthM: 1400,
-        floodWidthM: 26000,
-        radialSpillRadiusM: 85000,
-        stageRiseM: 4.8,
-        dischargeCusecs: 1280000,
-        status: '100KM SINDH BATHTUB',
-      },
-      {
-        id: 'dadu-kotri-delta',
-        name: 'Dadu, Sehwan & Kotri Delta Entry',
-        lat: 25.439,
-        lon: 68.314,
-        alt: 21,
-        timeHours: 72.0,
-        normalWidthM: 1100,
-        floodWidthM: 16000,
-        radialSpillRadiusM: 55000,
-        stageRiseM: 4.0,
-        dischargeCusecs: 1050000,
-        status: 'DELTA SURGE DISCHARGE',
-      },
-    ],
+    waypoints: [],
   },
 
   cyclone: {
@@ -733,7 +635,8 @@ export const FLOOD_SCENARIOS = {
     name: 'Arabian Sea Cyclone & Coastal Surge',
     category: 'cyclone',
     region: 'Arabian Sea / Sindh & Balochistan Coast',
-    description: 'Tropical cyclone storm surge (Category 3-4) pushing Arabian Sea water 3 to 6 meters above astronomical high tide, driving saltwater surges 60km inland up the Indus Delta.',
+    description:
+      'Tropical cyclone storm surge (Category 3-4) pushing Arabian Sea water 3 to 6 meters above astronomical high tide, driving saltwater surges 60km inland up the Indus Delta.',
     origin: {
       name: 'Arabian Sea Cyclone Core Storm Surge',
       region: 'Arabian Sea off Karachi & Thatta Coast',
