@@ -29,6 +29,7 @@ try {
     const { ResourceDefenseGame } = await import('/src/simulation/resourceDefenseGame.js');
     window.game = new ResourceDefenseGame(null, null);
     window.dashboard = new RescueDashboardUI({ resourceDefenseGame: window.game,
+      tacticalAiCommander: { config: {} },
       onReturnToMap: () => { window.returnedToMap = true; window.dashboard.unmount(); },
       onLocateOnGlobe: (incident) => { window.locatedIncident = incident.id; },
     });
@@ -53,6 +54,10 @@ try {
   const count = await page.evaluate(() => window.dashboard.signals.length);
   await page.click('#rescue-inject');
   assert.equal(await page.evaluate(() => window.dashboard.signals.length), count);
+  assert.equal(await page.evaluate(() => window.game.incidentAssignments.size), 1);
+  await page.type('#rescue-copilot-input', 'Which incident should be helped first?');
+  await page.click('#rescue-copilot-form [type="submit"]');
+  await page.waitForFunction(() => document.querySelector('.gemini-chat-messages').textContent.includes('Rule-based context'));
   assert.equal(await page.evaluate(() => window.game.incidentAssignments.size), 1);
   await page.click('#rescue-locate');
   assert.ok(await page.evaluate(() => window.locatedIncident));

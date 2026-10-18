@@ -31,6 +31,7 @@ import {
 } from '../simulation/flowData.js';
 import { ResourceDefenseGame } from '../simulation/resourceDefenseGame.js';
 import { RescueDashboardUI } from './rescueDashboard.js';
+import { TacticalAiCommander } from '../simulation/tacticalAiCommander.js';
 
 export const ICONS = {
   simulate: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>`,
@@ -344,13 +345,24 @@ export class GoogleMapsUI {
     this.resourceDefenseGame = new ResourceDefenseGame(this.viewer, this.floodEngine);
     this.simulationBarUI?.setResourceDefenseGame(this.resourceDefenseGame);
 
+    // Real-Time Tactical AI Commander & Rescue Dispatcher
+    this.tacticalAiCommander = new TacticalAiCommander({
+      viewer: this.viewer,
+      floodEngine: this.floodEngine,
+      resourceDefenseGame: this.resourceDefenseGame,
+      livePredictionEngine: this.livePredictionEngine,
+    });
+    this.tacticalAiCommander.mount(document.body);
+
     // Dedicated /rescue Route Dashboard (Live distress stream & LLM triage)
     this.rescueDashboard = new RescueDashboardUI({
+      tacticalAiCommander: this.tacticalAiCommander,
       resourceDefenseGame: this.resourceDefenseGame,
       floodEngine: this.floodEngine,
       onReturnToMap: () => this._showGlobeView(),
       onLocateOnGlobe: (sos) => this._locateSosOnGlobe(sos),
     });
+    this.tacticalAiCommander.getIncidents = () => this.rescueDashboard._ranked();
 
     // Origin Picker State
     this.selectedOriginPoint = null;
@@ -765,8 +777,11 @@ export class GoogleMapsUI {
         <button id="pred-advisory-btn" class="pred-btn-primary" type="button" title="View executive bilingual advisory in English and Urdu">
           <span>Bilingual Advisory (EN / اردو)</span>
         </button>
+        <button id="pred-copilot-btn" class="pred-btn-secondary" type="button" title="Ask Agahi Copilot about this grid and risk scores" style="background:#e0f2fe; border-color:#bae6fd; color:#0369a1;">
+          <span>Ask Agahi Copilot ✦</span>
+        </button>
         <button id="pred-refresh-btn" class="pred-btn-secondary" type="button" title="Re-ingest Sentinel SAR and ERA5 reanalysis">
-          <span>↻ Refresh Satellite Feeds</span>
+          <span>↻ Feeds</span>
         </button>
       </div>
     `;
@@ -1124,6 +1139,15 @@ export class GoogleMapsUI {
     document.getElementById('pred-advisory-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this._openBilingualAdvisory();
+    });
+
+    // Agahi Copilot live prediction query
+    document.getElementById('pred-copilot-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cell = this.livePredictionEngine?.selectedCell;
+      const cellName = cell?.name || 'Current Observation Grid';
+      this.tacticalAiCommander?.setOpen(true);
+      this.tacticalAiCommander?.sendMessage(`Analyze climate risk and Earth observation scores for ${cellName}: Flood SAR exposure is ${cell?.floodExposure}, LST anomaly is ${cell?.lstAnomalyC}, and terrain runoff is ${cell?.slopeDrainage}. Detail recommended infrastructure defense.`);
     });
 
     document.getElementById('bilingual-close-btn')?.addEventListener('click', () => {

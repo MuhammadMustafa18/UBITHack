@@ -48,6 +48,15 @@ export class FloodSimulationEngine {
     this._crestMarkerEntity = null;
     this._originPulseEntity = null;
     this._zoneEntities = new Map();
+
+    // Unique simulation identifier (e.g. SIM-PK-GLACIER-4912)
+    this.simulationId = this._generateSimulationId(this.scenarioKey);
+  }
+
+  _generateSimulationId(key = 'GLACIER') {
+    const code = String(key || 'SIM').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    return `SIM-PK-${code}-${rand}`;
   }
 
   get waypoints() {
@@ -88,6 +97,7 @@ export class FloodSimulationEngine {
     }
     this.scenarioKey = scenarioKey;
     this.activeScenario = FLOOD_SCENARIOS[scenarioKey];
+    this.simulationId = this._generateSimulationId(scenarioKey);
     this.scaleUnits = 0;
     this._syncSimHoursFromUnits();
 
@@ -293,6 +303,7 @@ export class FloodSimulationEngine {
       : currentWp.status || 'PROPAGATING';
 
     return {
+      simulationId: this.simulationId || this._generateSimulationId(this.scenarioKey),
       active: this.active,
       playing: this.playing,
       timeScale: this.timeScale,
@@ -331,6 +342,7 @@ export class FloodSimulationEngine {
     this._clearPrimitives();
     this.active = true;
     this.playing = true;
+    this.simulationId = this._generateSimulationId(this.scenarioKey);
     this.scaleUnits = 0;
     this.simHours = 0;
 

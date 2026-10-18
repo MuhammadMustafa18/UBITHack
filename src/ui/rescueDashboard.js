@@ -19,6 +19,8 @@ export class RescueDashboardUI {
     this.onLocateOnGlobe = options.onLocateOnGlobe || (() => {});
     this.game = options.resourceDefenseGame;
     this.floodEngine = options.floodEngine;
+    this.tacticalAiCommander = options.tacticalAiCommander;
+    this.chatMessages = [];
     this.signals = INITIAL_SOS_SIGNALS.map((s, i) => ({ ...s, createdAt: i, status: 'PENDING DISPATCH' }));
     this.selectedId = this.signals[0].id;
     this.activeFilter = 'all';
@@ -90,6 +92,7 @@ export class RescueDashboardUI {
     const focus = this.container.contains(document.activeElement) ? document.activeElement : null;
     const focusId = focus?.id;
     const selection = focus?.selectionStart;
+    const chatDraft = this.container.querySelector('#rescue-copilot-input')?.value;
     const state = this.game?.getState() || { pool: { boats: 0, firetrucks: 0, manpower: 0 }, incidentAssignments: [] };
     const ranked = this._ranked();
     const plan = allocationPlan(ranked, state);
@@ -124,10 +127,12 @@ export class RescueDashboardUI {
           <p class="rescue-notice" role="status">${escape(this.notice)}</p>
           ${selected ? this._detail(selected, state, plan.find((p) => p.incidentId === selected.id)) : ''}
           <details class="rescue-report-form"><summary>Add a distress report</summary>${this._reportForm()}</details>
+          ${this.tacticalAiCommander ? `<section class="gemini-chat-container"><div class="gemini-chat-header"><h2>Scenario copilot</h2></div><div class="gemini-chat-messages" aria-live="polite">${this.chatMessages.map((m) => `<div class="gemini-chat-bubble ${m.sender}">${escape(m.text)}</div>`).join('') || '<p>Ask about this incident, available resources or the active simulation. Chat replies do not dispatch incident resources.</p>'}</div><form id="rescue-copilot-form" class="rescue-copilot-form"><label for="rescue-copilot-input">Question about the selected incident</label><input id="rescue-copilot-input" required maxlength="1000"><button type="submit" class="rescue-btn-globe" ${this.chatBusy ? 'disabled' : ''}>${this.chatBusy ? 'Thinking…' : 'Ask copilot'}</button></form></section>` : ''}
           <section class="rescue-activity" aria-label="Activity log"><h2>Activity</h2>${this.activity.slice(0, 8).map((entry) => `<p><time>${escape(entry.time)}</time> ${escape(entry.message)}</p>`).join('') || '<p>No actions yet. Review a recommendation or add a report.</p>'}</section>
         </main>
       </div>`;
     this._bindEvents(top);
+    if (chatDraft) this.container.querySelector('#rescue-copilot-input').value = chatDraft;
     if (draft) {
       const form = this.container.querySelector('#rescue-report-form');
       for (const [key, value] of Object.entries(draft)) {
@@ -200,6 +205,36 @@ export class RescueDashboardUI {
       this._addIncident({ sender: 'Operator-reviewed report', district: String(data.get('district')).trim(), coords: [Number(data.get('lon')), Number(data.get('lat'))], message: String(data.get('message')).trim(), danger: data.get('danger'), resource: data.get('resource'), vulnerable: data.get('vulnerable') === 'on' }, true);
     });
     on('#rescue-ai-extract', 'click', () => this._extractTriage());
+    on('#rescue-copilot-form', 'submit', (event) => {
+      event.preventDefault();
+      const input = this.container.querySelector('#rescue-copilot-input');
+      const question = input.value;
+      input.value = '';
+      this._askCopilot(question);
+    });
+  }
+
+  async _askCopilot(question) {
+    if (this.chatBusy || !question.trim()) return;
+    const incident = this._ranked().find((s) => s.id === this.selectedId);
+    const state = this.game.getState();
+    this.chatMessages.push({ sender: 'user', text: question.trim() });
+    this.chatBusy = true;
+    this._render();
+    let answer;
+    try {
+      if (!this.tacticalAiCommander.config?.apiKey) throw new Error('Not configured');
+      const context = this.tacticalAiCommander.getOperationalContext();
+      answer = await this.tacticalAiCommander._callAiService(
+        `Exercise only; recommendations require operator approval. Do not claim a dispatch or invent unavailable facts. Selected incident: ${JSON.stringify(incident)}. Operator question: ${question}`, context);
+      answer = `AI suggestion — verify before acting:\n${answer}`;
+    } catch {
+      answer = `AI unavailable. Rule-based context: ${incident ? `${incident.district}: ${incident.reason} Status: ${incident.status}.` : 'No incident selected.'} Available: ${state.pool.boats} boats, ${state.pool.firetrucks} pumps, ${state.pool.manpower} personnel. Review the recommendation and approve dispatch using the incident controls.`;
+    }
+    this.chatMessages.push({ sender: 'assistant', text: answer });
+    this.chatMessages = this.chatMessages.slice(-20);
+    this.chatBusy = false;
+    this._render();
   }
 
   _addIncident(fields, clearDraft = false) {

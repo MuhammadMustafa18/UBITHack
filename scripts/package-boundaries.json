@@ -1659,6 +1659,7 @@
       "src/simulation/responsePanel.js",
       "src/simulation/riverCorridor.js",
       "src/simulation/simulationBar.js",
+      "src/simulation/tacticalAiCommander.js",
       "src/tools/area.js",
       "src/tools/catalog.js",
       "src/tools/schema.js",
