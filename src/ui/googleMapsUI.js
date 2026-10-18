@@ -31,6 +31,7 @@ import {
 } from '../simulation/flowData.js';
 import { ResourceDefenseGame } from '../simulation/resourceDefenseGame.js';
 import { RescueDashboardUI } from './rescueDashboard.js';
+import { TacticalAiCommander } from '../simulation/tacticalAiCommander.js';
 
 export const ICONS = {
   simulate: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>`,
@@ -344,8 +345,19 @@ export class GoogleMapsUI {
     this.resourceDefenseGame = new ResourceDefenseGame(this.viewer, this.floodEngine);
     this.simulationBarUI?.setResourceDefenseGame(this.resourceDefenseGame);
 
+    // Real-Time Tactical AI Commander & Rescue Dispatcher
+    this.tacticalAiCommander = new TacticalAiCommander({
+      viewer: this.viewer,
+      floodEngine: this.floodEngine,
+      resourceDefenseGame: this.resourceDefenseGame,
+    });
+    this.tacticalAiCommander.mount(document.body);
+
     // Dedicated /rescue Route Dashboard (Live distress stream & LLM triage)
     this.rescueDashboard = new RescueDashboardUI({
+      tacticalAiCommander: this.tacticalAiCommander,
+      resourceDefenseGame: this.resourceDefenseGame,
+      floodEngine: this.floodEngine,
       onReturnToGlobe: () => this._showGlobeView(),
       onLocateOnGlobe: (sos) => this._locateSosOnGlobe(sos),
     });

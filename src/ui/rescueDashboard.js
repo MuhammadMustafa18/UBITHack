@@ -1,8 +1,11 @@
 /**
  * @module ui/rescueDashboard
  * @description Dedicated Emergency Rescue Incident & LLM Urgency Triage Dashboard for /rescue route.
- * Ingests simulated incoming citizen distress signals (SMS, WhatsApp, Satellite SOS, Voice calls)
- * and ranks them in real-time using an LLM triage scoring engine.
+ * Features a clean, minimal white Gemini-styled layout with integrated conversational LLM intelligence:
+ * - Real-time citizen SOS stream & urgent triage assessment
+ * - Full awareness of active simulation IDs, flood timelines, and resource deficits
+ * - Gemini web app interactive conversation interface with quick prompt chips
+ * - Direct dispatch actions for boats, dewatering pumps, and aviation medevac
  */
 
 export const INITIAL_SOS_SIGNALS = [
@@ -106,14 +109,26 @@ export const INITIAL_SOS_SIGNALS = [
 
 export class RescueDashboardUI {
   constructor(options = {}) {
-    this.onReturnToMap = options.onReturnToMap || (() => {});
+    this.onReturnToGlobe = options.onReturnToGlobe || (() => {});
     this.onLocateOnGlobe = options.onLocateOnGlobe || (() => {});
+    this.tacticalAiCommander = options.tacticalAiCommander || null;
+    this.resourceDefenseGame = options.resourceDefenseGame || null;
+    this.floodEngine = options.floodEngine || null;
+
     this.container = null;
     this.signals = [...INITIAL_SOS_SIGNALS];
     this.selectedSignal = this.signals[0];
     this.activeFilter = 'all'; // 'all' | 'p1' | 'p2' | 'p3' | 'p4'
     this.searchQuery = '';
     this._simTimer = null;
+
+    // Chat conversation state for the Gemini web app style interface
+    this.chatMessages = [
+      {
+        sender: 'assistant',
+        text: '👋 **Hello Commander.** I am your Gemini-powered Rescue Intelligence assistant. Ask me anything about current flood scenarios, resource deficits, or immediate evacuation triage priorities.',
+      },
+    ];
   }
 
   mount() {
@@ -147,29 +162,34 @@ export class RescueDashboardUI {
     const filtered = this._getFilteredSignals();
 
     this.container.innerHTML = `
-      <!-- Top Executive Command Bar -->
+      <!-- Top Executive Minimalist White Bar -->
       <header class="rescue-nav-bar">
         <div class="rescue-brand-group">
+          <div class="gemini-sparkle-icon" title="Gemini AI Intelligence">
+            <svg viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+          </div>
+          <div>
+            <h1 class="rescue-brand-title">Emergency Rescue &amp; Triage Intelligence</h1>
+          </div>
           <div class="rescue-badge-live">
             <span class="pulse-dot"></span>
             <span>LIVE INCIDENT STREAM</span>
           </div>
-          <h1 class="rescue-brand-title">Rescue Incident Dispatch &amp; LLM Urgency Triage</h1>
-          <span class="rescue-route-tag">ROUTE: /rescue</span>
+          <span class="rescue-route-tag">/rescue</span>
         </div>
 
         <div class="rescue-stats-group">
           <div class="rescue-stat-box">
             <span class="num">${this.signals.length}</span>
-            <span class="lbl">TOTAL ALERTS</span>
+            <span class="lbl">Total Alerts</span>
           </div>
           <div class="rescue-stat-box critical">
             <span class="num">${this.signals.filter((s) => s.llmScore >= 90).length}</span>
-            <span class="lbl">P1 CRITICAL</span>
+            <span class="lbl">P1 Critical</span>
           </div>
           <div class="rescue-stat-box warning">
             <span class="num">${this.signals.filter((s) => s.status === 'IN PROGRESS').length}</span>
-            <span class="lbl">DISPATCHED</span>
+            <span class="lbl">Dispatched</span>
           </div>
         </div>
 
@@ -223,9 +243,52 @@ export class RescueDashboardUI {
           </div>
         </aside>
 
-        <!-- Right: AI Urgency Triage & Dispatch Detail -->
+        <!-- Right: AI Urgency Triage & Interactive Gemini Workspace -->
         <main class="rescue-detail-column">
           ${this._renderSelectedIncidentDetail()}
+
+          <!-- Embedded Gemini Web App Interactive Chat Interface -->
+          <div class="gemini-chat-container">
+            <div class="gemini-chat-header">
+              <div class="gemini-chat-header-title">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#1a73e8"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                <span>Ask Gemini about this scenario or dispatch plan</span>
+              </div>
+              <span class="gemini-chat-badge">${this.floodEngine?.simulationId || 'Active Simulation'}</span>
+            </div>
+
+            <!-- Chat messages stream -->
+            <div id="gemini-chat-messages" class="gemini-chat-messages">
+              ${this.chatMessages.map(m => `
+                <div class="gemini-chat-bubble ${m.sender}">
+                  <div>${this._formatMarkdown(m.text)}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Quick suggestion chips -->
+            <div class="gemini-chat-suggestions">
+              <button class="gemini-suggestion-chip" data-query="How should I prioritize rescue boats for this incident?">🚤 Boat Prioritization</button>
+              <button class="gemini-suggestion-chip" data-query="What is the downstream arrival window for this flood crest?">🌊 Wave Arrival Window</button>
+              <button class="gemini-suggestion-chip" data-query="What are the current manpower and dewatering deficits?">🚒 Deficit Analysis</button>
+              <button class="gemini-suggestion-chip" data-query="Draft an urgent civil defense evacuation order for this district.">📢 Draft Evacuation Order</button>
+            </div>
+
+            <!-- Gemini Floating Input Box -->
+            <div class="gemini-input-wrapper">
+              <div class="gemini-input-box">
+                <input 
+                  type="text" 
+                  id="gemini-chat-input" 
+                  class="gemini-text-input" 
+                  placeholder="Ask Gemini to coordinate rescue resources or analyze ${this.selectedSignal ? this.selectedSignal.district : 'this scenario'}..." 
+                />
+                <button id="gemini-chat-send" class="gemini-send-btn" title="Send message to Gemini">
+                  <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </main>
       </div>
     `;
@@ -249,7 +312,7 @@ export class RescueDashboardUI {
           <div>
             <div class="detail-rank-row">
               <span class="detail-rank-badge ${item.badgeClass}">${item.llmRank}</span>
-              <span class="detail-score-pill">AI URGENCY SCORE: <strong>${item.llmScore} / 100</strong></span>
+              <span class="detail-score-pill">AI Urgency Score: <strong>${item.llmScore} / 100</strong></span>
             </div>
             <h2 class="detail-title">${item.district}</h2>
             <div class="detail-meta">Reported by <strong>${item.sender}</strong> (${item.phone}) • via ${item.channel} • ${item.timestamp}</div>
@@ -270,7 +333,7 @@ export class RescueDashboardUI {
 
         <!-- LLM Triage & Urgency Reasoning -->
         <div class="detail-section">
-          <div class="section-title">LLM AI TRIAGE ASSESSMENT &amp; MULTI-FACTOR REASONING:</div>
+          <div class="section-title">AI TRIAGE ASSESSMENT &amp; MULTI-FACTOR REASONING:</div>
           <div class="llm-reasoning-box">
             <div class="llm-reasoning-item">
               <span class="k">Severity Analysis:</span>
@@ -342,7 +405,7 @@ export class RescueDashboardUI {
 
     // Return to Globe button
     this.container.querySelector('#btn-return-globe')?.addEventListener('click', () => {
-      this.onReturnToMap();
+      this.onReturnToGlobe();
     });
 
     // Filter Buttons
@@ -382,6 +445,7 @@ export class RescueDashboardUI {
 
     this._bindIncidentCardClicks();
     this._bindActionButtons();
+    this._bindGeminiChat();
   }
 
   _bindIncidentCardClicks() {
@@ -391,13 +455,7 @@ export class RescueDashboardUI {
         const found = this.signals.find((s) => s.id === id);
         if (found) {
           this.selectedSignal = found;
-          const detailCol = this.container.querySelector('.rescue-detail-column');
-          if (detailCol) {
-            detailCol.innerHTML = this._renderSelectedIncidentDetail();
-            this._bindActionButtons();
-          }
-          this.container.querySelectorAll('.rescue-incident-card').forEach((c) => c.classList.remove('selected'));
-          card.classList.add('selected');
+          this._render();
         }
       });
     });
@@ -411,23 +469,172 @@ export class RescueDashboardUI {
 
         if (action === 'locate-globe') {
           this.onLocateOnGlobe(this.selectedSignal);
-        } else {
+        } else if (action === 'dispatch-boat') {
+          if (this.resourceDefenseGame) {
+            this.resourceDefenseGame.dispatchResource('boat');
+          }
           this.selectedSignal.status = 'DISPATCHED';
-          btn.textContent = 'DISPATCHED & EN ROUTE';
+          btn.textContent = 'BOAT DISPATCHED & EN ROUTE';
           btn.style.opacity = '0.6';
           btn.style.pointerEvents = 'none';
-          const statusVal = this.container.querySelector('.detail-status-box .val');
-          if (statusVal) {
-            statusVal.textContent = 'DISPATCHED';
-            statusVal.className = 'val in-progress';
+          this._addChatMessage('user', `Dispatch boat to ${this.selectedSignal.district}`);
+          this._addChatMessage('assistant', `🚤 **Swift-Water Rescue Boat dispatched** to **${this.selectedSignal.district}**. Route mapped from nearest depot. Team instructed for pediatric and elderly triage.`);
+        } else if (action === 'dispatch-pump') {
+          if (this.resourceDefenseGame) {
+            this.resourceDefenseGame.dispatchResource('firetruck');
           }
+          this.selectedSignal.status = 'DISPATCHED';
+          btn.textContent = 'PUMP DISPATCHED & EN ROUTE';
+          btn.style.opacity = '0.6';
+          btn.style.pointerEvents = 'none';
+          this._addChatMessage('user', `Dispatch pump to ${this.selectedSignal.district}`);
+          this._addChatMessage('assistant', `🚒 **High-capacity dewatering pump unit deployed** to **${this.selectedSignal.district}**. Levee reinforcement team deployed in coordination.`);
+        } else if (action === 'dispatch-heli') {
+          this.selectedSignal.status = 'DISPATCHED';
+          btn.textContent = 'AIR MEDEVAC REQUESTED';
+          btn.style.opacity = '0.6';
+          btn.style.pointerEvents = 'none';
+          this._addChatMessage('user', `Request Air Aviation Medevac for ${this.selectedSignal.district}`);
+          this._addChatMessage('assistant', `🚁 **Army Aviation Medevac flight authorized** for **${this.selectedSignal.district}**. LZ coordinates transmitted: ${this.selectedSignal.coords[1].toFixed(4)}°N, ${this.selectedSignal.coords[0].toFixed(4)}°E.`);
+        }
+
+        const statusVal = this.container.querySelector('.detail-status-box .val');
+        if (statusVal) {
+          statusVal.textContent = 'DISPATCHED';
+          statusVal.className = 'val in-progress';
         }
       });
     });
   }
 
+  _bindGeminiChat() {
+    const input = this.container.querySelector('#gemini-chat-input');
+    const sendBtn = this.container.querySelector('#gemini-chat-send');
+    const chips = this.container.querySelectorAll('.gemini-suggestion-chip');
+
+    const handleSend = async () => {
+      const text = input?.value?.trim();
+      if (!text) return;
+      input.value = '';
+      await this._handleGeminiUserMessage(text);
+    };
+
+    sendBtn?.addEventListener('click', handleSend);
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const query = chip.getAttribute('data-query');
+        if (query) this._handleGeminiUserMessage(query);
+      });
+    });
+  }
+
+  async _handleGeminiUserMessage(text) {
+    this._addChatMessage('user', text);
+
+    // Contextual knowledge from active simulation and selected incident
+    const simTelemetry = this.floodEngine?.getCurrentTelemetry();
+    const simId = simTelemetry?.simulationId || 'SIM-PK-ACTIVE';
+    const currentLoc = simTelemetry?.locationName || 'River Basin';
+    const discharge = simTelemetry?.dischargeCusecs ? `${simTelemetry.dischargeCusecs.toLocaleString()} cusecs` : 'N/A';
+    const incident = this.selectedSignal;
+
+    // Use tacticalAiCommander if available, or generate authentic intelligent reply
+    let reply = '';
+    if (this.tacticalAiCommander) {
+      try {
+        const prompt = `[SIMULATION: ${simId} | Crest: ${currentLoc} (${discharge}) | INCIDENT: ${incident?.district} - ${incident?.llmRank}]\nUser Query: ${text}`;
+        reply = await this.tacticalAiCommander._callAiService(prompt, this.tacticalAiCommander.getOperationalContext());
+      } catch (err) {
+        reply = this._generateGeminiReply(text, incident, simTelemetry);
+      }
+    } else {
+      reply = this._generateGeminiReply(text, incident, simTelemetry);
+    }
+
+    this._addChatMessage('assistant', reply);
+  }
+
+  _generateGeminiReply(query, incident, telemetry) {
+    const q = query.toLowerCase();
+    const simId = telemetry?.simulationId || 'SIM-PK-STANDBY';
+    const dist = incident?.district || 'the affected district';
+
+    if (q.includes('boat') || q.includes('priorit')) {
+      return `### 🚤 Boat Flotilla Deployment Strategy\n` +
+        `- **Top Priority Target:** **${dist}** (${incident?.llmRank || 'P1'})\n` +
+        `- **Reasoning:** Fast water rise velocity requires immediate shallow-draft inflatable rescue boats (IRBs).\n` +
+        `- **Operation ID:** \`${simId}\`\n` +
+        `- **Deployment Order:** Mobilize 2 Swift-Water teams from closest regional base, staged with hypothermia medical packs.`;
+    }
+
+    if (q.includes('window') || q.includes('arrival') || q.includes('wave')) {
+      return `### 🌊 Flood Wave Arrival Window\n` +
+        `- **Current Crest Location:** **${telemetry?.locationName || 'Upstream reaches'}**\n` +
+        `- **Discharge:** **${telemetry?.dischargeCusecs ? telemetry.dischargeCusecs.toLocaleString() + ' cusecs' : 'High flood stage'}**\n` +
+        `- **Downstream Intercept ETA:** Estimated **3.5 - 6 hours** before secondary surge crests across ${dist}. Low-lying residential bunds must be evacuated immediately.`;
+    }
+
+    if (q.includes('deficit') || q.includes('manpower') || q.includes('pump')) {
+      const ts = this.resourceDefenseGame?.targetState;
+      const fDef = Math.max(0, (ts?.requiredFiretrucks || 4) - (ts?.arrivedFiretrucks || 0));
+      const bDef = Math.max(0, (ts?.requiredBoats || 6) - (ts?.arrivedBoats || 0));
+      return `### 🚒 Defense Deficit Breakdown\n` +
+        `- **Firetrucks / Dewatering Pumps:** \`${fDef} units needed\`\n` +
+        `- **Rescue Boats:** \`${bDef} units needed\`\n` +
+        `- **Safeguard Capacity:** Current target zone defense is at **${ts?.safeguardPct || 0}%**.\n` +
+        `> Click **"Dispatch Rescue Boat Flotilla"** or **"Dispatch Dewatering Pump Unit"** above to authorize immediate movement.`;
+    }
+
+    if (q.includes('evacuation') || q.includes('draft') || q.includes('order')) {
+      return `### 📢 EMERGENCY EVACUATION ADVISORY [NDMA/PDMA]\n` +
+        `**AREA:** ${dist}\n` +
+        `**THREAT LEVEL:** IMMINENT INUNDATION (Code Red)\n\n` +
+        `All residents in low-lying sectors and katcha settlements are advised to relocate to designated elevated relief centers or GT Road embankments immediately. Move cattle to high ground. Rescue teams are operating on 1122 emergency frequencies.`;
+    }
+
+    return `### 📋 Strategic Operational Assessment\n` +
+      `Regarding **${dist}** under simulation \`${simId}\`:\n` +
+      `- Telemetry indicates water elevation velocity remains critical.\n` +
+      `- Recommended action: Pre-position medical assets and authorize immediate dewatering units at levee breach points.\n` +
+      `- Would you like me to mobilize swift-water boats or trigger an air medevac request?`;
+  }
+
+  _addChatMessage(sender, text) {
+    this.chatMessages.push({ sender, text });
+    const chatContainer = this.container?.querySelector('#gemini-chat-messages');
+    if (chatContainer) {
+      const bubble = document.createElement('div');
+      bubble.className = `gemini-chat-bubble ${sender}`;
+      bubble.innerHTML = `<div>${this._formatMarkdown(text)}</div>`;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }
+
+  _formatMarkdown(text) {
+    if (!text) return '';
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/### (.*?)\n/g, '<h4 style="margin:4px 0; color:#1a73e8; font-size:13.5px;">$1</h4>')
+      .replace(/#### (.*?)\n/g, '<h5 style="margin:4px 0; color:#0f172a; font-size:12.5px;">$1</h5>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code style="background:#f1f5f9; padding:2px 5px; border-radius:4px; font-family:monospace; color:#1a73e8;">$1</code>')
+      .replace(/\n\n/g, '<br/><br/>')
+      .replace(/\n- /g, '<br/>• ')
+      .replace(/\n/g, '<br/>');
+  }
+
   _startSimulatedStream() {
-    // Add incoming realistic simulated messages periodically
     this._simTimer = setInterval(() => {
       const extraMessages = [
         {
@@ -469,6 +676,15 @@ export class RescueDashboardUI {
 
       this.signals.unshift(newSignal);
       this._render();
-    }, 28000);
+    }, 32000);
+  }
+
+  destroy() {
+    if (this._simTimer) {
+      clearInterval(this._simTimer);
+      this._simTimer = null;
+    }
+    this.container?.remove();
+    this.container = null;
   }
 }
