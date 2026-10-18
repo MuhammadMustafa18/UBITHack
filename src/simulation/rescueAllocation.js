@@ -66,7 +66,9 @@ export function allocationPlan(ranked, state) {
       if (resource.pool) remaining.pool[resource.pool] -= 1;
       remaining.pool.manpower -= resource.crew;
     }
-    return { incidentId: incident.id, type: incident.resource, blocked,
-      reason: blocked || `${incident.reason} Allocate one ${resource.label.toLowerCase()} with ${resource.crew} personnel. Higher-ranked needs receive resources first.` };
+    const reason = blocked && !canDispatch(incident, state)
+      ? 'The recommended plan reserves the remaining stock for higher-priority needs. You may manually override that order while stock is still available.'
+      : blocked || `${incident.reason} Allocate one ${resource.label.toLowerCase()} with ${resource.crew} personnel. Higher-ranked needs receive resources first.`;
+    return { incidentId: incident.id, type: incident.resource, blocked, reason };
   });
 }
