@@ -32,6 +32,26 @@ import {
 import { ResourceDefenseGame } from '../simulation/resourceDefenseGame.js';
 import { RescueDashboardUI } from './rescueDashboard.js';
 import { TacticalAiCommander } from '../simulation/tacticalAiCommander.js';
+import { RiskGridLayer } from '../intelligence/gridLayer.js';
+import { RiskDashboardPanel } from '../intelligence/dashboardPanel.js';
+import { CopilotPanel } from '../intelligence/copilotPanel.js';
+import { renderCellCard } from '../intelligence/cellCard.js';
+import { cellExplain } from '../intelligence/queries.js';
+import {
+  AGAHI_GRID_CREDIT,
+  AGAHI_OPENMETEO_CREDIT,
+  registerDynamicCredit,
+} from '../data/dataCredits.js';
+
+const RISK_HAZARDS = [
+  ['composite', 'Composite risk'],
+  ['flood', 'Flood'],
+  ['heat', 'Heat'],
+  ['terrain', 'Terrain'],
+  ['air', 'Air quality'],
+  ['veg', 'Vegetation'],
+];
+
 
 export const ICONS = {
   simulate: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>`,
@@ -369,6 +389,23 @@ export class GoogleMapsUI {
     this._originPickerHandler = null;
     this._originPickerEntities = [];
 
+    // Agahi Risk Grid, Dashboard & Copilot
+    this.selectedCellId = null;
+    this.riskHazard = 'composite';
+    this.riskLayer = new RiskGridLayer(this.viewer, {
+      onCellClick: (explain) => this._showRiskCell(explain),
+    });
+    this.riskDashboard = new RiskDashboardPanel({
+      onSelectCell: (id) => this._selectRiskCell(id),
+      onAoiChange: (aoi) => this._showRiskLayer(aoi),
+    });
+    this.copilot = new CopilotPanel({
+      getContext: () => ({
+        aoi: this.riskDashboard.aoi,
+        cellId: this.selectedCellId,
+      }),
+    });
+
     this._init();
   }
 
@@ -504,6 +541,14 @@ export class GoogleMapsUI {
         <button id="gmaps-pill-response" class="gmaps-pill" type="button" title="Staging, alert drafts and 2022 check (Swat–Kabul exercise)">
           <span class="gmaps-pill-icon">${ICONS.hotspot}</span>
           <span>Response</span>
+        </button>
+        <button id="gmaps-pill-risk" class="gmaps-pill" type="button" title="Agahi Climate Intelligence: grid risk scores, advisories and dashboard">
+          <span class="gmaps-pill-icon">${ICONS.hotspot}</span>
+          <span>Risk Intel</span>
+        </button>
+        <button id="gmaps-pill-copilot" class="gmaps-pill" type="button" title="Ask the grounded Agahi climate copilot">
+          <span class="gmaps-pill-icon">${ICONS.weather}</span>
+          <span>Copilot</span>
         </button>
         <button id="gmaps-pill-weather" class="gmaps-pill" type="button" title="Live Precipitation &amp; Weather Radar">
           <span class="gmaps-pill-icon">${ICONS.weather}</span>
@@ -1256,6 +1301,31 @@ export class GoogleMapsUI {
       ?.addEventListener('click', (e) => {
         e.stopPropagation();
         this.responsePanel.toggle();
+      });
+
+    document
+      .getElementById('gmaps-pill-risk')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.riskDashboard.visible) {
+          this._hideRisk();
+          return;
+        }
+        const aoi = this.riskDashboard.aoi || 'sukkur';
+        this.riskDashboard.show(aoi);
+        this._showRiskLayer(aoi);
+        this._showRiskHazardDropdown();
+        document.getElementById('gmaps-pill-risk')?.classList.add('active');
+      });
+
+    document
+      .getElementById('gmaps-pill-copilot')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const on = this.copilot.toggle();
+        document
+          .getElementById('gmaps-pill-copilot')
+          ?.classList.toggle('active', on);
       });
 
     document
@@ -2073,9 +2143,113 @@ export class GoogleMapsUI {
     document.querySelectorAll('.gmaps-pill').forEach((p) => {
       p.classList.remove('active');
     });
+    if (this.riskDashboard?.visible) {
+      document.getElementById('gmaps-pill-risk')?.classList.add('active');
+    }
+    if (this.copilot?.visible) {
+      document.getElementById('gmaps-pill-copilot')?.classList.add('active');
+    }
     const card = document.getElementById('gmaps-dropdown-card');
     card?.classList.add('hidden');
     card?.classList.remove('sim-dialog-mode');
+  }
+
+  async _showRiskLayer(aoi) {
+    this._clearRiskCell();
+    this.riskLayer.setHazard(this.riskHazard);
+    await this.riskLayer.show(aoi);
+    const grid = this.riskLayer.grid;
+    if (!grid) return;
+    registerDynamicCredit(
+      this.viewer,
+      grid.pipeline === 'openmeteo'
+        ? AGAHI_OPENMETEO_CREDIT
+        : AGAHI_GRID_CREDIT,
+    );
+    this.riskLayer.flyTo();
+  }
+
+  _hideRisk() {
+    this.riskDashboard.hide();
+    this.riskLayer.hide();
+    this._clearRiskCell();
+    document.getElementById('gmaps-pill-risk')?.classList.remove('active');
+    this._closeDropdown();
+  }
+
+  _riskCardEl() {
+    let el = document.getElementById('agahi-cell-card');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'agahi-cell-card';
+      el.className = 'agahi-cell-card hidden';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  _clearRiskCell() {
+    this.selectedCellId = null;
+    this.riskLayer.highlight(null);
+    this._riskCardEl().classList.add('hidden');
+  }
+
+  _selectRiskCell(id) {
+    const grid = this.riskLayer.grid;
+    if (!grid) return;
+    this._showRiskCell(cellExplain(grid, id));
+  }
+
+  _showRiskCell(explain) {
+    if (!explain) return;
+    this.selectedCellId = explain.id;
+    this.riskLayer.highlight(explain.id);
+    const el = this._riskCardEl();
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'agahi-cell-card-close';
+    close.setAttribute('aria-label', 'Close');
+    close.textContent = '✕';
+    close.addEventListener('click', () => this._clearRiskCell());
+    el.replaceChildren(close, renderCellCard(explain));
+    el.classList.remove('hidden');
+  }
+
+  _showRiskHazardDropdown() {
+    const card = document.getElementById('gmaps-dropdown-card');
+    if (!card) return;
+    this.activeCategory = 'risk';
+    card.classList.remove('sim-dialog-mode');
+    card.innerHTML = `
+      <div class="gmaps-dropdown-header">
+        <div class="dropdown-header-title"><span>Risk layer</span></div>
+        <button id="gmaps-dropdown-close" class="gmaps-close-btn" type="button" aria-label="Close">✕</button>
+      </div>
+      <div class="gmaps-dropdown-body">
+        ${RISK_HAZARDS.map(
+          ([key, label]) => `
+        <div class="gmaps-dropdown-item" data-hazard="${key}" role="button" tabindex="0">
+          <div class="item-info-col">
+            <div class="item-name-row">
+              <span class="item-title">${label}</span>
+              ${key === this.riskHazard ? '<span class="item-badge">Showing</span>' : ''}
+            </div>
+          </div>
+        </div>`,
+        ).join('')}
+      </div>
+    `;
+    card.classList.remove('hidden');
+    card.querySelectorAll('[data-hazard]').forEach((elem) => {
+      elem.addEventListener('click', () => {
+        this.riskHazard = elem.dataset.hazard;
+        this.riskLayer.setHazard(this.riskHazard);
+        this._closeDropdown();
+      });
+    });
+    card
+      .querySelector('#gmaps-dropdown-close')
+      ?.addEventListener('click', () => this._closeDropdown());
   }
 
   flyToLocation(target) {
@@ -2579,5 +2753,9 @@ export class GoogleMapsUI {
     this.predictiveHeatmaps?.destroy();
     this.countryThreatPolygons?.destroy();
     this.responsePanel?.destroy();
+    this.riskLayer?.destroy();
+    this.riskDashboard?.hide();
+    this.copilot?.hide();
+    document.getElementById('agahi-cell-card')?.remove();
   }
 }

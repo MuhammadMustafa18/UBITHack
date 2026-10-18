@@ -1,0 +1,1148 @@
+{
+  "aoi": "swat_kabul",
+  "generatedBy": "claude-haiku-5-5",
+  "generatedAt": "2026-10-18T15:14:12.000Z",
+  "entries": [
+    {
+      "id": "overview",
+      "intent": "overview",
+      "questions": {
+        "en": [
+          "Give me an overview of Swat–Kabul",
+          "What is the climate risk picture for the Swat–Kabul corridor?",
+          "Summarise the risk situation in Swat–Kabul",
+          "How risky is the Swat–Kabul corridor overall?",
+          "What does the risk map show for Swat–Kabul?",
+          "Brief me on the climate risk in the Swat–Kabul corridor",
+          "How many cells are assessed in Swat–Kabul and what bands are they in?",
+          "Is the Swat–Kabul corridor safe from climate hazards?",
+          "Give me a short risk summary for the Swat–Kabul area"
+        ],
+        "ur": [
+          "سوات–کابل راہداری کے موسمیاتی خطرے کا خلاصہ بتائیں",
+          "سوات–کابل میں موسمیاتی خطرات کی کیا صورتحال ہے؟",
+          "سوات–کابل کے لیے مجموعی خطرے کی تصویر دکھائیں",
+          "کیا سوات–کابل راہداری میں موسمیاتی خطرہ زیادہ ہے؟",
+          "سوات–کابل کے علاقے کی مختصر بریفنگ دیں",
+          "سوات–کابل کے نقشے میں کیا دکھایا گیا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Swat–Kabul has 1295 grid cells, and 1085 of them (84 percent) sit in the low composite band, with 209 in moderate and just one in elevated, while none are high. Terrain is the leading driver across 876 cells, heat leads in 288 and air in 108, and flood is a driver in 23. Population is not loaded and vegetation has no data, so this is a terrain, heat and air picture rather than a full risk assessment.",
+        "ur": "سوات–کابل راہداری میں 1295 گرڈ خانے ہیں، جن میں سے 1085 (84 فیصد) کم بینڈ میں ہیں، 209 درمیانہ بینڈ میں ہیں اور صرف ایک خانہ بلند بینڈ میں ہے، جبکہ کوئی خانہ زیادہ بینڈ میں نہیں۔ زمین کی ہیئت 876 خانوں میں سب سے بڑا عامل ہے، گرمی 288 اور ہوا 108 خانوں میں عامل ہیں، اور سیلاب 23 خانوں میں عامل ہے۔ آبادی لوڈ نہیں ہوئی اور سبزے کا ڈیٹا موجود نہیں، اس لیے یہ زمین، گرمی اور ہوا کی تصویر ہے، مکمل خطرے کا جائزہ نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_aoi_risk_summary",
+          "args": {
+            "aoi": "swat_kabul"
+          }
+        }
+      ]
+    },
+    {
+      "id": "riskiest_cells",
+      "intent": "riskiest",
+      "questions": {
+        "en": [
+          "Which cells in Swat–Kabul are the riskiest?",
+          "Show me the highest risk cells in Swat–Kabul",
+          "Where is the risk highest in the corridor?",
+          "Which areas of Swat–Kabul need attention first?",
+          "List the top risk cells",
+          "What are the most at-risk cells in Swat–Kabul?",
+          "Which cells score highest on composite risk?",
+          "Where should I look first in Swat–Kabul?",
+          "Name the riskiest locations in the corridor"
+        ],
+        "ur": [
+          "سوات–کابل میں سب سے زیادہ خطرے والے خانے کون سے ہیں؟",
+          "سب سے زیادہ خطرے والی جگہیں دکھائیں",
+          "راہداری میں خطرہ کہاں سب سے زیادہ ہے؟",
+          "پہلے کہاں توجہ دینی چاہیے؟",
+          "سب سے اوپر کے خطرناک خانوں کی فہرست دیں",
+          "سوات–کابل کے سب سے زیادہ متاثرہ مقامات کون سے ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "The highest composite score is 46 at swat_kabul:14:2, the only elevated cell in the corridor, with terrain at 91 and heat at 38 doing the work. The next two, swat_kabul:23:7 at 36 and swat_kabul:18:6 at 35, are moderate and also driven by terrain and heat, so start with 14:2 and work through the top eight in order.",
+        "ur": "سوات–کابل میں بلند ترین مجموعی اسکور 46 ہے، جو swat_kabul:14:2 پر ہے، یہ راہداری کا واحد بلند بینڈ کا خانہ ہے، جس میں زمین کی ہیئت 91 اور گرمی 38 ہے۔ اگلے دو خانے swat_kabul:23:7 (36) اور swat_kabul:18:6 (35) درمیانہ بینڈ میں ہیں اور انہیں بھی زمین اور گرمی ہی بڑھاتی ہیں، اس لیے پہلے 14:2 دیکھیں اور پھر اوپر کے آٹھ خانوں کو ترتیب سے دیکھیں۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "swat_kabul",
+            "hazard": "composite",
+            "limit": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_flood",
+      "intent": "hazard",
+      "hazard": "flood",
+      "questions": {
+        "en": [
+          "Is there flood risk in Swat–Kabul?",
+          "What is the flood situation in the corridor?",
+          "Which cells are most at risk of flooding?",
+          "Show me flood risk for Swat–Kabul",
+          "Is Swat–Kabul prone to floods?",
+          "Flood hazard in Swat–Kabul",
+          "Where does flooding threaten the corridor most?",
+          "Give me the flood ranking for Swat–Kabul",
+          "Are there flood hotspots in Swat–Kabul?"
+        ],
+        "ur": [
+          "سوات–کابل میں سیلاب کا خطرہ کیسا ہے؟",
+          "سوات–کابل میں کون سے خانے سیلاب کے لیے زیادہ خطرے میں ہیں؟",
+          "کیا سوات–کابل سیلاب کا شکار ہو سکتا ہے؟",
+          "سوات–کابل کے لیے سیلاب کی رینکنگ دکھائیں",
+          "سوات–کابل میں سیلاب کے ہاٹ اسپاٹ کہاں ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "Flood is scored only where the 2022 UNOSAT flood extent overlaps a community, and it is historic extent from the 2022 monsoon, not a live or forecast flood. The most exposed cells are swat_kabul:26:11 at 44 and swat_kabul:25:11 at 43, both on flat ground near 294 and 295 m, followed by swat_kabul:33:10 at 42 and swat_kabul:27:10 at 41. Most of the grid has no flood score, so the grid mean of 5 should not be read as a flood-free picture, and the app's corridor simulation is separate and gives no numbers here.",
+        "ur": "سیلاب کا اسکور صرف وہیں ہے جہاں 2022 کا UNOSAT سیلابی پھیلاؤ کسی کمیونٹی سے ملتا ہے، اور یہ 2022 کے مون سون کا تاریخی پھیلاؤ ہے، لائیو یا پیش گوئی شدہ سیلاب نہیں۔ سب سے زیادہ متاثرہ خانے swat_kabul:26:11 (44) اور swat_kabul:25:11 (43) ہیں، جو تقریباً 294 اور 295 میٹر کی ہموار زمین پر ہیں، ان کے بعد swat_kabul:33:10 (42) اور swat_kabul:27:10 (41) ہیں۔ زیادہ تر گرڈ کا سیلابی اسکور موجود نہیں، اس لیے اوسط 5 کو سیلاب سے پاک علاقے کی تصویر نہ سمجھیں؛ ایپ کی راہداری کی سیلابی نقل الگ فیچر ہے اور یہاں اس کے عددی نتائج نہیں دیے گئے۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "swat_kabul",
+            "hazard": "flood",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_heat",
+      "intent": "hazard",
+      "hazard": "heat",
+      "questions": {
+        "en": [
+          "How hot is Swat–Kabul?",
+          "What is the heat risk in the Swat–Kabul corridor?",
+          "Which cells have the highest heat risk?",
+          "Show me heat hazard for Swat–Kabul",
+          "Is extreme heat a problem in the corridor?",
+          "Where is the hottest part of Swat–Kabul?",
+          "Give me the heat ranking for Swat–Kabul",
+          "What temperatures has Swat–Kabul recorded?",
+          "Heat risk in Swat–Kabul"
+        ],
+        "ur": [
+          "سوات–کابل میں گرمی کا خطرہ کتنا ہے؟",
+          "سب سے گرم خانے کون سے ہیں؟",
+          "سوات–کابل میں شدید گرمی کا مسئلہ ہے؟",
+          "سوات–کابل میں گرمی کی رینکنگ دکھائیں",
+          "سوات–کابل کا درجہ حرارت کیا ریکارڈ ہوا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Heat is the second driver across the corridor, with a grid mean of 8 and a leading role in 288 cells. The hottest scored cells are swat_kabul:18:12, 18:13, 19:12 and 19:13, all at 41, and the detailed ones among them read 38.2 °C in ERA5 2 m air temperature for May to July 2023 to 2025. That is reanalysis air temperature, not satellite surface temperature, so plan cooling and heat-health measures around that cluster, with swat_kabul:0:34 at 40 the next hottest.",
+        "ur": "گرمی سوات–کابل میں دوسرا بڑا عامل ہے، جس کا گرڈ اوسط 8 ہے اور یہ 288 خانوں میں عامل ہے۔ سب سے گرم اسکور والے خانے swat_kabul:18:12، 18:13، 19:12 اور 19:13 ہیں، جن میں سے تفصیلی خانوں میں ERA5 کا 2 میٹر ہوا کا درجہ حرارت 38.2 °C ریکارڈ ہوا ہے (مئی سے جولائی 2023 سے 2025 تک)۔ یہ تجزیاتی ہوا کا درجہ حرارت ہے، سیٹلائٹ کی زمینی سطح کا نہیں، اس لیے ٹھنڈک اور گرمی سے بچاؤ کے اقدامات انہی خانوں کے گرد ترتیب دیں، اور swat_kabul:0:34 (40) اگلا سب سے گرم خانہ ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "swat_kabul",
+            "hazard": "heat",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_terrain",
+      "intent": "hazard",
+      "hazard": "terrain",
+      "questions": {
+        "en": [
+          "What is the terrain risk in Swat–Kabul?",
+          "How steep is the land in the corridor?",
+          "Which cells have the most terrain risk?",
+          "Show me slope and elevation risk for Swat–Kabul",
+          "Is the terrain in Swat–Kabul a hazard?",
+          "Give me the terrain ranking for Swat–Kabul",
+          "Where is the land steepest in the corridor?",
+          "Terrain hazard in Swat–Kabul",
+          "Is the terrain flat in Swat–Kabul?"
+        ],
+        "ur": [
+          "سوات–کابل میں زمین کی ہیئت کا خطرہ کیا ہے؟",
+          "سوات–کابل میں کون سے خانے زیادہ ڈھلوان ہیں؟",
+          "زمین کی ہیئت کی رینکنگ دکھائیں",
+          "کیا سوات–کابل کی زمین ہموار ہے؟",
+          "سوات–کابل میں بلندی اور ڈھلوان کا خطرہ بتائیں"
+        ]
+      },
+      "answer": {
+        "en": "Terrain is the dominant driver, leading in 876 cells with a grid mean of 42, built from Copernicus DEM elevation and slope. The five highest terrain scores are all 100, at swat_kabul:0:23, 10:30, 11:10, 11:30 and 11:34, and the steepest detailed cell is swat_kabul:11:10 at 35.2 degrees and 2863 m. Those high-relief cells still have moderate composites of 29, 28 and 30, so terrain drives them without lifting them into a higher band, and field visits should plan around the slope.",
+        "ur": "زمین کی ہیئت سوات–کابل میں غالب عامل ہے، 876 خانوں میں بنیادی عامل ہے، اور اس کا گرڈ اوسط 42 ہے، جو Copernicus DEM کی بلندی اور ڈھلوان سے بنتا ہے۔ سب سے اوپر کے پانچ اسکور 100 ہیں، جو swat_kabul:0:23، 10:30، 11:10، 11:30 اور 11:34 پر ہیں، اور تفصیلی خانوں میں سب سے سخت ڈھلوان swat_kabul:11:10 پر 35.2 ڈگری اور 2863 میٹر ہے۔ ان بلند خانوں کے مجموعی اسکور 29، 28 اور 30 درمیانہ بینڈ میں ہیں، اس لیے زمین کی ہیئت انہیں بلند بینڈ تک نہیں لے جاتی، مگر میدانی دورے ڈھلوان کو مدِنظر رکھ کر کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "swat_kabul",
+            "hazard": "terrain",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_air",
+      "intent": "hazard",
+      "hazard": "air",
+      "questions": {
+        "en": [
+          "What is the air quality risk in Swat–Kabul?",
+          "How polluted is the air in the corridor?",
+          "Which cells have the worst air indicator?",
+          "Show me air hazard for Swat–Kabul",
+          "Is air pollution a problem in the corridor?",
+          "Give me the air ranking for Swat–Kabul",
+          "Where is the air worst in Swat–Kabul?",
+          "What are the NO2 and aerosol levels in Swat–Kabul?",
+          "Air risk in Swat–Kabul"
+        ],
+        "ur": [
+          "سوات–کابل میں ہوا کی آلودگی کا خطرہ کیسا ہے؟",
+          "سوات–کابل کی ہوا کتنی آلودہ ہے؟",
+          "ہوا کے سب سے خراب خانے کون سے ہیں؟",
+          "سوات–کابل میں ہوا کی رینکنگ دکھائیں",
+          "کیا سوات–کابل میں فضائی آلودگی ایک مسئلہ ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Air is a driver in 108 cells, with a grid mean of 13, and it comes from CAMS model output for NO2, CO, SO2 and aerosol optical depth over the past 30 days. It is a relative indicator, not a ground concentration, and the top scores of 46 at swat_kabul:34:5, 34:6, 34:7, 34:8 and 35:5 share the same CAMS readings, so they reflect one coarse input rather than separate measurements. Confirm that cluster against ground monitoring before acting on it.",
+        "ur": "ہوا 108 خانوں میں عامل ہے، جس کا گرڈ اوسط 13 ہے، اور یہ CAMS ماڈل کے آؤٹ پٹ سے آتی ہے، یعنی NO2، CO، SO2 اور ایروسول آپٹیکل گہرائی، پچھلے 30 دنوں کے لیے۔ یہ نسبتی اشاریہ ہے، زمینی ناپ نہیں، اور 46 کے سب سے زیادہ اسکور swat_kabul:34:5، 34:6، 34:7، 34:8 اور 35:5 پر ایک جیسی CAMS قدروں سے آتے ہیں، اس لیے یہ الگ پیمائشیں نہیں بلکہ ایک موٹے ان پٹ کا نتیجہ ہیں۔ اس جھرمٹ پر فیصلہ کرنے سے پہلے زمینی مانیٹرنگ سے تصدیق کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "swat_kabul",
+            "hazard": "air",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_veg",
+      "intent": "hazard",
+      "hazard": "veg",
+      "questions": {
+        "en": [
+          "What is the vegetation risk in Swat–Kabul?",
+          "How green is the Swat–Kabul corridor?",
+          "Which cells have the lowest vegetation?",
+          "Show me vegetation hazard for Swat–Kabul",
+          "Is there vegetation data for Swat–Kabul?",
+          "Give me the NDVI situation in the corridor",
+          "Is Swat–Kabul losing vegetation?",
+          "Vegetation ranking for Swat–Kabul",
+          "Is the vegetation in Swat–Kabul healthy?"
+        ],
+        "ur": [
+          "سوات–کابل میں سبزے کا خطرہ کیا ہے؟",
+          "سوات–کابل میں سبزہ کتنا ہے؟",
+          "کیا سوات–کابل میں سبزے کا ڈیٹا موجود ہے؟",
+          "سبزے کی رینکنگ دکھائیں",
+          "کیا سوات–کابل کا سبزہ صحت مند ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Vegetation has no data for Swat–Kabul. The NDVI and NDVI trend fields are empty in all detailed cells, and the vegetation ranking is empty, so no vegetation score can be reported. That absence says nothing about whether the corridor is green or safe, and satellite NDVI needs to be loaded before this hazard can be assessed.",
+        "ur": "سوات–کابل کے لیے سبزے کا کوئی ڈیٹا موجود نہیں۔ تفصیلی خانوں میں NDVI اور اس کے رجحان کی قدریں خالی ہیں اور سبزے کی رینکنگ بھی خالی ہے، اس لیے کوئی سبزے کا اسکور پیش نہیں کیا جا سکتا۔ اس خالی پن کا مطلب یہ نہیں کہ علاقہ سرسبز یا محفوظ ہے، اور اس کا جائزہ لینے کے لیے سیٹلائٹ NDVI ڈیٹا لوڈ کرنا ہوگا۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "swat_kabul",
+            "hazard": "veg",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "population_exposure",
+      "intent": "population",
+      "questions": {
+        "en": [
+          "How many people are exposed in Swat–Kabul?",
+          "What is the population at risk in the corridor?",
+          "How many people live in high risk areas of Swat–Kabul?",
+          "Population exposure for Swat–Kabul",
+          "Who is affected by climate risk in Swat–Kabul?",
+          "How many residents are in the risky cells?",
+          "Give me the population numbers for Swat–Kabul",
+          "Is the population in Swat–Kabul at risk?",
+          "Count the people exposed to hazards in the corridor"
+        ],
+        "ur": [
+          "سوات–کابل میں کتنے لوگ خطرے میں ہیں؟",
+          "خطرے والے علاقوں میں آبادی کتنی ہے؟",
+          "سوات–کابل کی آبادی کا جائزہ دکھائیں",
+          "کتنے رہائشی زیادہ خطرے والے خانوں میں ہیں؟",
+          "سوات–کابل میں کتنے لوگ موسمیاتی خطرات سے متاثر ہو سکتے ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "Population exposure cannot be assessed for Swat–Kabul yet. No population values are loaded, so the total of 0 means nothing was loaded, not that the corridor is empty. Band counts cannot stand in for people, and the copilot cannot say how many residents sit in higher-risk cells, since only one cell is elevated and none is high.",
+        "ur": "سوات–کابل میں آبادی کے لحاظ سے خطرے کا جائزہ ابھی ممکن نہیں۔ آبادی کی کوئی قدر لوڈ نہیں ہوئی، اس لیے کل آبادی کا صفر صرف اس لیے ہے کہ کچھ لوڈ نہیں ہوا، اس کا مطلب یہ نہیں کہ راہداری خالی ہے۔ آبادی کی پرت شامل ہونے تک یہ نہیں بتایا جا سکتا کہ کتنے لوگ زیادہ خطرے والے خانوں میں ہیں، اور بینڈ کی گنتی لوگوں کی جگہ نہیں لے سکتی، کیونکہ صرف ایک خانہ بلند بینڈ میں ہے اور کوئی زیادہ بینڈ میں نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_aoi_risk_summary",
+          "args": {
+            "aoi": "swat_kabul"
+          }
+        }
+      ]
+    },
+    {
+      "id": "data_quality",
+      "intent": "data_quality",
+      "questions": {
+        "en": [
+          "How reliable is the Swat–Kabul data?",
+          "Which datasets feed the Swat–Kabul risk scores?",
+          "What data is missing for Swat–Kabul?",
+          "Where does the Swat–Kabul data come from?",
+          "What are the limits of this Swat–Kabul assessment?",
+          "Is the Swat–Kabul data complete?",
+          "Explain the data sources for Swat–Kabul",
+          "What pipeline produced the Swat–Kabul numbers?",
+          "Can I trust the Swat–Kabul risk figures?"
+        ],
+        "ur": [
+          "سوات–کابل کے ڈیٹا پر کتنا بھروسا کیا جا سکتا ہے؟",
+          "سوات–کابل کے خطرے کے اسکور کن ڈیٹاسیٹس سے بنے ہیں؟",
+          "سوات–کابل کا کون سا ڈیٹا غائب ہے؟",
+          "سوات–کابل کے اعداد و شمار کہاں سے آئے ہیں؟",
+          "اس جائزے کی حدود کیا ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "Swat–Kabul was built with the openmeteo pipeline, not satellite products. Heat is ERA5 2 m air temperature from the Open-Meteo Historical Weather API for May to July 2023 to 2025, sampled at 0.25 degrees, so it is not land surface temperature. Air is CAMS model output from the Open-Meteo Air Quality API over the past 30 days, sampled at 0.4 degrees, with aerosol optical depth standing in for the aerosol index, and terrain comes from Copernicus DEM GLO-90. Flood uses the 2022 UNOSAT extent, vegetation and population are not loaded, and only the notable cells carry full detail.",
+        "ur": "سوات–کابل کا ڈیٹا openmeteo پائپ لائن سے بنا ہے، سیٹلائٹ مصنوعات سے نہیں۔ گرمی Open-Meteo Historical Weather API کا ERA5 ہوا کا 2 میٹر درجہ حرارت ہے، مئی سے جولائی 2023 سے 2025 تک، 0.25 ڈگری پر نمونہ شدہ، اس لیے یہ زمینی سطح کا درجہ حرارت نہیں۔ ہوا CAMS ماڈل کا آؤٹ پٹ ہے، پچھلے 30 دنوں کا، Open-Meteo Air Quality API سے، 0.4 ڈگری پر نمونہ شدہ، جبکہ زمین کی ہیئت Copernicus DEM GLO-90 سے ہے۔ سیلاب 2022 کے UNOSAT پھیلاؤ پر مبنی ہے، سبزہ اور آبادی لوڈ نہیں ہوئے، اور صرف اہم خانوں کی مکمل تفصیل موجود ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_advisory",
+          "args": {
+            "aoi": "swat_kabul",
+            "lang": "en"
+          }
+        }
+      ]
+    },
+    {
+      "id": "priorities",
+      "intent": "actions",
+      "questions": {
+        "en": [
+          "What should we do first in Swat–Kabul?",
+          "What are the priorities for the corridor?",
+          "Give me action items for Swat–Kabul",
+          "Where should the district act first?",
+          "What do you recommend for Swat–Kabul?",
+          "What is the next step for the corridor?",
+          "Which actions matter most in Swat–Kabul?",
+          "Prioritise the response for Swat–Kabul",
+          "What should the team focus on in the corridor?"
+        ],
+        "ur": [
+          "سوات–کابل میں سب سے پہلے کیا کرنا چاہیے؟",
+          "سوات–کابل کے لیے ترجیحات بتائیں",
+          "سوات–کابل کے لیے عملی اقدامات کیا ہیں؟",
+          "ضلعی انتظامیہ پہلے کہاں کام کرے؟",
+          "سوات–کابل میں اگلا قدم کیا ہونا چاہیے؟"
+        ]
+      },
+      "answer": {
+        "en": "Start with the single elevated cell, swat_kabul:14:2, where terrain (91) and heat (38) push its composite to 46. Next, check the lowland pair swat_kabul:26:11 and 25:11, where flood reaches 44 and 43 alongside air at 42 and heat at 33. Then look at the high-air cells swat_kabul:34:5 to 34:7 at 46, and the heat cells swat_kabul:18:12 and 18:13 at 41. Treat vegetation and population as unknown rather than safe until their datasets are loaded.",
+        "ur": "پہلے واحد بلند بینڈ کے خانے swat_kabul:14:2 سے شروع کریں، جہاں زمین کی ہیئت (91) اور گرمی (38) مل کر مجموعی اسکور 46 بناتے ہیں۔ پھر نشیبی جوڑے swat_kabul:26:11 اور 25:11 کا جائزہ لیں، جہاں سیلاب 44 اور 43 ہے اور ہوا 42 اور گرمی 33 کے ساتھ ہے۔ اس کے بعد ہوا کے بلند خانے swat_kabul:34:5 سے 34:7 تک (46) اور گرمی کے خانے swat_kabul:18:12 اور 18:13 (41) دیکھیں۔ سبزے اور آبادی کو تب تک نامعلوم سمجھیں، محفوظ نہیں، جب تک ان کا ڈیٹا لوڈ نہ ہو۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_advisory",
+          "args": {
+            "aoi": "swat_kabul",
+            "lang": "en"
+          }
+        }
+      ]
+    },
+    {
+      "id": "forecast_refusal",
+      "intent": "out_of_scope",
+      "questions": {
+        "en": [
+          "Will Swat–Kabul flood next week?",
+          "What will the temperature be in the corridor tomorrow?",
+          "Forecast rainfall for Swat–Kabul next month",
+          "Predict the heat in Swat–Kabul this summer",
+          "Will it rain in Swat–Kabul this weekend?",
+          "Is a flood coming to the corridor soon?",
+          "What will the air quality be in Swat–Kabul next month?",
+          "Give me the Swat–Kabul weather forecast for next year",
+          "Predict future floods in Swat–Kabul"
+        ],
+        "ur": [
+          "کل سوات–کابل میں درجہ حرارت کتنا ہوگا؟",
+          "اگلے ہفتے سوات–کابل میں سیلاب آئے گا؟",
+          "اگلے مہینے سوات–کابل میں بارش کی پیش گوئی کریں",
+          "اس گرمی میں سوات–کابل کا درجہ حرارت کیا ہوگا؟",
+          "آئندہ سال سوات–کابل میں سیلاب کا اندازہ لگائیں"
+        ]
+      },
+      "answer": {
+        "en": "I cannot forecast temperature, rainfall or flooding for Swat–Kabul. The copilot reports only grid values computed for the monitored period, which is May to July 2023 to 2025 for heat and the past 30 days for air, and it gives no prediction of what comes next. For an outlook, use an official forecasting service, and I can explain the current computed picture for any cell or hazard.",
+        "ur": "میں سوات–کابل کے لیے درجہ حرارت، بارش یا سیلاب کی پیش گوئی نہیں کر سکتا۔ یہ معاون صرف نگرانی کی مدت کے لیے حساب شدہ گرڈ قدریں دکھاتا ہے، یعنی گرمی کے لیے مئی سے جولائی 2023 سے 2025 اور ہوا کے لیے پچھلے 30 دن، اور آئندہ کا کوئی اندازہ نہیں دیتا۔ آئندہ کے لیے کسی سرکاری موسمیاتی پیش گوئی کے ادارے سے رجوع کریں، جبکہ میں کسی بھی خانے یا خطرے کی موجودہ حساب شدہ تصویر بتا سکتا ہوں۔"
+      },
+      "tools": []
+    },
+    {
+      "id": "help",
+      "intent": "help",
+      "questions": {
+        "en": [
+          "What can you help me with?",
+          "What can I ask about Swat–Kabul?",
+          "How do I use this copilot?",
+          "What questions can you answer?",
+          "Show me what you can do",
+          "What topics are covered for Swat–Kabul?",
+          "Help",
+          "What can I ask about a specific cell?",
+          "Give me examples of questions to ask"
+        ],
+        "ur": [
+          "آپ میری کیا مدد کر سکتے ہیں؟",
+          "سوات–کابل کے بارے میں کیا پوچھ سکتا ہوں؟",
+          "اس معاون کو کیسے استعمال کریں؟",
+          "کون سے سوالات کے جواب دیے جا سکتے ہیں؟",
+          "مدد"
+        ]
+      },
+      "answer": {
+        "en": "You can ask for a Swat–Kabul overview, the riskiest cells, any single hazard (flood, heat, terrain, air or vegetation), population exposure, data quality, or priorities. You can also ask about a specific cell by its id, such as swat_kabul:14:2. Forecasts are outside what this copilot does, since it reports only computed values for the monitored period.",
+        "ur": "آپ سوات–کابل کا مجموعی جائزہ، سب سے زیادہ خطرے والے خانے، کوئی ایک خطرہ (سیلاب، گرمی، زمین کی ہیئت، ہوا یا سبزہ)، آبادی پر اثر، ڈیٹا کا معیار یا ترجیحات پوچھ سکتے ہیں۔ کسی خاص خانے کے بارے میں اس کی شناخت لکھ کر پوچھ سکتے ہیں، جیسے swat_kabul:14:2۔ آئندہ کی پیش گوئی اس معاون کے دائرے سے باہر ہے۔"
+      },
+      "tools": []
+    },
+    {
+      "id": "cell_swat_kabul_14_2",
+      "intent": "cell",
+      "cellId": "swat_kabul:14:2",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:14:2 risky?",
+          "Explain swat_kabul:14:2",
+          "What makes cell swat_kabul:14:2 score high?",
+          "Tell me about cell swat_kabul:14:2",
+          "What is the risk at swat_kabul:14:2?",
+          "Why is swat_kabul:14:2 in the elevated band?",
+          "What is driving the score for swat_kabul:14:2?",
+          "Is swat_kabul:14:2 safe from climate hazards?",
+          "Give me the heat and terrain readings for swat_kabul:14:2",
+          "What does the data say about swat_kabul:14:2?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:14:2 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:14:2 کی وضاحت کریں",
+          "خانہ swat_kabul:14:2 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:14:2 میں گرمی اور زمین کی ہیئت کی کیا صورتحال ہے؟",
+          "swat_kabul:14:2 کے بارے میں بتائیں",
+          "swat_kabul:14:2 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:14:2 is the only elevated cell in the corridor, with a composite of 46. Terrain is the main push at 91, on a slope of 27.2 degrees at 571 m, with heat at 38 from ERA5 air temperature of 37.5 °C for May to July 2023 to 2025. Its air score is a modest 14, and flood and vegetation have no data here, so the picture is incomplete; check slope and heat exposure on site first.",
+        "ur": "خانہ swat_kabul:14:2 راہداری کا واحد بلند بینڈ کا خانہ ہے، جس کا مجموعی اسکور 46 ہے۔ اس کا بڑا محرک زمین کی ہیئت ہے (91)، جس کی ڈھلوان 27.2 ڈگری اور بلندی 571 میٹر ہے، اور گرمی 38 ہے، جو ERA5 کے ہوا کے 37.5 °C سے ہے (مئی سے جولائی 2023 سے 2025 تک)۔ ہوا کا اسکور 14 ہے، جو نسبتاً کم ہے، جبکہ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے یہ مکمل تصویر نہیں؛ پہلے ڈھلوان اور گرمی کے اثرات کا میدان میں معائنہ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:14:2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_23_7",
+      "intent": "cell",
+      "cellId": "swat_kabul:23:7",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:23:7 risky?",
+          "Explain swat_kabul:23:7",
+          "What makes cell swat_kabul:23:7 score high?",
+          "Tell me about cell swat_kabul:23:7",
+          "What is the risk at swat_kabul:23:7?",
+          "Why is swat_kabul:23:7 in the moderate band?",
+          "What is driving the score for swat_kabul:23:7?",
+          "Is swat_kabul:23:7 safe from climate hazards?",
+          "Give me the heat and air readings for swat_kabul:23:7",
+          "What does the data say about swat_kabul:23:7?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:23:7 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:23:7 کی وضاحت کریں",
+          "خانہ swat_kabul:23:7 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:23:7 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:23:7 کے بارے میں بتائیں",
+          "swat_kabul:23:7 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:23:7 ranks second on the composite list at 36, in the moderate band. Terrain is the lead at 57, on a 17.2 degree slope at 771 m, and heat sits at 29 from ERA5 air temperature of 35.8 °C. Air is lower at 25 and not one of its two drivers, built from CAMS NO2 16.2 µg/m³, CO 376.3 and AOD 0.37, and the missing flood and vegetation inputs mean it cannot be called clear of those.",
+        "ur": "خانہ swat_kabul:23:7 مجموعی فہرست میں دوسرے نمبر پر ہے، اسکور 36 کے ساتھ، درمیانہ بینڈ میں۔ اسے زمین کی ہیئت (57) آگے بڑھاتی ہے، جس کی ڈھلوان 17.2 ڈگری اور بلندی 771 میٹر ہے، اور گرمی 29 ہے، جو ERA5 کے ہوا کے 35.8 °C سے ہے۔ ہوا 25 ہے اور دو بنیادی عاملوں میں شامل نہیں، جو CAMS کے NO2 16.2 µg/m³، CO 376.3 اور AOD 0.37 سے بنتی ہے، اور سیلاب و سبزے کے ان پٹ موجود نہ ہونے کی وجہ سے اسے ان سے محفوظ نہیں کہا جا سکتا۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:23:7"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_18_6",
+      "intent": "cell",
+      "cellId": "swat_kabul:18:6",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:18:6 risky?",
+          "Explain swat_kabul:18:6",
+          "What makes cell swat_kabul:18:6 score high?",
+          "Tell me about cell swat_kabul:18:6",
+          "What is the risk at swat_kabul:18:6?",
+          "Why is swat_kabul:18:6 in the moderate band?",
+          "What is driving the score for swat_kabul:18:6?",
+          "Is swat_kabul:18:6 safe from climate hazards?",
+          "Give me the terrain and heat readings for swat_kabul:18:6",
+          "What does the data say about swat_kabul:18:6?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:18:6 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:18:6 کی وضاحت کریں",
+          "خانہ swat_kabul:18:6 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:18:6 میں زمین اور گرمی کی کیا صورتحال ہے؟",
+          "swat_kabul:18:6 کے بارے میں بتائیں",
+          "swat_kabul:18:6 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:18:6 ranks third at 35, moderate, and its driver is steep ground more than heat. Terrain scores 80 on a 24 degree slope at 1477 m, while heat is 21 from ERA5 air temperature of 34.1 °C and air is only 14. Field checks here should therefore centre on slope and access, and flood and vegetation remain unscored.",
+        "ur": "خانہ swat_kabul:18:6 تیسرے نمبر پر ہے، اسکور 35 کے ساتھ درمیانہ بینڈ میں، اور اس کا بنیادی محرک گرمی سے زیادہ ڈھلوان زمین ہے۔ زمین کی ہیئت 80 ہے، جو 24 ڈگری ڈھلوان اور 1477 میٹر بلندی پر ہے، جبکہ گرمی 21 ہے، ERA5 کے ہوا کے 34.1 °C سے، اور ہوا صرف 14 ہے۔ اس لیے یہاں میدانی جائزہ ڈھلوان اور رسائی پر مرکوز رکھیں، جبکہ سیلاب اور سبزے کا اسکور ابھی موجود نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:18:6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_22_15",
+      "intent": "cell",
+      "cellId": "swat_kabul:22:15",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:22:15 risky?",
+          "Explain swat_kabul:22:15",
+          "What makes cell swat_kabul:22:15 score high?",
+          "Tell me about cell swat_kabul:22:15",
+          "What is the risk at swat_kabul:22:15?",
+          "Why is swat_kabul:22:15 in the moderate band?",
+          "What is driving the score for swat_kabul:22:15?",
+          "Is swat_kabul:22:15 safe from climate hazards?",
+          "Give me the terrain and air readings for swat_kabul:22:15",
+          "What does the data say about swat_kabul:22:15?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:22:15 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:22:15 کی وضاحت کریں",
+          "خانہ swat_kabul:22:15 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:22:15 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:22:15 کے بارے میں بتائیں",
+          "swat_kabul:22:15 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:22:15 scores 34 in the moderate band, fourth on the composite list. Terrain leads at 72 on a 21.7 degree slope at 1296 m, with heat second at 23 from ERA5 air temperature of 34.6 °C. Air is light at 15, with NO2 at 6 µg/m³ and AOD at 0.29, so the risk here is mostly terrain and heat rather than air, though flood and vegetation inputs are still missing.",
+        "ur": "خانہ swat_kabul:22:15 درمیانہ بینڈ میں 34 کے اسکور کے ساتھ، مجموعی فہرست میں چوتھے نمبر پر ہے۔ زمین کی ہیئت 72 کے ساتھ آگے ہے، جو 21.7 ڈگری ڈھلوان اور 1296 میٹر بلندی پر ہے، اور گرمی 23 پر دوسرے نمبر پر ہے، جو ERA5 کے ہوا کے 34.6 °C سے ہے۔ ہوا ہلکی ہے، 15 پر، NO2 6 µg/m³ اور AOD 0.29 کے ساتھ، اس لیے خطرہ زیادہ تر زمین اور گرمی سے ہے، ہوا سے نہیں، تاہم سیلاب اور سبزے کا ڈیٹا ابھی موجود نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:22:15"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_32_13",
+      "intent": "cell",
+      "cellId": "swat_kabul:32:13",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:32:13 risky?",
+          "Explain swat_kabul:32:13",
+          "What makes cell swat_kabul:32:13 score high?",
+          "Tell me about cell swat_kabul:32:13",
+          "What is the risk at swat_kabul:32:13?",
+          "Why is swat_kabul:32:13 in the moderate band?",
+          "What is driving the score for swat_kabul:32:13?",
+          "Is swat_kabul:32:13 safe from climate hazards?",
+          "Give me the slope and heat readings for swat_kabul:32:13",
+          "What does the data say about swat_kabul:32:13?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:32:13 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:32:13 کی وضاحت کریں",
+          "خانہ swat_kabul:32:13 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:32:13 میں گرمی اور ڈھلوان کی کیا صورتحال ہے؟",
+          "swat_kabul:32:13 کے بارے میں بتائیں",
+          "swat_kabul:32:13 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:32:13 scores 34 in the moderate band and is one of the terrain-led cells in the top five. Terrain is 72 on a 21.6 degree slope at 905 m, and heat is 18 from ERA5 air temperature of 33.5 °C, which keeps it cooler than the flagged heat cells. Air is 22, with NO2 at 13.5 µg/m³ and CO at 337, so the slope is the main thing to check on the ground while flood and vegetation remain unscored.",
+        "ur": "خانہ swat_kabul:32:13 درمیانہ بینڈ میں 34 کے اسکور کے ساتھ ہے اور پہلے پانچ میں زمین کی ہیئت سے چلنے والے خانوں میں شامل ہے۔ زمین کی ہیئت 72 ہے، جو 21.6 ڈگری ڈھلوان اور 905 میٹر بلندی پر ہے، جبکہ گرمی 18 ہے، جو ERA5 کے ہوا کے 33.5 °C سے ہے اور اسے نشان زدہ گرم خانوں سے ٹھنڈا رکھتی ہے۔ ہوا 22 ہے، NO2 13.5 µg/m³ اور CO 337 کے ساتھ، اس لیے زمین پر سب سے پہلے ڈھلوان کی جانچ کریں، جبکہ سیلاب اور سبزہ ابھی غیر اسکور شدہ ہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:32:13"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_26_11",
+      "intent": "cell",
+      "cellId": "swat_kabul:26:11",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:26:11 risky?",
+          "Explain swat_kabul:26:11",
+          "What makes cell swat_kabul:26:11 score high?",
+          "Tell me about cell swat_kabul:26:11",
+          "What is the risk at swat_kabul:26:11?",
+          "Why is swat_kabul:26:11 in the moderate band?",
+          "What is driving the score for swat_kabul:26:11?",
+          "Is swat_kabul:26:11 safe from flooding?",
+          "Give me the flood and heat readings for swat_kabul:26:11",
+          "What does the data say about swat_kabul:26:11?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:26:11 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:26:11 کی وضاحت کریں",
+          "خانہ swat_kabul:26:11 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:26:11 میں سیلاب اور گرمی کی کیا صورتحال ہے؟",
+          "swat_kabul:26:11 کے بارے میں بتائیں",
+          "swat_kabul:26:11 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:26:11 is the most flood-exposed cell in the corridor, with a flood score of 44 from a mean flooded fraction of 0.44 in the 2022 UNOSAT extent. It sits on flat ground at 294 m with a 0.3 degree slope, and its composite of 33 is moderate, driven by flood and heat (33 from ERA5 air temperature of 36.6 °C). Air is also high at 42, with NO2 at 33.5 µg/m³ and CO at 1110.7, so this lowland cell is where flood and air pressures overlap.",
+        "ur": "خانہ swat_kabul:26:11 راہداری کا سیلاب کے لحاظ سے سب سے زیادہ متاثرہ خانہ ہے، جس کا سیلابی اسکور 44 ہے، جو 2022 کے UNOSAT پھیلاؤ میں 0.44 کے اوسط سیلابی تناسب سے ہے۔ یہ 294 میٹر کی ہموار زمین پر ہے، 0.3 ڈگری ڈھلوان کے ساتھ، اور اس کا مجموعی اسکور 33 درمیانہ بینڈ میں ہے، جسے سیلاب اور گرمی (33، ERA5 کے ہوا کے 36.6 °C سے) چلا رہے ہیں۔ ہوا بھی 42 پر بلند ہے، NO2 33.5 µg/m³ اور CO 1110.7 کے ساتھ، اس لیے یہ نشیبی خانہ ہے جہاں سیلاب اور ہوا کا دباؤ ایک ساتھ ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:26:11"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_31_14",
+      "intent": "cell",
+      "cellId": "swat_kabul:31:14",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:31:14 risky?",
+          "Explain swat_kabul:31:14",
+          "What makes cell swat_kabul:31:14 score high?",
+          "Tell me about cell swat_kabul:31:14",
+          "What is the risk at swat_kabul:31:14?",
+          "Why is swat_kabul:31:14 in the moderate band?",
+          "What is driving the score for swat_kabul:31:14?",
+          "Is swat_kabul:31:14 safe from climate hazards?",
+          "Give me the terrain and air readings for swat_kabul:31:14",
+          "What does the data say about swat_kabul:31:14?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:31:14 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:31:14 کی وضاحت کریں",
+          "خانہ swat_kabul:31:14 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:31:14 میں زمین اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:31:14 کے بارے میں بتائیں",
+          "swat_kabul:31:14 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:31:14 scores 33 in the moderate band, with terrain (84) and air (22) as its two drivers and heat only 8. The slope is 25.2 degrees at 643 m, and its ERA5 air temperature of 31.6 °C is the lowest of the eight highest-scoring cells, so the heat load is light. Air reads NO2 13.5 µg/m³ and AOD 0.33, so the practical concern is steep ground with a moderate air load rather than heat.",
+        "ur": "خانہ swat_kabul:31:14 درمیانہ بینڈ میں 33 کے اسکور کے ساتھ ہے، جس کے دو عامل زمین کی ہیئت (84) اور ہوا (22) ہیں، جبکہ گرمی صرف 8 ہے۔ ڈھلوان 25.2 ڈگری اور بلندی 643 میٹر ہے، اور ERA5 کا ہوا کا درجہ حرارت 31.6 °C ہے، جو اوپر کے آٹھ خانوں میں سب سے کم ہے، اس لیے گرمی کا بوجھ ہلکا ہے۔ ہوا میں NO2 13.5 µg/m³ اور AOD 0.33 ہے، لہٰذا یہاں اصل تشویش کھڑی ڈھلوان اور اعتدال پسند ہوا کی ہے، گرمی کی نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:31:14"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_25_11",
+      "intent": "cell",
+      "cellId": "swat_kabul:25:11",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:25:11 risky?",
+          "Explain swat_kabul:25:11",
+          "What makes cell swat_kabul:25:11 score high?",
+          "Tell me about cell swat_kabul:25:11",
+          "What is the risk at swat_kabul:25:11?",
+          "Why is swat_kabul:25:11 in the moderate band?",
+          "What is driving the score for swat_kabul:25:11?",
+          "Is swat_kabul:25:11 safe from flooding?",
+          "Give me the flood and air readings for swat_kabul:25:11",
+          "What does the data say about swat_kabul:25:11?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:25:11 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:25:11 کی وضاحت کریں",
+          "خانہ swat_kabul:25:11 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:25:11 میں سیلاب اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:25:11 کے بارے میں بتائیں",
+          "swat_kabul:25:11 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:25:11 is the flood neighbour of swat_kabul:26:11, scoring 43 on flood from a mean flooded fraction of 0.43, on flat ground at 295 m with a 0.1 degree slope. Its composite is 32, moderate, with heat (33) and air (42) carrying the rest of the load. Its air and heat readings match its neighbour exactly because the CAMS and ERA5 inputs are sampled on coarser grids than the cells, so treat the two as one hazard zone rather than independent measurements.",
+        "ur": "خانہ swat_kabul:25:11 خانہ swat_kabul:26:11 کا سیلابی پڑوسی ہے، جس کا سیلابی اسکور 43 ہے، سیلابی تناسب 0.43 کے ساتھ، اور یہ 295 میٹر کی ہموار زمین پر ہے، 0.1 ڈگری ڈھلوان کے ساتھ۔ مجموعی اسکور 32 ہے، درمیانہ بینڈ، جس میں گرمی (33) اور ہوا (42) باقی بوجھ اٹھاتے ہیں۔ ہوا اور گرمی کی قدریں پڑوسی خانے سے ہو بہو ملتی ہیں کیونکہ CAMS اور ERA5 کے ان پٹ وسیع گرڈ پر لیے گئے ہیں، اس لیے ان دونوں کو الگ پیمائشیں نہیں بلکہ ایک ہی خطرے کا زون سمجھیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:25:11"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_33_10",
+      "intent": "cell",
+      "cellId": "swat_kabul:33:10",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:33:10 risky?",
+          "Explain swat_kabul:33:10",
+          "What makes cell swat_kabul:33:10 score high?",
+          "Tell me about cell swat_kabul:33:10",
+          "What is the risk at swat_kabul:33:10?",
+          "Why is swat_kabul:33:10 in the moderate band?",
+          "What is driving the score for swat_kabul:33:10?",
+          "Is swat_kabul:33:10 safe from flooding?",
+          "Give me the flood and air readings for swat_kabul:33:10",
+          "What does the data say about swat_kabul:33:10?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:33:10 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:33:10 کی وضاحت کریں",
+          "خانہ swat_kabul:33:10 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:33:10 میں سیلاب اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:33:10 کے بارے میں بتائیں",
+          "swat_kabul:33:10 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:33:10 scores 30 in the moderate band, with flood (42) and air (42) as its drivers, and its flooded fraction is 0.42 from the 2022 UNOSAT extent. It is flat at 316 m with a 0.2 degree slope, which is why terrain barely registers at 1. Air is the heavier of its non-flood inputs, with NO2 at 36.6 µg/m³, CO at 810.3 and AOD at 0.39, so this is a lowland cell where flood and air both need attention.",
+        "ur": "خانہ swat_kabul:33:10 درمیانہ بینڈ میں 30 کے اسکور کے ساتھ ہے، جس کے عامل سیلاب (42) اور ہوا (42) ہیں، اور اس کا سیلابی تناسب 2022 کے UNOSAT پھیلاؤ سے 0.42 ہے۔ یہ 316 میٹر کی ہموار زمین پر ہے، 0.2 ڈگری ڈھلوان کے ساتھ، اس لیے زمین کی ہیئت کا اسکور صرف 1 ہے۔ غیر سیلابی ان پٹ میں ہوا سب سے زیادہ بوجھ ڈالتی ہے، NO2 36.6 µg/m³، CO 810.3 اور AOD 0.39 کے ساتھ، اس لیے یہ وہ نشیبی خانہ ہے جہاں سیلاب اور ہوا دونوں پر توجہ درکار ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:33:10"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_18_12",
+      "intent": "cell",
+      "cellId": "swat_kabul:18:12",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:18:12 risky?",
+          "Explain swat_kabul:18:12",
+          "What makes cell swat_kabul:18:12 score high?",
+          "Tell me about cell swat_kabul:18:12",
+          "What is the risk at swat_kabul:18:12?",
+          "Why is swat_kabul:18:12 in the low band?",
+          "What is driving the score for swat_kabul:18:12?",
+          "Is swat_kabul:18:12 safe from heat?",
+          "Give me the heat and terrain readings for swat_kabul:18:12",
+          "What does the data say about swat_kabul:18:12?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:18:12 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:18:12 کی وضاحت کریں",
+          "خانہ swat_kabul:18:12 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:18:12 میں گرمی اور زمین کی ہیئت کی کیا صورتحال ہے؟",
+          "swat_kabul:18:12 کے بارے میں بتائیں",
+          "swat_kabul:18:12 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:18:12 sits in the low band at 21, but it is among the hottest cells in the corridor, with heat at 41 from ERA5 air temperature of 38.2 °C. Terrain adds 37 on an 11.2 degree slope at 533 m, and air is light at 12, with NO2 at 4.36 µg/m³ and AOD at 0.23. A low composite does not mean low heat here, since heat is one of its two drivers, so heat exposure is the first thing to check.",
+        "ur": "خانہ swat_kabul:18:12 کم بینڈ میں 21 کے اسکور کے ساتھ ہے، لیکن یہ راہداری کے سب سے گرم خانوں میں سے ہے، جس کی گرمی 41 ہے، ERA5 کے ہوا کے 38.2 °C سے۔ زمین کی ہیئت 37 ہے، جو 11.2 ڈگری ڈھلوان اور 533 میٹر بلندی پر ہے، جبکہ ہوا ہلکی ہے، 12 پر، NO2 4.36 µg/m³ اور AOD 0.23 کے ساتھ۔ کم مجموعی بینڈ کا مطلب کم گرمی نہیں؛ گرمی اس کے دو بنیادی عاملوں میں سے ایک ہے، اس لیے پہلے اسی کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:18:12"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_18_13",
+      "intent": "cell",
+      "cellId": "swat_kabul:18:13",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:18:13 risky?",
+          "Explain swat_kabul:18:13",
+          "What makes cell swat_kabul:18:13 score high?",
+          "Tell me about cell swat_kabul:18:13",
+          "What is the risk at swat_kabul:18:13?",
+          "Why is swat_kabul:18:13 in the low band?",
+          "What is driving the score for swat_kabul:18:13?",
+          "Is swat_kabul:18:13 safe from heat?",
+          "Give me the heat and terrain readings for swat_kabul:18:13",
+          "What does the data say about swat_kabul:18:13?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:18:13 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:18:13 کی وضاحت کریں",
+          "خانہ swat_kabul:18:13 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:18:13 میں گرمی اور زمین کی ہیئت کی کیا صورتحال ہے؟",
+          "swat_kabul:18:13 کے بارے میں بتائیں",
+          "swat_kabul:18:13 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:18:13 is low at 18, but its heat score is the same 41 as its neighbour swat_kabul:18:12, from the same ERA5 reading of 38.2 °C. Its gentler 5.8 degree slope at 593 m holds terrain to 19 rather than 37, which is why its composite is lower. Its flooded fraction is 0 where a community overlaps, and vegetation has no data, so heat remains the main thing to act on here.",
+        "ur": "خانہ swat_kabul:18:13 کا مجموعی اسکور 18 ہے، کم بینڈ میں، مگر اس کی گرمی کا اسکور 41 ہے، جو اس کے پڑوسی swat_kabul:18:12 کے برابر ہے، اور دونوں کا ERA5 ہوا کا درجہ حرارت 38.2 °C ہے۔ اس کی نرم 5.8 ڈگری ڈھلوان اور 593 میٹر بلندی زمین کی ہیئت کو 37 کے بجائے 19 پر رکھتی ہے، اسی لیے اس کا مجموعی اسکور کم ہے۔ جہاں کمیونٹی کا علاقہ ملتا ہے وہاں سیلابی تناسب 0 ہے، جبکہ سبزے کا ڈیٹا موجود نہیں، اس لیے یہاں گرمی ہی بنیادی توجہ ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:18:13"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_19_12",
+      "intent": "cell",
+      "cellId": "swat_kabul:19:12",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:19:12 risky?",
+          "Explain swat_kabul:19:12",
+          "What makes cell swat_kabul:19:12 score high?",
+          "Tell me about cell swat_kabul:19:12",
+          "What is the risk at swat_kabul:19:12?",
+          "Why is swat_kabul:19:12 in the low band?",
+          "What is driving the score for swat_kabul:19:12?",
+          "Is swat_kabul:19:12 safe from heat?",
+          "Give me the heat and terrain readings for swat_kabul:19:12",
+          "What does the data say about swat_kabul:19:12?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:19:12 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:19:12 کی وضاحت کریں",
+          "خانہ swat_kabul:19:12 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:19:12 میں گرمی اور زمین کی ہیئت کی کیا صورتحال ہے؟",
+          "swat_kabul:19:12 کے بارے میں بتائیں",
+          "swat_kabul:19:12 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:19:12 scores 21 in the low band, with heat at 41 from 38.2 °C ERA5 air temperature and terrain at 36 on a 10.8 degree slope at 622 m. Its flooded fraction is 0.01 where a community overlaps, so flood contributes only 1, and air is light at 15 with NO2 at 6 µg/m³. Heat is the working priority here, with terrain a clear second, and vegetation remains unscored.",
+        "ur": "خانہ swat_kabul:19:12 کم بینڈ میں 21 کے اسکور کے ساتھ ہے، جس میں گرمی 41 ہے، ERA5 کے ہوا کے 38.2 °C سے، اور زمین کی ہیئت 36 ہے، جو 10.8 ڈگری ڈھلوان اور 622 میٹر بلندی پر ہے۔ جہاں کمیونٹی کا علاقہ ملتا ہے وہاں سیلابی تناسب 0.01 ہے، اس لیے سیلاب کا حصہ صرف 1 ہے، اور ہوا 15 پر ہلکی ہے، NO2 6 µg/m³ کے ساتھ۔ یہاں کام کی ترجیح گرمی ہے، زمین کی ہیئت دوسرے نمبر پر واضح ہے، جبکہ سبزہ ابھی غیر اسکور شدہ ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:19:12"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_0_23",
+      "intent": "cell",
+      "cellId": "swat_kabul:0:23",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:0:23 risky?",
+          "Explain swat_kabul:0:23",
+          "What makes cell swat_kabul:0:23 score high?",
+          "Tell me about cell swat_kabul:0:23",
+          "What is the risk at swat_kabul:0:23?",
+          "Why is swat_kabul:0:23 in the moderate band?",
+          "What is driving the score for swat_kabul:0:23?",
+          "Is swat_kabul:0:23 safe from climate hazards?",
+          "Give me the terrain and heat readings for swat_kabul:0:23",
+          "What does the data say about swat_kabul:0:23?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:0:23 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:0:23 کی وضاحت کریں",
+          "خانہ swat_kabul:0:23 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:0:23 میں زمین اور گرمی کی کیا صورتحال ہے؟",
+          "swat_kabul:0:23 کے بارے میں بتائیں",
+          "swat_kabul:0:23 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:0:23 sits near the western edge of the grid at 35.415, 68.935, and its composite of 29 is moderate, driven by terrain at 100 on a 32.1 degree slope at 3281 m. Heat is zero at 14.4 °C ERA5 air temperature, and air is light at 7 with NO2 at 2.61 µg/m³ and AOD at 0.14. This is a steep, cool cell with low air readings, so the work here is about reaching the ground rather than managing heat or pollution.",
+        "ur": "خانہ swat_kabul:0:23 گرڈ کے مغربی کنارے کے قریب، 35.415 اور 68.935 پر ہے، اور اس کا مجموعی اسکور 29 درمیانہ بینڈ میں ہے، جسے زمین کی ہیئت چلا رہی ہے، جو 100 پر ہے، 32.1 ڈگری ڈھلوان اور 3281 میٹر بلندی پر۔ گرمی صفر ہے، ERA5 کے ہوا کے 14.4 °C کے ساتھ، اور ہوا 7 پر ہلکی ہے، NO2 2.61 µg/m³ اور AOD 0.14 کے ساتھ۔ یہ سخت ڈھلوان والا ٹھنڈا خانہ ہے جہاں ہوا کا اشاریہ کم ہے، اس لیے یہاں کا کام زمین تک رسائی کے بارے میں ہے، گرمی یا ہوا کے بارے میں نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:0:23"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_10_30",
+      "intent": "cell",
+      "cellId": "swat_kabul:10:30",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:10:30 risky?",
+          "Explain swat_kabul:10:30",
+          "What makes cell swat_kabul:10:30 score high?",
+          "Tell me about cell swat_kabul:10:30",
+          "What is the risk at swat_kabul:10:30?",
+          "Why is swat_kabul:10:30 in the moderate band?",
+          "What is driving the score for swat_kabul:10:30?",
+          "Is swat_kabul:10:30 safe from climate hazards?",
+          "Give me the terrain and air readings for swat_kabul:10:30",
+          "What does the data say about swat_kabul:10:30?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:10:30 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:10:30 کی وضاحت کریں",
+          "خانہ swat_kabul:10:30 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:10:30 میں زمین اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:10:30 کے بارے میں بتائیں",
+          "swat_kabul:10:30 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:10:30 sits in the northern part of the grid at 36.185, 70.035, with a composite of 28 in the moderate band. Terrain is at 100 on a 33.2 degree slope at 2499 m, and air is only 4, with AOD at 0.08, the lowest aerosol reading among the detailed cells. Heat is zero at 15.1 °C, so this is a steep high-ground case where access and slope matter more than air or heat.",
+        "ur": "خانہ swat_kabul:10:30 گرڈ کے شمالی حصے میں، 36.185 اور 70.035 پر ہے، اور مجموعی اسکور 28 درمیانہ بینڈ میں ہے۔ زمین کی ہیئت 100 پر ہے، جو 33.2 ڈگری ڈھلوان اور 2499 میٹر بلندی پر ہے، جبکہ ہوا صرف 4 ہے، AOD 0.08 کے ساتھ، جو تفصیلی خانوں میں سب سے کم ایروسول قدر ہے۔ گرمی صفر ہے، ERA5 کے ہوا کے 15.1 °C کے ساتھ، اس لیے یہ ایک بلند اور سخت ڈھلوان والا خانہ ہے جہاں رسائی اور ڈھلوان ہوا یا گرمی سے زیادہ اہم ہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:10:30"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_11_10",
+      "intent": "cell",
+      "cellId": "swat_kabul:11:10",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:11:10 risky?",
+          "Explain swat_kabul:11:10",
+          "What makes cell swat_kabul:11:10 score high?",
+          "Tell me about cell swat_kabul:11:10",
+          "What is the risk at swat_kabul:11:10?",
+          "Why is swat_kabul:11:10 in the moderate band?",
+          "What is driving the score for swat_kabul:11:10?",
+          "Is swat_kabul:11:10 safe from climate hazards?",
+          "Give me the slope and air readings for swat_kabul:11:10",
+          "What does the data say about swat_kabul:11:10?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:11:10 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:11:10 کی وضاحت کریں",
+          "خانہ swat_kabul:11:10 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:11:10 میں ڈھلوان اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:11:10 کے بارے میں بتائیں",
+          "swat_kabul:11:10 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:11:10 has the steepest slope in the detailed set, at 35.2 degrees, rising to 2863 m, and its terrain score is 100. Its composite of 30 is moderate, with air (10) the only other driver on the list, while heat is zero at 15.6 °C ERA5 air temperature. NO2 at 3.77 µg/m³ and AOD at 0.18 keep the air reading light, so this is essentially a terrain case with flood and vegetation inputs missing.",
+        "ur": "خانہ swat_kabul:11:10 تفصیلی خانوں میں سب سے زیادہ ڈھلوان والا ہے، 35.2 ڈگری، جو 2863 میٹر بلندی تک جاتا ہے، اور اس کا زمین کی ہیئت کا اسکور 100 ہے۔ مجموعی اسکور 30 درمیانہ بینڈ میں ہے، جس کا دوسرا عامل ہوا (10) ہے، جبکہ گرمی صفر ہے، ERA5 کے ہوا کے 15.6 °C کے ساتھ۔ NO2 3.77 µg/m³ اور AOD 0.18 ہوا کی قدر کو ہلکا رکھتے ہیں، اس لیے یہ بنیادی طور پر زمین کا کیس ہے، جس میں سیلاب اور سبزے کے ان پٹ موجود نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:11:10"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_34_5",
+      "intent": "cell",
+      "cellId": "swat_kabul:34:5",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:34:5 risky?",
+          "Explain swat_kabul:34:5",
+          "What makes cell swat_kabul:34:5 score high?",
+          "Tell me about cell swat_kabul:34:5",
+          "What is the risk at swat_kabul:34:5?",
+          "Why is swat_kabul:34:5 in the moderate band?",
+          "What is driving the score for swat_kabul:34:5?",
+          "Is swat_kabul:34:5 safe from air pollution?",
+          "Give me the air and heat readings for swat_kabul:34:5",
+          "What does the data say about swat_kabul:34:5?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:34:5 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:34:5 کی وضاحت کریں",
+          "خانہ swat_kabul:34:5 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:34:5 میں ہوا اور گرمی کی کیا صورتحال ہے؟",
+          "swat_kabul:34:5 کے بارے میں بتائیں",
+          "swat_kabul:34:5 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:34:5 joins the highest air scores in the corridor at 46, with NO2 at 44.4 µg/m³, CO at 972.5, SO2 at 8.34 and AOD at 0.38. Air and heat are its two drivers, with heat at 23 from ERA5 air temperature of 34.6 °C, and the composite is 27, moderate. The air value is a CAMS model indicator shared with swat_kabul:34:6 and 34:7, so confirm it against ground monitoring before acting on it.",
+        "ur": "خانہ swat_kabul:34:5 راہداری میں ہوا کے سب سے زیادہ اسکور 46 میں شامل ہے، جس میں NO2 44.4 µg/m³، CO 972.5، SO2 8.34 اور AOD 0.38 ہے۔ ہوا اور گرمی اس کے دو بنیادی عامل ہیں، گرمی 23 ہے جو ERA5 کے ہوا کے 34.6 °C سے ہے، اور مجموعی اسکور 27 درمیانہ بینڈ میں ہے۔ ہوا کی قدر CAMS کا ماڈل اشاریہ ہے جو swat_kabul:34:6 اور 34:7 کے ساتھ مشترک ہے، اس لیے زمینی مانیٹرنگ سے تصدیق کیے بغیر اس پر فیصلہ نہ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:34:5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_34_6",
+      "intent": "cell",
+      "cellId": "swat_kabul:34:6",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:34:6 risky?",
+          "Explain swat_kabul:34:6",
+          "What makes cell swat_kabul:34:6 score high?",
+          "Tell me about cell swat_kabul:34:6",
+          "What is the risk at swat_kabul:34:6?",
+          "Why is swat_kabul:34:6 in the low band?",
+          "What is driving the score for swat_kabul:34:6?",
+          "Is swat_kabul:34:6 safe from air pollution?",
+          "Give me the air and terrain readings for swat_kabul:34:6",
+          "What does the data say about swat_kabul:34:6?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:34:6 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:34:6 کی وضاحت کریں",
+          "خانہ swat_kabul:34:6 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:34:6 میں ہوا اور زمین کی ہیئت کی کیا صورتحال ہے؟",
+          "swat_kabul:34:6 کے بارے میں بتائیں",
+          "swat_kabul:34:6 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:34:6 sits at 33.545, 72.675 in the low band with a composite of 24, though its air score is the same 46 as its neighbour swat_kabul:34:5. Terrain is almost flat at 3 on a 0.9 degree slope at 506 m, and heat is 23 at 34.6 °C. This is the same air cluster as 34:5 and 34:7, but on flatter ground the terrain score falls to 3, which keeps the composite in the low band.",
+        "ur": "خانہ swat_kabul:34:6 کا مجموعی اسکور 24 ہے، کم بینڈ میں، جبکہ اس کا ہوا کا اسکور اپنے پڑوسی swat_kabul:34:5 جیسا ہی یعنی 46 ہے۔ یہ 506 میٹر پر تقریباً ہموار ہے، 0.9 ڈگری ڈھلوان کے ساتھ، اس لیے زمین کی ہیئت صرف 3 ہے، جبکہ گرمی 23 ہے، ERA5 کے ہوا کے 34.6 °C سے۔ یہ 34:5 اور 34:7 والا ہی ہوا کا جھرمٹ ہے، لیکن ہموار زمین پر زمین کی ہیئت کا اسکور گرنے سے مجموعی بینڈ کم رہتا ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:34:6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_swat_kabul_34_7",
+      "intent": "cell",
+      "cellId": "swat_kabul:34:7",
+      "questions": {
+        "en": [
+          "Why is cell swat_kabul:34:7 risky?",
+          "Explain swat_kabul:34:7",
+          "What makes cell swat_kabul:34:7 score high?",
+          "Tell me about cell swat_kabul:34:7",
+          "What is the risk at swat_kabul:34:7?",
+          "Why is swat_kabul:34:7 in the low band?",
+          "What is driving the score for swat_kabul:34:7?",
+          "Is swat_kabul:34:7 safe from air pollution?",
+          "Give me the heat and air readings for swat_kabul:34:7",
+          "What does the data say about swat_kabul:34:7?"
+        ],
+        "ur": [
+          "خانہ swat_kabul:34:7 زیادہ خطرے میں کیوں ہے؟",
+          "swat_kabul:34:7 کی وضاحت کریں",
+          "خانہ swat_kabul:34:7 کا اسکور کیا ہے اور کیوں؟",
+          "swat_kabul:34:7 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "swat_kabul:34:7 کے بارے میں بتائیں",
+          "swat_kabul:34:7 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell swat_kabul:34:7 is the warmest of the three air-cluster cells, with heat at 24 from ERA5 air temperature of 34.8 °C, and its air score is 46 from the same CAMS readings as 34:5 and 34:6. Terrain is 3 on a 0.8 degree slope at 444 m, which keeps the composite low at 24. Because both the air and heat signals come from coarse inputs, read this cell alongside its neighbours rather than on its own.",
+        "ur": "خانہ swat_kabul:34:7 تین ہوا والے خانوں میں سب سے گرم ہے، ERA5 کے ہوا کے 34.8 °C کے ساتھ، اور گرمی کا اسکور 24 ہے۔ اس کا ہوا کا اسکور 46 ہے، 34:5 اور 34:6 کی طرح انہی CAMS قدروں سے، جبکہ 444 میٹر کی ہموار زمین (ڈھلوان 0.8 ڈگری) زمین کی ہیئت کو 3 پر رکھتی ہے اور مجموعی اسکور 24 رہتا ہے۔ چونکہ ہوا اور گرمی دونوں وسیع ان پٹ سے ہیں، اس خانے کو اکیلے نہیں بلکہ اپنے پڑوسیوں کے ساتھ پڑھیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "swat_kabul:34:7"
+          }
+        }
+      ]
+    }
+  ]
+}

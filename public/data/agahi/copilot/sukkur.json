@@ -1,0 +1,1071 @@
+{
+  "aoi": "sukkur",
+  "generatedBy": "claude-haiku-5-5",
+  "generatedAt": "2026-10-18T15:01:27.655Z",
+  "entries": [
+    {
+      "id": "overview",
+      "intent": "overview",
+      "questions": {
+        "en": [
+          "Give me an overview of Sukkur",
+          "What is the climate risk situation in Sukkur?",
+          "Summarise the risk picture for Sukkur",
+          "How risky is Sukkur overall?",
+          "What does the risk map show for Sukkur?",
+          "Brief me on Sukkur's climate risk",
+          "How many cells are assessed in Sukkur and what are their bands?",
+          "Is Sukkur safe from climate hazards?",
+          "What is the overall status of the Sukkur area?",
+          "Give me a short risk summary for Sukkur"
+        ],
+        "ur": [
+          "سکھر کے موسمیاتی خطرے کا خلاصہ بتائیں",
+          "سکھر میں موسمیاتی خطرات کی کیا صورتحال ہے؟",
+          "سکھر کے لیے مجموعی خطرے کی تصویر دکھائیں",
+          "کیا سکھر میں موسمیاتی خطرہ زیادہ ہے؟",
+          "سکھر کے علاقے کی مختصر بریفنگ دیں",
+          "سکھر کے نقشے میں کیا دکھایا گیا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Sukkur has 225 grid cells, and every one sits in the moderate composite band, with none in the low, elevated, or high bands. Heat is the leading driver across the whole grid, averaging 62 from ERA5 air temperature, and the relative air indicator averages 19. Flood and vegetation have no data and population is not loaded, so this is a heat and air picture, not a complete risk assessment.",
+        "ur": "سکھر میں 225 گرڈ خانے ہیں اور سب مجموعی طور پر درمیانہ بینڈ میں آتے ہیں، جبکہ کوئی خانہ کم، بلند یا زیادہ بینڈ میں نہیں۔ گرمی پورے گرڈ میں سب سے بڑا عامل ہے، جس کا اوسط 62 ہے اور یہ ERA5 کے ہوا کے درجہ حرارت سے آتا ہے، جبکہ ہوا کے نسبتی اشاریے کا اوسط 19 ہے۔ سیلاب اور سبزے کا ڈیٹا موجود نہیں اور آبادی لوڈ نہیں ہوئی، اس لیے یہ گرمی اور ہوا کی تصویر ہے، مکمل خطرے کا جائزہ نہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_aoi_risk_summary",
+          "args": {
+            "aoi": "sukkur"
+          }
+        }
+      ]
+    },
+    {
+      "id": "riskiest_cells",
+      "intent": "riskiest",
+      "questions": {
+        "en": [
+          "Which cells in Sukkur are the riskiest?",
+          "Show me the highest risk cells in Sukkur",
+          "Where is the risk highest in Sukkur?",
+          "Which areas of Sukkur need attention first?",
+          "List the top risk cells",
+          "What are the most at-risk cells in Sukkur?",
+          "Which cells score highest on composite risk?",
+          "Where should I look first in Sukkur?",
+          "Name the riskiest locations in Sukkur"
+        ],
+        "ur": [
+          "سکھر میں سب سے زیادہ خطرے والے خانے کون سے ہیں؟",
+          "سب سے زیادہ خطرے والی جگہیں دکھائیں",
+          "سکھر میں خطرہ کہاں سب سے زیادہ ہے؟",
+          "پہلے کہاں توجہ دینی چاہیے؟",
+          "سب سے اوپر کے خطرناک خانوں کی فہرست دیں",
+          "سکھر کے سب سے زیادہ متاثرہ مقامات کون سے ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "The top composite score in Sukkur is 35, and the top eight cells in the ranking all share it: sukkur:0:2, sukkur:0:4, sukkur:1:2, sukkur:0:7, sukkur:1:6, sukkur:1:8, sukkur:1:0 and sukkur:1:4. They are all in the moderate band, and every one of them has a heat score of 65 in the detailed data, so heat is the driver behind them. Because the ties leave no single cell standing out, use sukkur:0:2 as the reference cell and check the group together.",
+        "ur": "سکھر میں بلند ترین مجموعی اسکور 35 ہے، اور رینکنگ کے پہلے آٹھ خانے اسی اسکور پر ہیں: sukkur:0:2، sukkur:0:4، sukkur:1:2، sukkur:0:7، sukkur:1:6، sukkur:1:8، sukkur:1:0 اور sukkur:1:4۔ یہ سب درمیانہ بینڈ میں ہیں اور گرمی ان کا بنیادی عامل ہے، جس کا اسکور تفصیلی ڈیٹا میں 65 ہے۔ چونکہ برابری کی وجہ سے کوئی ایک خانہ الگ نہیں دکھتا، اس لیے sukkur:0:2 کو حوالہ بنا کر پورے گروپ کا ایک ساتھ معائنہ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "sukkur",
+            "hazard": "composite",
+            "limit": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_flood",
+      "intent": "hazard",
+      "hazard": "flood",
+      "questions": {
+        "en": [
+          "Is there flood risk in Sukkur?",
+          "What is the flood situation in Sukkur?",
+          "Which cells are most at risk of flooding?",
+          "Show me flood risk for Sukkur",
+          "Is Sukkur prone to floods?",
+          "Flood hazard in Sukkur",
+          "Where does flooding threaten Sukkur most?",
+          "Give me the flood ranking for Sukkur",
+          "Are there flood hotspots in Sukkur?"
+        ],
+        "ur": [
+          "سکھر میں سیلاب کا خطرہ کیسا ہے؟",
+          "سکھر میں کون سے خانے سیلاب کے لیے زیادہ خطرے میں ہیں؟",
+          "سکھر کے لیے سیلاب کی صورتحال بتائیں",
+          "کیا سکھر سیلاب کا شکار ہو سکتا ہے؟",
+          "سیلاب کی رینکنگ دکھائیں"
+        ]
+      },
+      "answer": {
+        "en": "Flood has no data for Sukkur. The flood inputs (SAR flood fraction, JRC occurrence, HAND and flow accumulation) are all empty, so every cell has a null flood score and the flood ranking is empty. That means the flood situation is unknown, not safe, and it needs satellite flood data loaded before it can be scored.",
+        "ur": "سکھر کے لیے سیلاب کا کوئی ڈیٹا موجود نہیں۔ سیلاب کے تمام ان پٹ، یعنی ریڈار سے سیلاب کا تناسب، JRC پانی کی موجودگی، HAND اور بہاؤ کا جمع ہونا، خالی ہیں، اس لیے ہر خانے کا سیلاب کا اسکور خالی ہے اور رینکنگ بھی خالی ہے۔ یہ صورتحال نامعلوم ہے، محفوظ نہیں، اور سیلاب کا اندازہ سیٹلائٹ ڈیٹا لوڈ ہونے کے بعد ہی ممکن ہوگا۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "sukkur",
+            "hazard": "flood",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_heat",
+      "intent": "hazard",
+      "hazard": "heat",
+      "questions": {
+        "en": [
+          "How hot is Sukkur?",
+          "What is the heat risk in Sukkur?",
+          "Which cells have the highest heat risk?",
+          "Show me heat hazard for Sukkur",
+          "Is extreme heat a problem in Sukkur?",
+          "Where is the hottest part of Sukkur?",
+          "Give me the heat ranking for Sukkur",
+          "What temperatures has Sukkur recorded?",
+          "Heat risk in Sukkur"
+        ],
+        "ur": [
+          "سکھر میں گرمی کا خطرہ کتنا ہے؟",
+          "سب سے گرم خانے کون سے ہیں؟",
+          "سکھر میں شدید گرمی کا مسئلہ ہے؟",
+          "سکھر میں گرمی کی رینکنگ دکھائیں",
+          "سکھر کا درجہ حرارت کیا ریکارڈ ہوا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Heat is the leading hazard in Sukkur, averaging 62 across the grid and driving all 225 cells. The top heat cells, sukkur:0:0 to sukkur:0:4 on the western edge, score 65 in the elevated band, and the detailed western cells read 43.1 °C from ERA5 2 m air temperature for May to July 2023 to 2025. This is an air temperature reanalysis, not satellite land surface temperature, so it shows regional heat load rather than the surface heat of each block. Plan heat-health and cooling measures for the western cells first.",
+        "ur": "گرمی سکھر کا نمایاں ترین خطرہ ہے، جس کا گرڈ اوسط 62 ہے اور یہ تمام 225 خانوں میں بنیادی عامل ہے۔ سب سے گرم خانے sukkur:0:0 سے sukkur:0:4 تک مغربی کنارے پر ہیں، جن کا گرمی کا اسکور 65 ہے اور جو بلند بینڈ میں آتے ہیں، اور تفصیلی مغربی خانوں میں ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C ریکارڈ ہوا ہے۔ یہ سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں بلکہ ہوا کے درجہ حرارت کا تجزیاتی ڈیٹا ہے، اس لیے یہ علاقائی گرمی کا بوجھ دکھاتا ہے۔ عملی طور پر پہلے ان مغربی خانوں کے لیے گرمی سے بچاؤ اور ٹھنڈک کے اقدامات کی منصوبہ بندی کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "sukkur",
+            "hazard": "heat",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_terrain",
+      "intent": "hazard",
+      "hazard": "terrain",
+      "questions": {
+        "en": [
+          "What is the terrain risk in Sukkur?",
+          "How steep is the land in Sukkur?",
+          "Which cells have the most terrain risk?",
+          "Show me slope and elevation risk for Sukkur",
+          "Is the terrain in Sukkur a hazard?",
+          "Give me the terrain ranking for Sukkur",
+          "Where is the land steepest in Sukkur?",
+          "Terrain hazard in Sukkur",
+          "Is the terrain flat in Sukkur?"
+        ],
+        "ur": [
+          "سکھر میں زمین کی ہیئت کا خطرہ کیا ہے؟",
+          "سکھر میں کون سے خانے زیادہ ڈھلوان ہیں؟",
+          "زمین کی ہیئت کی رینکنگ دکھائیں",
+          "کیا سکھر کی زمین ہموار ہے؟",
+          "سکھر میں بلندی اور ڈھلوان کا خطرہ بتائیں"
+        ]
+      },
+      "answer": {
+        "en": "Terrain is low across Sukkur, with an AOI average of 0 and most detailed cells at slopes of 0.2 degrees or less. The highest terrain score in the detailed set is 6, at sukkur:11:0 and sukkur:11:2 on the eastern edge, where the slope is 1.7 degrees at 86 m and 115 m elevation. sukkur:13:1 is the other notable case at 5, on a 1.5 degree slope. Terrain is not a main driver here, but these eastern cells are where a ground check should start.",
+        "ur": "سکھر میں زمین کی ہیئت کا خطرہ کم ہے، علاقے کا اوسط 0 ہے اور زیادہ تر تفصیلی خانوں کی ڈھلوان 0.2 ڈگری یا اس سے کم ہے۔ تفصیلی خانوں میں سب سے زیادہ زمین کا اسکور 6 ہے، جو مشرقی کنارے کے sukkur:11:0 اور sukkur:11:2 پر ہے، جہاں ڈھلوان 1.7 ڈگری اور بلندی 86 میٹر اور 115 میٹر ہے۔ sukkur:13:1 پر اسکور 5 ہے اور ڈھلوان 1.5 ڈگری ہے۔ زمین کی ہیئت یہاں بنیادی عامل نہیں، مگر زمینی معائنہ انہی مشرقی خانوں سے شروع کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "sukkur",
+            "hazard": "terrain",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_air",
+      "intent": "hazard",
+      "hazard": "air",
+      "questions": {
+        "en": [
+          "What is the air quality risk in Sukkur?",
+          "How polluted is the air in Sukkur?",
+          "Which cells have the worst air indicator?",
+          "Show me air hazard for Sukkur",
+          "Is air pollution a problem in Sukkur?",
+          "Give me the air ranking for Sukkur",
+          "Where is the air worst in Sukkur?",
+          "What are the NO2 and aerosol levels in Sukkur?",
+          "Air risk in Sukkur"
+        ],
+        "ur": [
+          "سکھر میں ہوا کی آلودگی کا خطرہ کیسا ہے؟",
+          "سکھر کی ہوا کتنی آلودہ ہے؟",
+          "ہوا کے سب سے خراب خانے کون سے ہیں؟",
+          "سکھر میں ہوا کی رینکنگ دکھائیں",
+          "کیا سکھر میں فضائی آلودگی ایک مسئلہ ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Air is the second driver in Sukkur, with a grid average relative air indicator of 19. It is built from CAMS atmospheric composition output for NO2, CO, SO2 and aerosol optical depth over the past 30 days, not from ground monitors or Sentinel-5P, so read it as a relative indicator rather than a measured concentration. The highest detailed values, 22, are at sukkur:0:10 to sukkur:0:12 where NO2 reaches 8.9 µg/m³ and AOD 0.4, while the lowest, 15, is at sukkur:13:1.",
+        "ur": "ہوا سکھر کا دوسرا عامل ہے، جس کا گرڈ اوسط نسبتی اشاریہ 19 ہے۔ یہ CAMS کی پچھلے 30 دنوں کی عالمی فضائی ساخت کی قدروں سے بنتا ہے، زمینی مانیٹر یا Sentinel-5P سے نہیں، اس لیے اسے ناپی ہوئی مقدار نہیں بلکہ نسبتی اشارہ سمجھیں۔ تفصیلی خانوں میں سب سے زیادہ قدر 22 ہے، جو sukkur:0:10 سے sukkur:0:12 پر ہے جہاں NO2 8.9 µg/m³ اور AOD 0.4 ہے، جبکہ سب سے کم 15 sukkur:13:1 پر ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "sukkur",
+            "hazard": "air",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "hazard_veg",
+      "intent": "hazard",
+      "hazard": "veg",
+      "questions": {
+        "en": [
+          "What is the vegetation risk in Sukkur?",
+          "How green is Sukkur?",
+          "Which cells have the lowest vegetation?",
+          "Show me vegetation hazard for Sukkur",
+          "Is there vegetation data for Sukkur?",
+          "Give me the NDVI situation in Sukkur",
+          "Is Sukkur losing vegetation?",
+          "Vegetation ranking for Sukkur",
+          "Is the vegetation in Sukkur healthy?"
+        ],
+        "ur": [
+          "سکھر میں سبزے کا خطرہ کیا ہے؟",
+          "سکھر میں سبزہ کتنا ہے؟",
+          "کیا سکھر میں سبزے کا ڈیٹا موجود ہے؟",
+          "سبزے کی رینکنگ دکھائیں",
+          "کیا سکھر کا سبزہ صحت مند ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Vegetation has no data for Sukkur. The NDVI and NDVI trend fields are empty for every cell, and the vegetation ranking is empty, so no vegetation score can be reported. That absence says nothing about whether the area is healthy or safe, and satellite NDVI data needs to be loaded before it can be assessed.",
+        "ur": "سکھر کے لیے سبزے کا کوئی ڈیٹا موجود نہیں۔ ہر خانے میں NDVI اور اس کے رجحان کی قدریں خالی ہیں اور سبزے کی رینکنگ بھی خالی ہے، اس لیے کوئی سبزے کا اسکور پیش نہیں کیا جا سکتا۔ اس کا مطلب یہ نہیں کہ علاقہ صحت مند یا محفوظ ہے، اور اس کا جائزہ لینے کے لیے سیٹلائٹ NDVI ڈیٹا لوڈ کرنا ہوگا۔"
+      },
+      "tools": [
+        {
+          "tool": "rank_climate_risk",
+          "args": {
+            "aoi": "sukkur",
+            "hazard": "veg",
+            "limit": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "population_exposure",
+      "intent": "population",
+      "questions": {
+        "en": [
+          "How many people are exposed in Sukkur?",
+          "What is the population at risk in Sukkur?",
+          "How many people live in high risk areas of Sukkur?",
+          "Population exposure for Sukkur",
+          "Who is affected by climate risk in Sukkur?",
+          "How many residents are in the risky cells?",
+          "Give me the population numbers for Sukkur",
+          "Is the population in Sukkur at risk?",
+          "Count the people exposed to hazards in Sukkur"
+        ],
+        "ur": [
+          "سکھر میں کتنے لوگ خطرے میں ہیں؟",
+          "خطرے والے علاقوں میں آبادی کتنی ہے؟",
+          "سکھر کی آبادی کا جائزہ دکھائیں",
+          "کتنے رہائشی زیادہ خطرے والے خانوں میں ہیں؟",
+          "سکھر میں کتنے لوگ موسمیاتی خطرات سے متاثر ہو سکتے ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "Population exposure cannot be assessed for Sukkur yet. No population values are loaded, so every cell's population is empty and the population total shows 0 only because nothing was loaded, not because no one lives there. Until a population layer is added, the copilot cannot say how many people sit in higher-risk cells, and no cell is currently in the composite high or elevated band, so band counts cannot stand in for people.",
+        "ur": "سکھر میں آبادی کے لحاظ سے خطرے کا جائزہ ابھی ممکن نہیں۔ آبادی کی کوئی قدر لوڈ نہیں ہوئی، اس لیے ہر خانے کی آبادی خالی ہے اور کل آبادی کا صفر دکھایا جانا صرف اس لیے ہے کہ کچھ لوڈ نہیں ہوا، اس کا مطلب یہ نہیں کہ یہاں کوئی نہیں رہتا۔ آبادی کی پرت شامل ہونے تک یہ نہیں بتایا جا سکتا کہ کتنے لوگ زیادہ خطرے والے خانوں میں ہیں، اور کسی خانے کا مجموعی بینڈ بلند یا زیادہ نہیں، اس لیے بینڈ کی گنتی لوگوں کی جگہ نہیں لے سکتی۔"
+      },
+      "tools": [
+        {
+          "tool": "get_aoi_risk_summary",
+          "args": {
+            "aoi": "sukkur"
+          }
+        }
+      ]
+    },
+    {
+      "id": "data_quality",
+      "intent": "data_quality",
+      "questions": {
+        "en": [
+          "How reliable is the Sukkur data?",
+          "Which datasets feed the Sukkur risk scores?",
+          "What data is missing for Sukkur?",
+          "Where does the Sukkur data come from?",
+          "What are the limits of this Sukkur assessment?",
+          "Is the Sukkur data complete?",
+          "Explain the data sources for Sukkur",
+          "What pipeline produced the Sukkur numbers?",
+          "Can I trust the Sukkur risk figures?"
+        ],
+        "ur": [
+          "سکھر کے ڈیٹا پر کتنا بھروسا کیا جا سکتا ہے؟",
+          "سکھر کے خطرے کے اسکور کن ڈیٹاسیٹس سے بنے ہیں؟",
+          "سکھر کا کون سا ڈیٹا غائب ہے؟",
+          "سکھر کے اعداد و شمار کہاں سے آئے ہیں؟",
+          "اس جائزے کی حدود کیا ہیں؟"
+        ]
+      },
+      "answer": {
+        "en": "Sukkur was built with the openmeteo pipeline. Heat is ERA5 2 m air temperature from the Open-Meteo Historical Weather API for May to July 2023 to 2025, not satellite land surface temperature. Air is CAMS global atmospheric composition output from the Open-Meteo Air Quality API over the past 30 days, not Sentinel-5P, and terrain comes from the Open-Meteo Elevation API (Copernicus DEM GLO-90), all sampled at 0.1 degree resolution. Flood and vegetation need satellite data that is not loaded yet, population is not loaded either, and only the notable cells carry full detail out of the 225 in the grid.",
+        "ur": "سکھر کا ڈیٹا openmeteo پائپ لائن سے بنا ہے۔ گرمی Open-Meteo Historical Weather API کا ERA5 ہوا کا 2 میٹر درجہ حرارت ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا CAMS کی عالمی فضائی ساخت کی قدریں ہیں جو Open-Meteo Air Quality API سے پچھلے 30 دنوں کی لی گئی ہیں، Sentinel-5P نہیں، جبکہ زمین کی ہیئت Open-Meteo Elevation API (Copernicus DEM GLO-90) سے ہے، سب 0.1 ڈگری ریزولوشن پر نمونہ شدہ ہیں۔ سیلاب اور سبزے کو ابھی لوڈ نہ ہونے والے سیٹلائٹ ڈیٹا کی ضرورت ہے، آبادی بھی لوڈ نہیں ہوئی، اور 225 خانوں میں سے صرف اہم خانوں کی مکمل تفصیل موجود ہے۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_advisory",
+          "args": {
+            "aoi": "sukkur",
+            "lang": "en"
+          }
+        }
+      ]
+    },
+    {
+      "id": "priorities",
+      "intent": "actions",
+      "questions": {
+        "en": [
+          "What should we do first in Sukkur?",
+          "What are the priorities for Sukkur?",
+          "Give me action items for Sukkur",
+          "Where should the district act first?",
+          "What do you recommend for Sukkur?",
+          "What is the next step for Sukkur?",
+          "Which actions matter most in Sukkur?",
+          "Prioritise the response for Sukkur",
+          "What should the team focus on in Sukkur?"
+        ],
+        "ur": [
+          "سکھر میں سب سے پہلے کیا کرنا چاہیے؟",
+          "سکھر کے لیے ترجیحات بتائیں",
+          "سکھر کے لیے عملی اقدامات کیا ہیں؟",
+          "ضلعی انتظامیہ پہلے کہاں کام کرے؟",
+          "سکھر میں اگلا قدم کیا ہونا چاہیے؟"
+        ]
+      },
+      "answer": {
+        "en": "Start with heat, which drives the whole grid, by checking the western cells sukkur:0:0 to sukkur:0:4 where heat scores 65. Second, look at the northern air cells sukkur:0:10 to sukkur:0:12, where the relative air indicator reaches 22. Third, run a ground check on the eastern terrain cells sukkur:11:0 and sukkur:11:2, where terrain scores 6. Do not make flood, vegetation or population decisions until those datasets are loaded.",
+        "ur": "پہلے گرمی پر توجہ دیں، جو پورے گرڈ کا بنیادی عامل ہے، اور مغربی خانے sukkur:0:0 سے sukkur:0:4 تک دیکھیں جہاں گرمی کا اسکور 65 ہے۔ دوسرے مرحلے میں شمالی ہوا والے خانے sukkur:0:10 سے sukkur:0:12 تک دیکھیں، جہاں نسبتی اشاریہ 22 تک پہنچتا ہے۔ تیسرے مرحلے میں مشرقی زمینی خانے sukkur:11:0 اور sukkur:11:2 کا معائنہ کریں، جہاں زمین کی ہیئت کا اسکور 6 ہے۔ سیلاب، سبزے یا آبادی کے فیصلے اس وقت تک نہ کریں جب تک ان کا ڈیٹا لوڈ نہ ہو۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_advisory",
+          "args": {
+            "aoi": "sukkur",
+            "lang": "en"
+          }
+        }
+      ]
+    },
+    {
+      "id": "forecast_refusal",
+      "intent": "out_of_scope",
+      "questions": {
+        "en": [
+          "Will Sukkur flood next week?",
+          "What will the temperature be in Sukkur tomorrow?",
+          "Forecast rainfall for Sukkur next month",
+          "Predict the heat in Sukkur this summer",
+          "Will it rain in Sukkur this weekend?",
+          "Is a flood coming to Sukkur soon?",
+          "What will the air quality be in Sukkur next month?",
+          "Give me the Sukkur weather forecast for next year",
+          "Predict future floods in Sukkur"
+        ],
+        "ur": [
+          "کل سکھر میں درجہ حرارت کتنا ہوگا؟",
+          "اگلے ہفتے سکھر میں سیلاب آئے گا؟",
+          "اگلے مہینے سکھر میں بارش کی پیش گوئی کریں",
+          "اس گرمی میں سکھر کا درجہ حرارت کیا ہوگا؟",
+          "آئندہ سال سکھر میں سیلاب کا اندازہ لگائیں"
+        ]
+      },
+      "answer": {
+        "en": "I cannot forecast temperature, rainfall or flooding for Sukkur. This copilot only reports grid values computed for the monitored period, which is May to July 2023 to 2025 for heat and the past 30 days for air, and it gives no prediction of what comes next. For a future outlook, use an official forecasting service, and I can explain the current computed picture for any cell or hazard.",
+        "ur": "میں سکھر کے لیے درجہ حرارت، بارش یا سیلاب کی پیش گوئی نہیں کر سکتا۔ یہ معاون صرف نگرانی کی مدت کے لیے حساب شدہ گرڈ قدریں دکھاتا ہے، یعنی گرمی کے لیے مئی سے جولائی 2023 سے 2025 اور ہوا کے لیے پچھلے 30 دن، اور آئندہ کا کوئی اندازہ نہیں دیتا۔ آئندہ کے لیے کسی سرکاری موسمیاتی پیش گوئی کے ادارے سے رجوع کریں، جبکہ میں کسی بھی خانے یا خطرے کی موجودہ حساب شدہ تصویر بتا سکتا ہوں۔"
+      },
+      "tools": []
+    },
+    {
+      "id": "help",
+      "intent": "help",
+      "questions": {
+        "en": [
+          "What can you help me with?",
+          "What can I ask about Sukkur?",
+          "How do I use this copilot?",
+          "What questions can you answer?",
+          "Show me what you can do",
+          "What topics are covered for Sukkur?",
+          "Help",
+          "What can I ask about a specific cell?",
+          "Give me examples of questions to ask"
+        ],
+        "ur": [
+          "آپ میری کیا مدد کر سکتے ہیں؟",
+          "سکھر کے بارے میں کیا پوچھ سکتا ہوں؟",
+          "اس معاون کو کیسے استعمال کریں؟",
+          "کون سے سوالات کے جواب دیے جا سکتے ہیں؟",
+          "مدد"
+        ]
+      },
+      "answer": {
+        "en": "You can ask for a Sukkur overview, the riskiest cells, any single hazard (flood, heat, terrain, air or vegetation), population exposure, data quality, or priorities. You can also ask about a specific cell by its id, such as sukkur:0:2. Forecasts are outside what this copilot does, since it reports only computed values for the monitored period.",
+        "ur": "آپ سکھر کا مجموعی جائزہ، سب سے زیادہ خطرے والے خانے، کوئی ایک خطرہ (سیلاب، گرمی، زمین کی ہیئت، ہوا یا سبزہ)، آبادی پر اثر، ڈیٹا کا معیار یا ترجیحات پوچھ سکتے ہیں۔ کسی خاص خانے کے بارے میں اس کی شناخت لکھ کر پوچھ سکتے ہیں، جیسے sukkur:0:2۔ آئندہ کی پیش گوئی اس معاون کے دائرے سے باہر ہے۔"
+      },
+      "tools": []
+    },
+    {
+      "id": "cell_sukkur_0_2",
+      "intent": "cell",
+      "cellId": "sukkur:0:2",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:2 risky?",
+          "Explain sukkur:0:2",
+          "What makes cell sukkur:0:2 score high?",
+          "Tell me about cell sukkur:0:2",
+          "What is the risk at sukkur:0:2?",
+          "Why is sukkur:0:2 in the moderate band?",
+          "What is driving the score for sukkur:0:2?",
+          "Is sukkur:0:2 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:2",
+          "What does the data say about sukkur:0:2?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:2 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:2 کی وضاحت کریں",
+          "خانہ sukkur:0:2 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:2 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:2 کے بارے میں بتائیں",
+          "sukkur:0:2 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:2 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 1 on a slope of 0.2 degrees at 55 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:0:2 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 1 ہے، جو 0.2 ڈگری ڈھلوان اور 55 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_4",
+      "intent": "cell",
+      "cellId": "sukkur:0:4",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:4 risky?",
+          "Explain sukkur:0:4",
+          "What makes cell sukkur:0:4 score high?",
+          "Tell me about cell sukkur:0:4",
+          "What is the risk at sukkur:0:4?",
+          "Why is sukkur:0:4 in the moderate band?",
+          "What is driving the score for sukkur:0:4?",
+          "Is sukkur:0:4 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:4",
+          "What does the data say about sukkur:0:4?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:4 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:4 کی وضاحت کریں",
+          "خانہ sukkur:0:4 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:4 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:4 کے بارے میں بتائیں",
+          "sukkur:0:4 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:4 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 0 on a slope of 0.1 degrees at 64 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:0:4 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 64 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_1_2",
+      "intent": "cell",
+      "cellId": "sukkur:1:2",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:1:2 risky?",
+          "Explain sukkur:1:2",
+          "What makes cell sukkur:1:2 score high?",
+          "Tell me about cell sukkur:1:2",
+          "What is the risk at sukkur:1:2?",
+          "Why is sukkur:1:2 in the moderate band?",
+          "What is driving the score for sukkur:1:2?",
+          "Is sukkur:1:2 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:1:2",
+          "What does the data say about sukkur:1:2?"
+        ],
+        "ur": [
+          "خانہ sukkur:1:2 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:1:2 کی وضاحت کریں",
+          "خانہ sukkur:1:2 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:1:2 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:1:2 کے بارے میں بتائیں",
+          "sukkur:1:2 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:1:2 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 0 on a slope of 0.1 degrees at 57 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:1:2 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 57 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:1:2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_7",
+      "intent": "cell",
+      "cellId": "sukkur:0:7",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:7 risky?",
+          "Explain sukkur:0:7",
+          "What makes cell sukkur:0:7 score high?",
+          "Tell me about cell sukkur:0:7",
+          "What is the risk at sukkur:0:7?",
+          "Why is sukkur:0:7 in the moderate band?",
+          "What is driving the score for sukkur:0:7?",
+          "Is sukkur:0:7 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:7",
+          "What does the data say about sukkur:0:7?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:7 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:7 کی وضاحت کریں",
+          "خانہ sukkur:0:7 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:7 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:7 کے بارے میں بتائیں",
+          "sukkur:0:7 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:7 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 287 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 1 on a slope of 0.2 degrees at 59 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:0:7 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 287 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 1 ہے، جو 0.2 ڈگری ڈھلوان اور 59 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:7"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_1_6",
+      "intent": "cell",
+      "cellId": "sukkur:1:6",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:1:6 risky?",
+          "Explain sukkur:1:6",
+          "What makes cell sukkur:1:6 score high?",
+          "Tell me about cell sukkur:1:6",
+          "What is the risk at sukkur:1:6?",
+          "Why is sukkur:1:6 in the moderate band?",
+          "What is driving the score for sukkur:1:6?",
+          "Is sukkur:1:6 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:1:6",
+          "What does the data say about sukkur:1:6?"
+        ],
+        "ur": [
+          "خانہ sukkur:1:6 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:1:6 کی وضاحت کریں",
+          "خانہ sukkur:1:6 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:1:6 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:1:6 کے بارے میں بتائیں",
+          "sukkur:1:6 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:1:6 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 287 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 1 on a slope of 0.2 degrees at 58 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:1:6 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 287 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 1 ہے، جو 0.2 ڈگری ڈھلوان اور 58 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:1:6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_1_8",
+      "intent": "cell",
+      "cellId": "sukkur:1:8",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:1:8 risky?",
+          "Explain sukkur:1:8",
+          "What makes cell sukkur:1:8 score high?",
+          "Tell me about cell sukkur:1:8",
+          "What is the risk at sukkur:1:8?",
+          "Why is sukkur:1:8 in the moderate band?",
+          "What is driving the score for sukkur:1:8?",
+          "Is sukkur:1:8 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:1:8",
+          "What does the data say about sukkur:1:8?"
+        ],
+        "ur": [
+          "خانہ sukkur:1:8 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:1:8 کی وضاحت کریں",
+          "خانہ sukkur:1:8 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:1:8 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:1:8 کے بارے میں بتائیں",
+          "sukkur:1:8 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:1:8 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 287 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 1 on a slope of 0.2 degrees at 59 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:1:8 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 287 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 1 ہے، جو 0.2 ڈگری ڈھلوان اور 59 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:1:8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_1_0",
+      "intent": "cell",
+      "cellId": "sukkur:1:0",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:1:0 risky?",
+          "Explain sukkur:1:0",
+          "What makes cell sukkur:1:0 score high?",
+          "Tell me about cell sukkur:1:0",
+          "What is the risk at sukkur:1:0?",
+          "Why is sukkur:1:0 in the moderate band?",
+          "What is driving the score for sukkur:1:0?",
+          "Is sukkur:1:0 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:1:0",
+          "What does the data say about sukkur:1:0?"
+        ],
+        "ur": [
+          "خانہ sukkur:1:0 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:1:0 کی وضاحت کریں",
+          "خانہ sukkur:1:0 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:1:0 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:1:0 کے بارے میں بتائیں",
+          "sukkur:1:0 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:1:0 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 0 on a slope of 0.1 degrees at 60 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:1:0 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 60 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:1:0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_1_4",
+      "intent": "cell",
+      "cellId": "sukkur:1:4",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:1:4 risky?",
+          "Explain sukkur:1:4",
+          "What makes cell sukkur:1:4 score high?",
+          "Tell me about cell sukkur:1:4",
+          "What is the risk at sukkur:1:4?",
+          "Why is sukkur:1:4 in the moderate band?",
+          "What is driving the score for sukkur:1:4?",
+          "Is sukkur:1:4 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:1:4",
+          "What does the data say about sukkur:1:4?"
+        ],
+        "ur": [
+          "خانہ sukkur:1:4 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:1:4 کی وضاحت کریں",
+          "خانہ sukkur:1:4 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:1:4 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:1:4 کے بارے میں بتائیں",
+          "sukkur:1:4 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:1:4 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 0 on a slope of 0.1 degrees at 60 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:1:4 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 60 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:1:4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_0",
+      "intent": "cell",
+      "cellId": "sukkur:0:0",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:0 risky?",
+          "Explain sukkur:0:0",
+          "What makes cell sukkur:0:0 score high?",
+          "Tell me about cell sukkur:0:0",
+          "What is the risk at sukkur:0:0?",
+          "Why is sukkur:0:0 in the moderate band?",
+          "What is driving the score for sukkur:0:0?",
+          "Is sukkur:0:0 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:0",
+          "What does the data say about sukkur:0:0?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:0 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:0 کی وضاحت کریں",
+          "خانہ sukkur:0:0 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:0 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:0 کے بارے میں بتائیں",
+          "sukkur:0:0 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:0 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 0 on a slope of 0.1 degrees at 54 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:0:0 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 54 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_1",
+      "intent": "cell",
+      "cellId": "sukkur:0:1",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:1 risky?",
+          "Explain sukkur:0:1",
+          "What makes cell sukkur:0:1 score high?",
+          "Tell me about cell sukkur:0:1",
+          "What is the risk at sukkur:0:1?",
+          "Why is sukkur:0:1 in the moderate band?",
+          "What is driving the score for sukkur:0:1?",
+          "Is sukkur:0:1 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:1",
+          "What does the data say about sukkur:0:1?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:1 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:1 کی وضاحت کریں",
+          "خانہ sukkur:0:1 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:1 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:1 کے بارے میں بتائیں",
+          "sukkur:0:1 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:1 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 65 from ERA5 2 m air temperature of 43.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 277.4 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 0 on a slope of 0 degrees at 59 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check heat exposure on the ground first, since heat is the main driver.",
+        "ur": "خانہ sukkur:0:1 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 65 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 43.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 277.4 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0 ڈگری ڈھلوان اور 59 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پہلے زمین پر گرمی کے اثرات کی جانچ کریں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_11_0",
+      "intent": "cell",
+      "cellId": "sukkur:11:0",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:11:0 risky?",
+          "Explain sukkur:11:0",
+          "What makes cell sukkur:11:0 score high?",
+          "Tell me about cell sukkur:11:0",
+          "What is the risk at sukkur:11:0?",
+          "Why is sukkur:11:0 in the moderate band?",
+          "What is driving the score for sukkur:11:0?",
+          "Is sukkur:11:0 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:11:0",
+          "What does the data say about sukkur:11:0?"
+        ],
+        "ur": [
+          "خانہ sukkur:11:0 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:11:0 کی وضاحت کریں",
+          "خانہ sukkur:11:0 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:11:0 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:11:0 کے بارے میں بتائیں",
+          "sukkur:11:0 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:11:0 has a composite score of 34 in the moderate band, just below the highest detailed score of 35. Heat drives it, with a heat hazard score of 60 from ERA5 2 m air temperature of 42.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 214.1 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 6 on a slope of 1.7 degrees at 86 m elevation, the highest terrain score among the detailed cells. Flood and vegetation have no data here, so this cell cannot be called safe from them; treat the terrain signal as a reason for a site check alongside heat.",
+        "ur": "خانہ sukkur:11:0 کا مجموعی اسکور 34 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی سب سے بڑے اسکور 35 سے کچھ کم۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 60 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 42.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 214.1 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 6 ہے، جو 1.7 ڈگری ڈھلوان اور 86 میٹر بلندی سے ہے، تفصیلی خانوں میں سب سے بلند۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ زمین کی ڈھلوان کا معائنہ کریں اور گرمی کو ساتھ دیکھیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:11:0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_11_2",
+      "intent": "cell",
+      "cellId": "sukkur:11:2",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:11:2 risky?",
+          "Explain sukkur:11:2",
+          "What makes cell sukkur:11:2 score high?",
+          "Tell me about cell sukkur:11:2",
+          "What is the risk at sukkur:11:2?",
+          "Why is sukkur:11:2 in the moderate band?",
+          "What is driving the score for sukkur:11:2?",
+          "Is sukkur:11:2 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:11:2",
+          "What does the data say about sukkur:11:2?"
+        ],
+        "ur": [
+          "خانہ sukkur:11:2 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:11:2 کی وضاحت کریں",
+          "خانہ sukkur:11:2 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:11:2 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:11:2 کے بارے میں بتائیں",
+          "sukkur:11:2 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:11:2 has a composite score of 34 in the moderate band, just below the highest detailed score of 35. Heat drives it, with a heat hazard score of 60 from ERA5 2 m air temperature of 42.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 19, built from CAMS NO2 6.79, CO 214.1 and SO2 5.78 µg/m³ with AOD 0.38. Terrain scores 6 on a slope of 1.7 degrees at 115 m elevation, the highest terrain score among the detailed cells. Flood and vegetation have no data here, so this cell cannot be called safe from them; treat the terrain signal as a reason for a site check alongside heat.",
+        "ur": "خانہ sukkur:11:2 کا مجموعی اسکور 34 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی سب سے بڑے اسکور 35 سے کچھ کم۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 60 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 42.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 19 ہے، جو CAMS کی NO2 6.79، CO 214.1 اور SO2 5.78 µg/m³ اور AOD 0.38 سے بنتا ہے۔ زمین کی ہیئت کا اسکور 6 ہے، جو 1.7 ڈگری ڈھلوان اور 115 میٹر بلندی سے ہے، تفصیلی خانوں میں سب سے بلند۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ زمین کی ڈھلوان کا معائنہ کریں اور گرمی کو ساتھ دیکھیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:11:2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_13_1",
+      "intent": "cell",
+      "cellId": "sukkur:13:1",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:13:1 risky?",
+          "Explain sukkur:13:1",
+          "What makes cell sukkur:13:1 score high?",
+          "Tell me about cell sukkur:13:1",
+          "What is the risk at sukkur:13:1?",
+          "Why is sukkur:13:1 in the moderate band?",
+          "What is driving the score for sukkur:13:1?",
+          "Is sukkur:13:1 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:13:1",
+          "What does the data say about sukkur:13:1?"
+        ],
+        "ur": [
+          "خانہ sukkur:13:1 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:13:1 کی وضاحت کریں",
+          "خانہ sukkur:13:1 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:13:1 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:13:1 کے بارے میں بتائیں",
+          "sukkur:13:1 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:13:1 has a composite score of 33 in the moderate band, the lowest composite score among the detailed cells. Heat drives it, with a heat hazard score of 60 from ERA5 2 m air temperature of 42.1 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 15, built from CAMS NO2 3.46, CO 208.8 and SO2 4.94 µg/m³ with AOD 0.35, the lowest air reading in the detailed set. Terrain scores 5 on a slope of 1.5 degrees at 71 m elevation, a notable terrain signal. Flood and vegetation have no data here, so this cell cannot be called safe from them; a site check is still worthwhile because heat and terrain both feed the score.",
+        "ur": "خانہ sukkur:13:1 کا مجموعی اسکور 33 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے کم۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 60 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 42.1 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 15 ہے، جو CAMS کی NO2 3.46، CO 208.8 اور SO2 4.94 µg/m³ اور AOD 0.35 سے بنتا ہے، تفصیلی خانوں میں سب سے کم۔ زمین کی ہیئت کا اسکور 5 ہے، جو 1.5 ڈگری ڈھلوان اور 71 میٹر بلندی سے ہے، جو ایک نمایاں اشارہ ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ پھر بھی زمین کا معائنہ فائدہ مند ہے، کیونکہ گرمی اور زمین کی ہیئت اسکور میں حصہ ڈالتی ہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:13:1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_10",
+      "intent": "cell",
+      "cellId": "sukkur:0:10",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:10 risky?",
+          "Explain sukkur:0:10",
+          "What makes cell sukkur:0:10 score high?",
+          "Tell me about cell sukkur:0:10",
+          "What is the risk at sukkur:0:10?",
+          "Why is sukkur:0:10 in the moderate band?",
+          "What is driving the score for sukkur:0:10?",
+          "Is sukkur:0:10 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:10",
+          "What does the data say about sukkur:0:10?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:10 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:10 کی وضاحت کریں",
+          "خانہ sukkur:0:10 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:10 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:10 کے بارے میں بتائیں",
+          "sukkur:0:10 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:10 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 63 from ERA5 2 m air temperature of 42.7 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 22, built from CAMS NO2 8.9, CO 306.8 and SO2 7.1 µg/m³ with AOD 0.4, the highest air reading in the detailed set. Terrain scores 0 on a slope of 0.1 degrees at 61 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check air and heat together, since these northern cells carry the highest air readings.",
+        "ur": "خانہ sukkur:0:10 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 63 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 42.7 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 22 ہے، جو CAMS کی NO2 8.9، CO 306.8 اور SO2 7.1 µg/m³ اور AOD 0.4 سے بنتا ہے، تفصیلی خانوں میں ہوا کی سب سے بلند قدر۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 61 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ ہوا اور گرمی دونوں کو ایک ساتھ جانچیں، کیونکہ ان شمالی خانوں میں ہوا کی قدریں سب سے بلند ہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:10"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_11",
+      "intent": "cell",
+      "cellId": "sukkur:0:11",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:11 risky?",
+          "Explain sukkur:0:11",
+          "What makes cell sukkur:0:11 score high?",
+          "Tell me about cell sukkur:0:11",
+          "What is the risk at sukkur:0:11?",
+          "Why is sukkur:0:11 in the moderate band?",
+          "What is driving the score for sukkur:0:11?",
+          "Is sukkur:0:11 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:11",
+          "What does the data say about sukkur:0:11?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:11 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:11 کی وضاحت کریں",
+          "خانہ sukkur:0:11 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:11 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:11 کے بارے میں بتائیں",
+          "sukkur:0:11 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:11 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 63 from ERA5 2 m air temperature of 42.7 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 22, built from CAMS NO2 8.9, CO 306.8 and SO2 7.1 µg/m³ with AOD 0.4, the highest air reading in the detailed set. Terrain scores 0 on a slope of 0.1 degrees at 57 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check air and heat together, since these northern cells carry the highest air readings.",
+        "ur": "خانہ sukkur:0:11 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 63 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 42.7 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 22 ہے، جو CAMS کی NO2 8.9، CO 306.8 اور SO2 7.1 µg/m³ اور AOD 0.4 سے بنتا ہے، تفصیلی خانوں میں ہوا کی سب سے بلند قدر۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 57 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ ہوا اور گرمی دونوں کو ایک ساتھ جانچیں، کیونکہ ان شمالی خانوں میں ہوا کی قدریں سب سے بلند ہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:11"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cell_sukkur_0_12",
+      "intent": "cell",
+      "cellId": "sukkur:0:12",
+      "questions": {
+        "en": [
+          "Why is cell sukkur:0:12 risky?",
+          "Explain sukkur:0:12",
+          "What makes cell sukkur:0:12 score high?",
+          "Tell me about cell sukkur:0:12",
+          "What is the risk at sukkur:0:12?",
+          "Why is sukkur:0:12 in the moderate band?",
+          "What is driving the score for sukkur:0:12?",
+          "Is sukkur:0:12 safe from climate hazards?",
+          "Give me the heat and air readings for sukkur:0:12",
+          "What does the data say about sukkur:0:12?"
+        ],
+        "ur": [
+          "خانہ sukkur:0:12 زیادہ خطرے میں کیوں ہے؟",
+          "sukkur:0:12 کی وضاحت کریں",
+          "خانہ sukkur:0:12 کا اسکور کیا ہے اور کیوں؟",
+          "sukkur:0:12 میں گرمی اور ہوا کی کیا صورتحال ہے؟",
+          "sukkur:0:12 کے بارے میں بتائیں",
+          "sukkur:0:12 کا مجموعی اسکور کس عامل سے بنتا ہے؟"
+        ]
+      },
+      "answer": {
+        "en": "Cell sukkur:0:12 has a composite score of 35 in the moderate band, the highest composite score among the detailed cells. Heat drives it, with a heat hazard score of 63 from ERA5 2 m air temperature of 42.7 °C for May to July 2023 to 2025, which is air temperature rather than satellite land surface temperature. The relative air indicator is 22, built from CAMS NO2 8.9, CO 306.8 and SO2 7.1 µg/m³ with AOD 0.4, the highest air reading in the detailed set. Terrain scores 0 on a slope of 0.1 degrees at 57 m elevation. Flood and vegetation have no data here, so this cell cannot be called safe from them; check air and heat together, since these northern cells carry the highest air readings.",
+        "ur": "خانہ sukkur:0:12 کا مجموعی اسکور 35 ہے، جو درمیانہ بینڈ میں ہے، تفصیلی خانوں میں سب سے زیادہ۔ گرمی اس کا بنیادی عامل ہے، جس کا اسکور 63 ہے اور یہ ERA5 کے ہوا کے 2 میٹر درجہ حرارت 42.7 °C پر مبنی ہے، جو مئی سے جولائی 2023 سے 2025 تک کا ہے، سیٹلائٹ کی زمینی سطح کا درجہ حرارت نہیں۔ ہوا کا نسبتی اشاریہ 22 ہے، جو CAMS کی NO2 8.9، CO 306.8 اور SO2 7.1 µg/m³ اور AOD 0.4 سے بنتا ہے، تفصیلی خانوں میں ہوا کی سب سے بلند قدر۔ زمین کی ہیئت کا اسکور 0 ہے، جو 0.1 ڈگری ڈھلوان اور 57 میٹر بلندی سے ہے۔ سیلاب اور سبزے کا یہاں کوئی ڈیٹا نہیں، اس لیے اسے ان سے محفوظ نہ سمجھیں؛ ہوا اور گرمی دونوں کو ایک ساتھ جانچیں، کیونکہ ان شمالی خانوں میں ہوا کی قدریں سب سے بلند ہیں۔"
+      },
+      "tools": [
+        {
+          "tool": "get_climate_risk",
+          "args": {
+            "cell_id": "sukkur:0:12"
+          }
+        }
+      ]
+    }
+  ]
+}
