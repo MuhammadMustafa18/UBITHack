@@ -28,6 +28,7 @@ export class TacticalAiCommander {
     this.viewer = options.viewer || null;
     this.floodEngine = options.floodEngine || null;
     this.resourceDefenseGame = options.resourceDefenseGame || null;
+    this.livePredictionEngine = options.livePredictionEngine || null;
 
     // Load or initialize config from LocalStorage
     this.config = this._loadConfig();
@@ -160,6 +161,17 @@ export class TacticalAiCommander {
       `• [${s.id}] ${s.district} (${s.llmRank}): "${s.message.slice(0, 90)}..." (Recommended: ${s.recommendedAction})`
     ).join('\n');
 
+    // Live Earth Observation & Risk Modules (Agahi Intelligence Grid)
+    const predCell = this.livePredictionEngine?.selectedCell;
+    const predSummary = predCell 
+      ? `• Observed Grid: ${predCell.name} (Risk Score: ${predCell.compositeScore}/100 [${predCell.compositeGrade}])
+• Flood Exposure (SAR): ${predCell.floodExposure} (${predCell.sarBackscatterDb} dB)
+• Land Surface Temp (LST): ${predCell.lstAnomalyC}
+• Terrain & Drainage: ${predCell.slopeDrainage}
+• Air Quality (AQI): ${predCell.airQuality}
+• Vegetation NDVI: ${predCell.ndviAnomaly}`
+      : 'Live 30m Earth observation grid active (Sentinel-1 SAR, Sentinel-2 NDVI, Sentinel-5P, ERA5)';
+
     return {
       simId,
       active,
@@ -182,6 +194,8 @@ export class TacticalAiCommander {
       },
       pool: { ...pool },
       sosSummary,
+      predCell,
+      predSummary,
       fullTelemetry: telemetry,
       fullResourceState: resState,
     };
@@ -315,8 +329,14 @@ export class TacticalAiCommander {
    * Calls the configured Anthropic-compatible proxy endpoint
    */
   async _callAiService(prompt, ctx) {
-    const systemPrompt = `You are the National Disaster Management Authority (NDMA) Tactical AI Operations Commander for FloodTrace Pakistan.
-You have real-time live telemetry access to the active flood simulation and emergency rescue operations.
+    const systemPrompt = `You are Agahi Copilot & NDMA Tactical AI Commander for FloodTrace Pakistan.
+You serve as the climate and disaster intelligence layer for Pakistan, turning fragmented Earth observation (Sentinel-1 SAR, Sentinel-2 NDVI, Sentinel-5P, ERA5 reanalysis) and real-time hydrodynamic river propagation into actionable, grid-level risk scores and tactical orders.
+
+AGAHI INTELLIGENCE PRINCIPLE:
+Never guess at a number; report what the analysis engines and physical hydrodynamic simulation have computed. Answers must be traceable to real telemetry, SAR backscatter, LST anomalies, and actual logistics pool tallies.
+
+LIVE EARTH OBSERVATION & HAZARD MODULES:
+${ctx.predSummary}
 
 OPERATIONAL SITUATION TELEMETRY:
 - Active Simulation ID: ${ctx.simId}
@@ -341,8 +361,8 @@ CITIZEN DISTRESS SIGNALS (/rescue stream):
 ${ctx.sosSummary}
 
 INSTRUCTIONS:
-1. Provide a direct, authoritative, NDMA/military-grade briefing.
-2. Formulate clear actionable recommendations: which depots to mobilize from, exact units to dispatch, and immediate evacuation or levee shoring priorities.
+1. Provide a direct, authoritative, institutional-grade Agahi briefing tailored for disaster authorities, infrastructure planners, and field units.
+2. Formulate clear actionable recommendations: SAR inundation pathways, which depots to mobilize from, exact units to dispatch, and evacuation priorities.
 3. Be proactive: warn about downstream funnel points or critical SOS calls that need prompt dispatch.
 4. Format with clean Markdown, bold headers, and bullet points.`;
 

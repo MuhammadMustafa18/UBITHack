@@ -350,6 +350,7 @@ export class GoogleMapsUI {
       viewer: this.viewer,
       floodEngine: this.floodEngine,
       resourceDefenseGame: this.resourceDefenseGame,
+      livePredictionEngine: this.livePredictionEngine,
     });
     this.tacticalAiCommander.mount(document.body);
 
@@ -775,8 +776,11 @@ export class GoogleMapsUI {
         <button id="pred-advisory-btn" class="pred-btn-primary" type="button" title="View executive bilingual advisory in English and Urdu">
           <span>Bilingual Advisory (EN / اردو)</span>
         </button>
+        <button id="pred-copilot-btn" class="pred-btn-secondary" type="button" title="Ask Agahi Copilot about this grid and risk scores" style="background:#e0f2fe; border-color:#bae6fd; color:#0369a1;">
+          <span>Ask Agahi Copilot ✦</span>
+        </button>
         <button id="pred-refresh-btn" class="pred-btn-secondary" type="button" title="Re-ingest Sentinel SAR and ERA5 reanalysis">
-          <span>↻ Refresh Satellite Feeds</span>
+          <span>↻ Feeds</span>
         </button>
       </div>
     `;
@@ -1134,6 +1138,15 @@ export class GoogleMapsUI {
     document.getElementById('pred-advisory-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this._openBilingualAdvisory();
+    });
+
+    // Agahi Copilot live prediction query
+    document.getElementById('pred-copilot-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cell = this.livePredictionEngine?.selectedCell;
+      const cellName = cell?.name || 'Current Observation Grid';
+      this.tacticalAiCommander?.setOpen(true);
+      this.tacticalAiCommander?.sendMessage(`Analyze climate risk and Earth observation scores for ${cellName}: Flood SAR exposure is ${cell?.floodExposure}, LST anomaly is ${cell?.lstAnomalyC}, and terrain runoff is ${cell?.slopeDrainage}. Detail recommended infrastructure defense.`);
     });
 
     document.getElementById('bilingual-close-btn')?.addEventListener('click', () => {
