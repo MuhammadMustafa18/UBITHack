@@ -1187,7 +1187,32 @@
 }
 
 .pred-module-chip .mod-icon {
-  font-size: 15px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cohere-ink);
+}
+
+.mod-svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.heatmap-toggle-btn .icon {
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heatmap-mode-svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
 }
 
 .pred-module-chip .mod-text {

@@ -123,15 +123,15 @@ export class PredictiveHeatmaps {
       if (tier === 'critical') {
         fillColor = Cesium.Color.fromCssColorString('#ea4335').withAlpha(0.42);
         outlineColor = Cesium.Color.fromCssColorString('#ff1744');
-        labelPrefix = '⚠️ NEXT IMPACT ZONE';
+        labelPrefix = 'NEXT IMPACT ZONE';
       } else if (tier === 'warning') {
         fillColor = Cesium.Color.fromCssColorString('#f57c00').withAlpha(0.32);
         outlineColor = Cesium.Color.fromCssColorString('#ff9800');
-        labelPrefix = '⏱️ PROJECTED REACH';
+        labelPrefix = 'PROJECTED REACH';
       } else {
         fillColor = Cesium.Color.fromCssColorString('#fbc02d').withAlpha(0.22);
         outlineColor = Cesium.Color.fromCssColorString('#ffeb3b');
-        labelPrefix = '🔍 DOWNSTREAM WATCH';
+        labelPrefix = 'DOWNSTREAM WATCH';
       }
 
       const etaFormatted = etaHours < 1

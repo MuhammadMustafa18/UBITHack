@@ -634,7 +634,7 @@ export class GoogleMapsUI {
 
     const modulesHtml = Object.values(RISK_MODULES).map((mod) => `
       <div class="pred-module-chip active" data-module-id="${mod.id}" title="${mod.subtitle}">
-        <span class="mod-icon">${mod.icon}</span>
+        <span class="mod-icon">${mod.iconSvg}</span>
         <div class="mod-text">
           <span class="mod-title">${mod.title}</span>
           <span class="mod-tag">${mod.tag}</span>
@@ -646,7 +646,7 @@ export class GoogleMapsUI {
     predPanel.innerHTML = `
       <div class="pred-header">
         <div class="pred-title-group">
-          <div class="pred-tag">✦ LIVE EARTH OBSERVATION &amp; GEE PIPELINE</div>
+          <div class="pred-tag">LIVE EARTH OBSERVATION &amp; GEE PIPELINE</div>
           <h3 class="pred-title">AI Risk Prediction Engine</h3>
         </div>
         <button id="pred-close-btn" class="pred-icon-close" type="button" title="Close Prediction Panel">✕</button>
@@ -708,7 +708,7 @@ export class GoogleMapsUI {
       <!-- Footer Action Row -->
       <div class="pred-actions-row">
         <button id="pred-advisory-btn" class="pred-btn-primary" type="button" title="View executive bilingual advisory in English and Urdu">
-          <span>📄 Bilingual Advisory (EN / اردو)</span>
+          <span>Bilingual Advisory (EN / اردو)</span>
         </button>
         <button id="pred-refresh-btn" class="pred-btn-secondary" type="button" title="Re-ingest Sentinel SAR and ERA5 reanalysis">
           <span>↻ Refresh Satellite Feeds</span>
@@ -735,19 +735,19 @@ export class GoogleMapsUI {
 
       <div class="heatmap-toggles-row">
         <button class="heatmap-toggle-btn active" data-mode="population" type="button" title="Population density &amp; headcount across 19 regions (Digital Census 2023)">
-          <span class="icon">👥</span>
+          <span class="icon">${HEATMAP_MODES.population.iconSvg}</span>
           <span>Population</span>
         </button>
         <button class="heatmap-toggle-btn" data-mode="age" type="button" title="Vulnerable dependents: Children under 5 and elderly over 65">
-          <span class="icon">👶</span>
+          <span class="icon">${HEATMAP_MODES.age.iconSvg}</span>
           <span>Age</span>
         </button>
         <button class="heatmap-toggle-btn" data-mode="resources" type="button" title="Critical relief inventory: Rescue boats, shelter camps, medical &amp; air assets">
-          <span class="icon">🏥</span>
+          <span class="icon">${HEATMAP_MODES.resources.iconSvg}</span>
           <span>Resources</span>
         </button>
         <button class="heatmap-toggle-btn" data-mode="risk" type="button" title="Composite multi-hazard risk index combining exposure &amp; levee history">
-          <span class="icon">⚠️</span>
+          <span class="icon">${HEATMAP_MODES.risk.iconSvg}</span>
           <span>Risk</span>
         </button>
       </div>
@@ -913,23 +913,23 @@ export class GoogleMapsUI {
       </div>
       <div class="cell-stats-grid">
         <div class="cell-stat-item">
-          <span class="k">🌊 Flood (SAR):</span>
+          <span class="k">Flood Exposure (SAR):</span>
           <span class="v">${cell.floodExposure} (${cell.sarBackscatterDb} dB)</span>
         </div>
         <div class="cell-stat-item">
-          <span class="k">🔥 Heat (LST):</span>
+          <span class="k">Heat Anomaly (LST):</span>
           <span class="v">${cell.lstAnomalyC}</span>
         </div>
         <div class="cell-stat-item">
-          <span class="k">⛰️ Terrain Drainage:</span>
+          <span class="k">Terrain &amp; Drainage:</span>
           <span class="v">${cell.slopeDrainage}</span>
         </div>
         <div class="cell-stat-item">
-          <span class="k">🌫️ Air Quality:</span>
+          <span class="k">Air Quality (AQI):</span>
           <span class="v">${cell.airQuality}</span>
         </div>
         <div class="cell-stat-item full">
-          <span class="k">🌱 Vegetation (NDVI):</span>
+          <span class="k">Vegetation Health (NDVI):</span>
           <span class="v">${cell.ndviTrend}</span>
         </div>
       </div>

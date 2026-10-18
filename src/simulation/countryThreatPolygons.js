@@ -787,17 +787,17 @@ export class CountryThreatPolygons {
 
         <div class="threat-demo-grid">
           <div class="threat-demo-cell">
-            <span class="demo-chip chip-children">👶 Children (&lt;14)</span>
+            <span class="demo-chip chip-children">Children (&lt;14)</span>
             <span class="demo-cell-pct">${reg.demographics.childrenPct}%</span>
             <span class="demo-cell-count">${childrenCount.toLocaleString()}</span>
           </div>
           <div class="threat-demo-cell">
-            <span class="demo-chip chip-adults">🧑 Adults (15–64)</span>
+            <span class="demo-chip chip-adults">Adults (15–64)</span>
             <span class="demo-cell-pct">${reg.demographics.adultsPct}%</span>
             <span class="demo-cell-count">${adultsCount.toLocaleString()}</span>
           </div>
           <div class="threat-demo-cell">
-            <span class="demo-chip chip-elderly">🧓 Elderly (65+)</span>
+            <span class="demo-chip chip-elderly">Elderly (65+)</span>
             <span class="demo-cell-pct">${reg.demographics.elderlyPct}%</span>
             <span class="demo-cell-count">${elderlyCount.toLocaleString()}</span>
           </div>
@@ -814,23 +814,18 @@ export class CountryThreatPolygons {
         <div class="threat-res-header">Disaster Relief Resources in Region:</div>
         <div class="threat-res-list">
           <div class="threat-res-item">
-            <span class="res-icon">🚤</span>
             <span class="res-text"><strong>Boats &amp; Flotillas:</strong> ${reg.resources.boats}</span>
           </div>
           <div class="threat-res-item">
-            <span class="res-icon">🏕️</span>
             <span class="res-text"><strong>Evacuation Camps:</strong> ${reg.resources.camps}</span>
           </div>
           <div class="threat-res-item">
-            <span class="res-icon">🚁</span>
             <span class="res-text"><strong>Air Assets:</strong> ${reg.resources.airAssets}</span>
           </div>
           <div class="threat-res-item">
-            <span class="res-icon">🩺</span>
             <span class="res-text"><strong>Medical Teams:</strong> ${reg.resources.medicalUnits}</span>
           </div>
           <div class="threat-res-item">
-            <span class="res-icon">📦</span>
             <span class="res-text"><strong>Rations &amp; Water:</strong> ${reg.resources.rationsWater}</span>
           </div>
         </div>

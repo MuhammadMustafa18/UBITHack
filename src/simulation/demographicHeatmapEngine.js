@@ -15,7 +15,7 @@ export const HEATMAP_MODES = {
   population: {
     id: 'population',
     name: 'Population Density',
-    icon: '👥',
+    iconSvg: `<svg viewBox="0 0 24 24" class="heatmap-mode-svg"><path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`,
     unit: 'Total Inhabitants',
     scaleLabel: 'Low (1.8M) → High (21.5M)',
     description: 'Grid-level census population density & high-exposure urban clusters',
@@ -23,7 +23,7 @@ export const HEATMAP_MODES = {
   age: {
     id: 'age',
     name: 'Age Demographics',
-    icon: '👶',
+    iconSvg: `<svg viewBox="0 0 24 24" class="heatmap-mode-svg"><path fill="currentColor" d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 12c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>`,
     unit: '% Vulnerable (Children <5 & Elderly >65)',
     scaleLabel: '38% → 46.2% Dependent Ratio',
     description: 'Vulnerable demographic clusters requiring priority evacuation assistance',
@@ -31,7 +31,7 @@ export const HEATMAP_MODES = {
   resources: {
     id: 'resources',
     name: 'Critical Resources',
-    icon: '🏥',
+    iconSvg: `<svg viewBox="0 0 24 24" class="heatmap-mode-svg"><path fill="currentColor" d="M19 10.5V7c0-.55-.45-1-1-1H6c-.55 0-1 .45-1 1v3.5l-2 2V19c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-5.5l-2-2zM12 9a2 2 0 1 1-2 2 2 2 0 0 1 2-2z"/></svg>`,
     unit: 'Relief Staging Capacity Score',
     scaleLabel: 'Scattered Logistics → High Staging Hubs',
     description: 'Pre-positioned swift-water rescue craft, shelter camps, medical & air assets',
@@ -39,7 +39,7 @@ export const HEATMAP_MODES = {
   risk: {
     id: 'risk',
     name: 'Composite Risk Index',
-    icon: '⚠️',
+    iconSvg: `<svg viewBox="0 0 24 24" class="heatmap-mode-svg"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
     unit: 'Vulnerability Score (0 - 100)',
     scaleLabel: 'Low Advisory → Critical Inundation Alert',
     description: 'Multi-hazard climate, floodway rupture & historical inundation probability',
@@ -198,7 +198,7 @@ export class DemographicHeatmapEngine {
         fillColor,
         outlineColor,
         label: `${(pop / 1000000).toFixed(1)}M People`,
-        badgeText: `👥 ${(pop / 1000000).toFixed(1)}M (${grade})`,
+        badgeText: `${(pop / 1000000).toFixed(1)}M (${grade})`,
         value: pop,
         formattedValue: pop.toLocaleString(),
       };
@@ -234,7 +234,7 @@ export class DemographicHeatmapEngine {
         fillColor,
         outlineColor,
         label: `${totalVulnerablePct.toFixed(1)}% Vulnerable`,
-        badgeText: `👶 ${totalVulnerablePct.toFixed(1)}% (<5 & >65)`,
+        badgeText: `${totalVulnerablePct.toFixed(1)}% (<5 & >65)`,
         value: totalVulnerablePct,
         formattedValue: `${totalVulnerablePct.toFixed(1)}% (Children: ${childPct}% | Elderly: ${elderPct}%)`,
       };
@@ -270,7 +270,7 @@ export class DemographicHeatmapEngine {
         fillColor,
         outlineColor,
         label: grade,
-        badgeText: `🏥 ${grade}`,
+        badgeText: grade,
         value: resourceScore,
         formattedValue: `${res.boats} | ${res.camps}`,
       };
@@ -326,7 +326,7 @@ export class DemographicHeatmapEngine {
       fillColor,
       outlineColor,
       label: `${riskScore}/100 [${grade}]`,
-      badgeText: `⚠️ ${riskScore}/100 (${grade})`,
+      badgeText: `${riskScore}/100 (${grade})`,
       value: riskScore,
       formattedValue: `${riskScore} / 100 Multi-Hazard Score`,
     };
