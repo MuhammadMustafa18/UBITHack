@@ -2425,13 +2425,10 @@ export class GoogleMapsUI {
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     // LEFT_CLICK: Effortless selection via map pin, proximity, or hover card click
-    const handlePickSelection = (pt) => {
+    const handlePickSelection = async (pt) => {
       if (!pt) return;
-      this._selectOriginPoint(pt);
       this._exitOriginPickerMode();
-      card?.classList.remove('card-minimized');
-      if (minBtn) minBtn.textContent = '—';
-      this._showToast(`🎯 Origin Selected: ${pt.name}`);
+      await this._selectOriginPoint(pt, true);
     };
 
     this._originPickerHandler.setInputAction((click) => {
@@ -2442,9 +2439,9 @@ export class GoogleMapsUI {
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     // Clicking the prominent hover callout itself also selects that origin point
-    hoverCalloutEl.onclick = () => {
+    hoverCalloutEl.onclick = async () => {
       if (currentHoveredEnt && currentHoveredEnt._originData) {
-        handlePickSelection(currentHoveredEnt._originData);
+        await handlePickSelection(currentHoveredEnt._originData);
       }
     };
 
@@ -2483,7 +2480,7 @@ export class GoogleMapsUI {
     }
   }
 
-  _selectOriginPoint(pt) {
+  async _selectOriginPoint(pt, autoLaunch = false) {
     this.selectedOriginPoint = pt;
     this.selectedScenarioKey = pt.scenarioKey;
 
@@ -2506,6 +2503,19 @@ export class GoogleMapsUI {
       if (crest) crest.textContent = pt.name;
     }
 
+    if (autoLaunch) {
+      // Configure floodEngine and start the simulation
+      await this.floodEngine?.setScenario(pt.scenarioKey);
+      this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
+      this.floodEngine?.setTimeScale(this.selectedTimeScale);
+
+      // Launch simulation and reveal Disaster Forecast Engine HUD (Minute, Hourly, Daily, Weekly)
+      this.simulationBarUI?.show();
+      this.resourceDefenseGame?.start();
+      this.floodEngine?.start();
+      this._closeDropdown();
+    }
+
     // Smoothly fly camera to selected origin gateway
     this.viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(pt.lon, pt.lat, 6500),
@@ -2517,7 +2527,7 @@ export class GoogleMapsUI {
       duration: 2.0,
     });
 
-    this._showToast(`Selected origin: ${pt.name} (${pt.region})`);
+    this._showToast(autoLaunch ? `🚀 Simulation active: ${pt.name} — HUD ready` : `Selected origin: ${pt.name} (${pt.region})`);
   }
 
   exitAirplaneMode() {
