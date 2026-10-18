@@ -1,6 +1,6 @@
 /**
  * @module simulation/simulationBar
- * @description UI Component for FloodTrace Pakistan multi-scenario & dynamic magnitude simulation dock:
+ * @description UI Component for Agaahi multi-scenario & dynamic magnitude simulation dock:
  * - 5 Flood Origins (Glaciers, Indian Dam Releases, Hill Torrents & Rain, Riverine Super Flood, Arabian Sea Cyclone)
  * - 4 Dynamic Magnitudes (Moderate 0.5x, High 1.0x, Very High 1.6x, Super Flood 2.6x)
  * - Multi-scale timeline (Minute, Hourly, Daily, Weekly)

@@ -8,7 +8,7 @@ const gridPromises = new Map();
 async function fetchJson(url, fetchImpl) {
   const response = await (fetchImpl || fetch)(url);
   if (!response || response.ok === false) {
-    throw new Error(`Agahi data request failed: ${url}`);
+    throw new Error(`Agaahi data request failed: ${url}`);
   }
   return response.json();
 }
@@ -28,7 +28,7 @@ export async function loadGrid(aoi, fetchImpl) {
     const promise = loadAois(fetchImpl)
       .then((aois) => {
         const entry = aois.find((a) => a.aoi === aoi);
-        if (!entry) throw new Error(`Unknown Agahi AOI: ${aoi}`);
+        if (!entry) throw new Error(`Unknown Agaahi AOI: ${aoi}`);
         return fetchJson(`${DATA_ROOT}${entry.file}`, fetchImpl);
       })
       .then((grid) => {

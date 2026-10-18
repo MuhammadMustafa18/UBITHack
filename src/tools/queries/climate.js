@@ -1,5 +1,5 @@
 /**
- * Climate risk queries over the Agahi grid: cell risk, ranking, area summary
+ * Climate risk queries over the Agaahi grid: cell risk, ranking, area summary
  * and advisory. Every number comes from src/intelligence/queries.js.
  */
 

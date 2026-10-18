@@ -315,7 +315,7 @@ export class TacticalAiCommander {
    * Calls the configured Anthropic-compatible proxy endpoint
    */
   async _callAiService(prompt, ctx) {
-    const systemPrompt = `You are the National Disaster Management Authority (NDMA) Tactical AI Operations Commander for FloodTrace Pakistan.
+    const systemPrompt = `You are the National Disaster Management Authority (NDMA) Tactical AI Operations Commander for Agaahi.
 You have real-time live telemetry access to the active flood simulation and emergency rescue operations.
 
 OPERATIONAL SITUATION TELEMETRY:

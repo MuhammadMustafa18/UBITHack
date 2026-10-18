@@ -21,6 +21,10 @@ const HAZARD_LABELS = {
   veg: 'Vegetation',
 };
 
+const PIPELINE_LABELS = { gee: 'GEE', openmeteo: 'Open-Meteo fallback' };
+const LEGEND_CHEVRON =
+  '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 const cesiumColor = (hex, alpha) => Cesium.Color.fromCssColorString(hex).withAlpha(alpha);
 
 export const bandForScore = (score) => {
@@ -218,14 +222,51 @@ export class RiskGridLayer {
     if (!this.grid) return;
     if (!this.legendEl) {
       this.legendEl = document.createElement('div');
-      this.legendEl.className = 'agahi-grid-legend';
-      document.body.appendChild(this.legendEl);
+      this.legendEl.className = 'agahi-grid-legend lg-card';
+      this.legendEl.addEventListener('click', (event) => {
+        if (!event.target.closest('.lg-toggle')) return;
+        this.legendCollapsed = !this.legendCollapsed;
+        this.syncLegendCollapsed();
+      });
+      let stack = document.getElementById('lg-stack');
+      if (!stack) {
+        stack = document.createElement('div');
+        stack.id = 'lg-stack';
+        document.body.appendChild(stack);
+      }
+      stack.appendChild(this.legendEl);
     }
-    const swatch = (hex, alpha, label) =>
-      `<div class="agahi-grid-legend-row"><span class="agahi-grid-swatch" style="background:${hex};opacity:${alpha}"></span>${label}</div>`;
+    const row = (swatchHtml, label, range) =>
+      `<div class="agahi-grid-legend-row lg-row">${swatchHtml}<span class="lg-label">${label}</span>${range ? `<span class="lg-range">${range}</span>` : ''}</div>`;
+    const rows = BAND_COLORS.map((b, i) => {
+      const prev = BAND_COLORS[i - 1]?.max;
+      const range = prev === undefined ? `&lt;${b.max}` : b.max === Infinity ? `≥${prev}` : `${prev}–${b.max}`;
+      return row(
+        `<span class="agahi-grid-swatch lg-swatch" style="background:${b.hex};opacity:${FILL_ALPHA + 0.2}"></span>`,
+        b.label,
+        range,
+      );
+    }).join('');
+    const noData = row(
+      `<span class="agahi-grid-swatch lg-swatch lg-swatch-nodata" style="--lg-c:${NO_DATA_HEX};--lg-a:${NO_DATA_ALPHA * 100}%"></span>`,
+      'No data',
+      '',
+    );
+    const pipeline = PIPELINE_LABELS[this.grid.pipeline];
     this.legendEl.innerHTML =
-      `<div class="agahi-grid-legend-title">${HAZARD_LABELS[this.hazard] ?? this.hazard}</div>` +
-      BAND_COLORS.map((b) => swatch(b.hex, FILL_ALPHA + 0.2, b.label)).join('') +
-      swatch(NO_DATA_HEX, 0.6, 'No data');
+      `<div class="lg-head"><div class="lg-head-text"><span class="lg-kicker">Risk grid</span>` +
+      `<span class="agahi-grid-legend-title lg-title">${HAZARD_LABELS[this.hazard] ?? this.hazard}</span></div>` +
+      `<span class="lg-unit">0–100</span>` +
+      `<button type="button" class="lg-toggle" aria-expanded="true" aria-label="Collapse legend">${LEGEND_CHEVRON}</button></div>` +
+      `<div class="lg-body">${rows}${noData}${pipeline ? `<div class="lg-foot">Source: ${pipeline}</div>` : ''}</div>`;
+    this.syncLegendCollapsed();
+  }
+
+  syncLegendCollapsed() {
+    const collapsed = Boolean(this.legendCollapsed);
+    this.legendEl.classList.toggle('lg-collapsed', collapsed);
+    const button = this.legendEl.querySelector('.lg-toggle');
+    button.setAttribute('aria-expanded', String(!collapsed));
+    button.setAttribute('aria-label', collapsed ? 'Expand legend' : 'Collapse legend');
   }
 }

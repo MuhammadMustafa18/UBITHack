@@ -1,6 +1,6 @@
 /**
  * @module ui/googleMapsUI
- * @description Google Maps Light Theme UI overlay for FloodTrace Pakistan:
+ * @description Google Maps Light Theme UI overlay for Agaahi:
  * - Crisp floating white search bar with hamburger menu, input, search icon, and directions/action button
  * - Horizontal category pills (Simulate Flood, Glaciers & GLOF, Dams & Barrages, Live CCTVs, Flood Hotspots, Relief Fleet, Weather)
  * - Floating interactive dropdown cards for points of interest
@@ -479,14 +479,14 @@ export class GoogleMapsUI {
     topBar.innerHTML = `
       <!-- Google Maps Floating White Search Bar -->
       <div id="gmaps-search-box" class="gmaps-search-box">
-        <button id="gmaps-menu-btn" class="gmaps-icon-btn" type="button" aria-label="Menu" title="FloodTrace Navigation Menu">
+        <button id="gmaps-menu-btn" class="gmaps-icon-btn" type="button" aria-label="Menu" title="Agaahi Navigation Menu">
           <svg viewBox="0 0 24 24" class="gmaps-svg-icon"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
         </button>
         <input 
           id="gmaps-search-input" 
           class="gmaps-search-input" 
           type="text" 
-          placeholder="Search FloodTrace Pakistan (e.g. Tarbela, Sukkur, Shisper)..." 
+          placeholder="Search Agaahi (e.g. Tarbela, Sukkur, Shisper)..." 
           autocomplete="off" 
           spellcheck="false" 
         />
@@ -541,11 +541,11 @@ export class GoogleMapsUI {
           <span class="gmaps-pill-icon">${ICONS.hotspot}</span>
           <span>Response</span>
         </button>
-        <button id="gmaps-pill-risk" class="gmaps-pill" type="button" title="Agahi Climate Intelligence: grid risk scores, advisories and dashboard">
+        <button id="gmaps-pill-risk" class="gmaps-pill" type="button" title="Agaahi Climate Intelligence: grid risk scores, advisories and dashboard">
           <span class="gmaps-pill-icon">${ICONS.hotspot}</span>
           <span>Risk Intel</span>
         </button>
-        <button id="gmaps-pill-copilot" class="gmaps-pill" type="button" title="Ask the grounded Agahi climate copilot">
+        <button id="gmaps-pill-copilot" class="gmaps-pill" type="button" title="Ask the grounded Agaahi climate copilot">
           <span class="gmaps-pill-icon">${ICONS.weather}</span>
           <span>Copilot</span>
         </button>
@@ -864,18 +864,48 @@ export class GoogleMapsUI {
           <span>Risk</span>
         </button>
       </div>
-
-      <div class="heatmap-legend" id="heatmap-legend">
-        <div class="legend-scale-bar population-ramp"></div>
-        <div class="legend-labels">
-          <span id="heatmap-legend-min">1.8M (Sparse GB)</span>
-          <span id="heatmap-legend-active">Mode: Population Density</span>
-          <span id="heatmap-legend-max">21.5M (High Density)</span>
-        </div>
-      </div>
     `;
 
     document.body.appendChild(capsule);
+
+    const legend = document.createElement('div');
+    legend.id = 'heatmap-legend';
+    legend.className = 'heatmap-legend lg-card lg-hidden';
+    legend.innerHTML = `
+      <div class="lg-head">
+        <div class="lg-head-text">
+          <span class="lg-kicker">Thematic heatmap</span>
+          <span class="lg-title" id="heatmap-legend-active"></span>
+        </div>
+        <span class="lg-unit"></span>
+        <button type="button" class="lg-toggle" aria-expanded="true" aria-label="Collapse legend">
+          <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="lg-body">
+        <div class="legend-scale-bar lg-ramp"></div>
+        <div class="legend-labels lg-ticks"></div>
+        <div class="lg-caps"></div>
+        <div class="lg-foot"></div>
+      </div>
+    `;
+    legend.querySelector('.lg-toggle').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const collapsed = legend.classList.toggle('lg-collapsed');
+      e.currentTarget.setAttribute('aria-expanded', String(!collapsed));
+      e.currentTarget.setAttribute('aria-label', collapsed ? 'Expand legend' : 'Collapse legend');
+    });
+    let stack = document.getElementById('lg-stack');
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.id = 'lg-stack';
+      document.body.appendChild(stack);
+    }
+    stack.appendChild(legend);
+    new MutationObserver(() => {
+      legend.classList.toggle('lg-hidden', capsule.classList.contains('hidden'));
+    }).observe(capsule, { attributes: true, attributeFilter: ['class'] });
+    this._updateHeatmapLegend('population');
   }
 
   _renderBilingualModalDOM() {
@@ -987,32 +1017,64 @@ export class GoogleMapsUI {
   }
 
   _updateHeatmapLegend(mode) {
-    const minEl = document.getElementById('heatmap-legend-min');
-    const activeEl = document.getElementById('heatmap-legend-active');
-    const maxEl = document.getElementById('heatmap-legend-max');
-    const rampEl = document.querySelector('.legend-scale-bar');
-
-    if (mode === 'population') {
-      if (minEl) minEl.textContent = '1.8M (Sparse GB)';
-      if (activeEl) activeEl.textContent = 'Metric: Population Density';
-      if (maxEl) maxEl.textContent = '21.5M (Central Punjab)';
-      if (rampEl) rampEl.className = 'legend-scale-bar population-ramp';
-    } else if (mode === 'age') {
-      if (minEl) minEl.textContent = '38.0% Dependent';
-      if (activeEl) activeEl.textContent = 'Metric: Children <5 & Elderly >65';
-      if (maxEl) maxEl.textContent = '46.2% Critical Dependent';
-      if (rampEl) rampEl.className = 'legend-scale-bar age-ramp';
-    } else if (mode === 'resources') {
-      if (minEl) minEl.textContent = 'Local Sector Unit';
-      if (activeEl) activeEl.textContent = 'Metric: Relief Logistics Staging Hubs';
-      if (maxEl) maxEl.textContent = 'Major Regional Command Hub';
-      if (rampEl) rampEl.className = 'legend-scale-bar resources-ramp';
-    } else {
-      if (minEl) minEl.textContent = 'Low Hazard (0-60)';
-      if (activeEl) activeEl.textContent = 'Metric: Composite Climate Risk Index';
-      if (maxEl) maxEl.textContent = 'Critical Inundation (90-100)';
-      if (rampEl) rampEl.className = 'legend-scale-bar risk-ramp';
-    }
+    const legend = document.getElementById('heatmap-legend');
+    if (!legend) return;
+    const specs = {
+      population: {
+        ramp: 'population-ramp',
+        title: 'Population density',
+        unit: 'people',
+        stops: [['#0f766e', 0], ['#0284c7', 35], ['#7c3aed', 70]],
+        ticks: [['1.8M', 0], ['8.7M', 35], ['15.6M', 70], ['21.5M', 100]],
+        lo: 'Sparse',
+        hi: 'Very high',
+        foot: 'Regional tiers · Digital Census 2023',
+      },
+      age: {
+        ramp: 'age-ramp',
+        title: 'Dependent population',
+        unit: '% <5 & >65',
+        stops: [['#0284c7', 0], ['#d97706', 48.8], ['#ea580c', 85.4]],
+        ticks: [['38%', 0], ['42%', 48.8], ['45%', 85.4]],
+        lo: 'Balanced',
+        hi: 'Critical',
+        foot: 'Children under 5 plus elderly over 65',
+      },
+      resources: {
+        ramp: 'resources-ramp',
+        title: 'Relief logistics',
+        unit: 'score',
+        stops: [['#d97706', 0], ['#0d9488', 33.3], ['#059669', 66.7]],
+        ticks: [['0', 0], ['50', 33.3], ['100', 66.7], ['>100', 100]],
+        lo: 'Deficit',
+        hi: 'Major hub',
+        foot: 'Score = boats + 1.5 × camps',
+      },
+      risk: {
+        ramp: 'risk-ramp',
+        title: 'Composite climate risk',
+        unit: '0–100',
+        stops: [['#16a34a', 0], ['#d97706', 65], ['#ea580c', 80], ['#dc2626', 90]],
+        ticks: [['0', 0], ['65', 65], ['80', 80], ['90', 90]],
+        lo: 'Low',
+        hi: 'Critical',
+        foot: 'Regional tiers · multi-hazard index',
+      },
+    };
+    const spec = specs[mode] ?? specs.risk;
+    const gradient = spec.stops
+      .map(([hex, at], i) => `${hex} ${at}% ${spec.stops[i + 1]?.[1] ?? 100}%`)
+      .join(', ');
+    const ramp = legend.querySelector('.legend-scale-bar');
+    ramp.className = `legend-scale-bar lg-ramp ${spec.ramp}`;
+    ramp.style.setProperty('--lg-ramp', `linear-gradient(to right, ${gradient})`);
+    legend.querySelector('#heatmap-legend-active').textContent = spec.title;
+    legend.querySelector('.lg-unit').textContent = spec.unit;
+    legend.querySelector('.legend-labels').innerHTML = spec.ticks
+      .map(([text, at]) => `<span style="left:${at}%;transform:translateX(${at <= 0 ? 0 : at >= 100 ? -100 : -50}%)">${text.replace('>', '&gt;')}</span>`)
+      .join('');
+    legend.querySelector('.lg-caps').innerHTML = `<span>${spec.lo}</span><span>${spec.hi}</span>`;
+    legend.querySelector('.lg-foot').textContent = spec.foot;
   }
 
   _updatePredictionCellDisplay(cell) {

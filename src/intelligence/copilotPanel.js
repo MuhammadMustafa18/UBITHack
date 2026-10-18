@@ -46,7 +46,7 @@ const CHIPS = [
 const ICON_COPILOT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>';
 const ICON_SEND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
 const ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>';
-const ROLE_NAMES = { user: 'You', assistant: 'Agahi Copilot' };
+const ROLE_NAMES = { user: 'You', assistant: 'Agaahi Copilot' };
 const clockTime = () =>
   new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
@@ -69,10 +69,10 @@ export class CopilotPanel {
       <div class="agahi-copilot-header">
         <span class="agahi-copilot-icon">${ICON_COPILOT}</span>
         <span class="agahi-copilot-heading">
-          <span class="agahi-copilot-title">Agahi Copilot</span>
+          <span class="agahi-copilot-title">Agaahi Copilot</span>
           <span class="agahi-copilot-sub">Your AI assistant for flood intelligence</span>
         </span>
-        <button class="agahi-copilot-close" type="button" aria-label="Close Agahi Copilot">✕</button>
+        <button class="agahi-copilot-close" type="button" aria-label="Close Agaahi Copilot">✕</button>
       </div>
       <div class="agahi-copilot-chips"></div>
       <div class="agahi-copilot-messages" aria-live="polite"></div>
