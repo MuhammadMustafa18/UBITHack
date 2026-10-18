@@ -1,474 +1,262 @@
-/**
- * @module ui/rescueDashboard
- * @description Dedicated Emergency Rescue Incident & LLM Urgency Triage Dashboard for /rescue route.
- * Ingests simulated incoming citizen distress signals (SMS, WhatsApp, Satellite SOS, Voice calls)
- * and ranks them in real-time using an LLM triage scoring engine.
- */
+import { rankIncidents, allocationPlan, canDispatch, RESCUE_RESOURCES } from '../simulation/rescueAllocation.js';
 
+// Fictional exercise reports. Needs and vulnerability are reviewed inputs, not LLM predictions.
 export const INITIAL_SOS_SIGNALS = [
-  {
-    id: 'sos-101',
-    timestamp: '2 mins ago',
-    sender: 'Haji Ghulam Rasool',
-    phone: '+92 301 8492019',
-    district: 'Nowshera Kalan, KP',
-    coords: [71.982, 34.015],
-    channel: 'WHATSAPP SOS',
-    message: 'Water has breached the main GT Road bund! House ground floor is submerged up to 7 feet. Roof is cracking under weight, 4 small children and 80-year-old bedridden mother trapped with us. Please send rescue boat immediately, water rising fast!',
-    llmRank: 'P1 - CRITICAL LIFE THREAT',
-    llmScore: 98,
-    badgeClass: 'p1-critical',
-    llmReasoning: 'Imminent structural collapse risk with trapped minors and non-ambulatory elderly. Water rise velocity >0.5m/hr indicates high lethality within 45 minutes.',
-    recommendedAction: 'Immediate Swift-Water Boat #4 dispatch from Nowshera HQ. Pre-position medical team for hypothermia triage.',
-    status: 'PENDING DISPATCH',
-  },
-  {
-    id: 'sos-102',
-    timestamp: '5 mins ago',
-    sender: 'Dr. Samina Kausar (RHC Clinic)',
-    phone: '+92 333 4910294',
-    district: 'Sehwan / Manchhar Lake, Sindh',
-    coords: [67.892, 26.425],
-    channel: 'SATELLITE BEACON',
-    message: 'Rural Health Center flooded by Manchhar Lake overflow. 3 women in active labor and 8 acute trauma patients stranded on elevated clinic rooftop. Generator diesel exhausted, zero drinking water left.',
-    llmRank: 'P2 - MEDICAL EMERGENCY',
-    llmScore: 92,
-    badgeClass: 'p2-medical',
-    llmReasoning: 'Active obstetric labor emergencies combined with power/water failure. Critical maternal-fetal mortality risk without evacuation.',
-    recommendedAction: 'Request Army Aviation Mi-17 medical medevac from Sukkur base + immediate water purification drops.',
-    status: 'IN PROGRESS',
-  },
-  {
-    id: 'sos-103',
-    timestamp: '8 mins ago',
-    sender: 'Muhammad Imran (UC Chairman)',
-    phone: '+92 312 9201844',
-    district: 'Rajanpur / Jampur, South Punjab',
-    coords: [70.320, 29.540],
-    channel: 'SMS EMERGENCY',
-    message: 'Koh-e-Suleman hill torrent surge destroyed 40 katcha mud houses in Basti Rind. Over 120 residents gathered on high road embankment, surrounded by water on all four sides. Need de-watering pump and family food rations.',
-    llmRank: 'P3 - STRANDED POPULATION',
-    llmScore: 84,
-    badgeClass: 'p3-evac',
-    llmReasoning: 'Large clustered population stranded on islanded embankment. No immediate drowning but high vulnerability to flash wave surge.',
-    recommendedAction: 'Dispatch high-capacity dewatering pump unit + 150 ration hampers via Rescue 1122 flat-bottom barge.',
-    status: 'PENDING DISPATCH',
-  },
-  {
-    id: 'sos-104',
-    timestamp: '11 mins ago',
-    sender: 'Bilal Ahmed',
-    phone: '+92 345 8820194',
-    district: 'Sukkur Katcha Bund RD-42, Sindh',
-    coords: [68.865, 27.712],
-    channel: 'VOICE TRANSCRIPT',
-    message: 'Submerged cattle farm. 8 workers stranded on hayloft. Water is current 4 feet and stable, not rising quickly, but road access is cut off.',
-    llmRank: 'P4 - SUPPLY & STAGING',
-    llmScore: 68,
-    badgeClass: 'p4-supply',
-    llmReasoning: 'Stable water stage with safe elevation refuge. Low immediate life threat. Can be queued behind P1/P2 incidents.',
-    recommendedAction: 'Queue for daytime boat shuttle evacuation once critical life-threat sectors are cleared.',
-    status: 'QUEUED',
-  },
-  {
-    id: 'sos-105',
-    timestamp: '14 mins ago',
-    sender: 'Suleman Shah',
-    phone: '+92 300 7102941',
-    district: 'Charsadda / Swat River, KP',
-    coords: [71.740, 34.150],
-    channel: 'SMS EMERGENCY',
-    message: 'Swat river overflow washed away boundary wall. 2 families safely relocated to neighbor 2-story brick house. Requesting sandbag barriers to protect house foundation.',
-    llmRank: 'P4 - SUPPLY & STAGING',
-    llmScore: 62,
-    badgeClass: 'p4-supply',
-    llmReasoning: 'Residents successfully moved to elevated concrete structure. No immediate water immersion. Structural defense needed.',
-    recommendedAction: 'Deliver 200 heavy-duty geotextile sandbags via local civil defense team.',
-    status: 'QUEUED',
-  },
-  {
-    id: 'sos-106',
-    timestamp: '18 mins ago',
-    sender: 'Sakina Bibi',
-    phone: '+92 321 9192840',
-    district: 'Dadu / Johi Canal, Sindh',
-    coords: [67.780, 26.730],
-    channel: 'WHATSAPP SOS',
-    message: 'Johi ring bund ring canal overflow. 14 people including infant with high fever and dehydration. Stranded near school building.',
-    llmRank: 'P2 - MEDICAL EMERGENCY',
-    llmScore: 89,
-    badgeClass: 'p2-medical',
-    llmReasoning: 'Pediatric dehydration with severe fever in flood-locked ring bund. Risk of waterborne illness escalation.',
-    recommendedAction: 'Dispatch Rescue 1122 paramedic zodiac boat with pediatric IV fluids and oral rehydration salts.',
-    status: 'IN PROGRESS',
-  },
+  { id: 'sos-101', sender: 'Demo family', district: 'Nowshera, KP', coords: [71.982, 34.015], danger: 'life', vulnerable: true, resource: 'boat', message: 'Ground floor submerged; roof is cracking. Four children and a bedridden elderly resident are trapped. Requesting a rescue boat.' },
+  { id: 'sos-102', sender: 'Demo clinic', district: 'Sehwan, Sindh', coords: [67.892, 26.425], danger: 'medical', vulnerable: true, resource: 'boat', message: 'Patients stranded on the clinic rooftop after flooding. Evacuation transport needed; medical support must be coordinated separately.' },
+  { id: 'sos-103', sender: 'Demo community lead', district: 'Rajanpur, Punjab', coords: [70.32, 29.54], danger: 'stranded', resource: 'boat', message: 'Residents are stranded on a raised road surrounded by water. Boat access needed; group size requires further assessment.' },
+  { id: 'sos-104', sender: 'Demo farm workers', district: 'Sukkur, Sindh', coords: [68.865, 27.712], danger: 'stranded', resource: 'boat', message: 'Eight workers stranded on a hayloft. Water currently stable; road access is cut off.' },
+  { id: 'sos-105', sender: 'Demo neighbourhood', district: 'Charsadda, KP', coords: [71.74, 34.15], danger: 'supply', resource: 'crew', message: 'Families moved to a raised brick house. Requesting a response crew to assess and reinforce protection.' },
+  { id: 'sos-106', sender: 'Demo school camp', district: 'Dadu, Sindh', coords: [67.78, 26.73], danger: 'medical', vulnerable: true, resource: 'boat', message: 'Fourteen people stranded near a school, including an infant with fever and dehydration. Boat evacuation and separate medical assessment requested.' },
 ];
+
+const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const statusClass = (status) => status.toLowerCase().replaceAll(' ', '-');
 
 export class RescueDashboardUI {
   constructor(options = {}) {
     this.onReturnToMap = options.onReturnToMap || (() => {});
     this.onLocateOnGlobe = options.onLocateOnGlobe || (() => {});
-    this.container = null;
-    this.signals = [...INITIAL_SOS_SIGNALS];
-    this.selectedSignal = this.signals[0];
-    this.activeFilter = 'all'; // 'all' | 'p1' | 'p2' | 'p3' | 'p4'
+    this.game = options.resourceDefenseGame;
+    this.floodEngine = options.floodEngine;
+    this.signals = INITIAL_SOS_SIGNALS.map((s, i) => ({ ...s, createdAt: i, status: 'PENDING DISPATCH' }));
+    this.selectedId = this.signals[0].id;
+    this.activeFilter = 'all';
     this.searchQuery = '';
-    this._simTimer = null;
+    this.activity = [];
+    this.notice = '';
+    this.container = null;
+    this.visible = false;
+    this._unsubGame = this.game?.subscribe((state) => {
+      const key = JSON.stringify([state.pool, state.incidentAssignments]);
+      if (key === this._lastState) return;
+      this._lastState = key;
+      for (const assignment of state.incidentAssignments) {
+        const incident = this.signals.find((s) => s.id === assignment.incidentId);
+        if (incident && incident.status !== assignment.status) {
+          incident.status = assignment.status;
+          this._log(`${incident.district}: ${assignment.status.toLowerCase()}.`);
+        }
+      }
+      if (this.visible) this._render();
+    });
+    this._unsubFlood = this.floodEngine?.subscribe((tel) => {
+      const key = `${tel?.active}:${tel?.scenarioKey}:${Math.floor(tel?.simHours || 0)}`;
+      if (key === this._lastFlood) return;
+      this._lastFlood = key;
+      if (this.visible) this._render();
+    });
   }
 
   mount() {
-    if (this.container) {
-      this.container.classList.remove('hidden');
-      return;
+    if (!this.container) {
+      this.container = document.createElement('div');
+      this.container.id = 'rescue-dashboard-container';
+      this.container.className = 'rescue-dashboard-container';
+      document.body.appendChild(this.container);
     }
-
-    this.container = document.createElement('div');
-    this.container.id = 'rescue-dashboard-container';
-    this.container.className = 'rescue-dashboard-container';
-
+    this.visible = true;
+    this.container.classList.remove('hidden');
     this._render();
-    document.body.appendChild(this.container);
-    this._startSimulatedStream();
   }
 
   unmount() {
-    if (this.container) {
-      this.container.classList.add('hidden');
-    }
-    if (this._simTimer) {
-      clearInterval(this._simTimer);
-      this._simTimer = null;
-    }
+    this.visible = false;
+    this.container?.classList.add('hidden');
+  }
+
+  destroy() {
+    this._unsubGame?.();
+    this._unsubFlood?.();
+    this.container?.remove();
+    this.container = null;
+  }
+
+  _log(message) {
+    this.activity.unshift({ time: new Date().toLocaleTimeString(), message });
+    this.activity.length = Math.min(100, this.activity.length);
+  }
+
+  _ranked() {
+    return rankIncidents(this.signals, this.floodEngine?.getCurrentTelemetry());
   }
 
   _render() {
-    if (!this.container) return;
-
-    const filtered = this._getFilteredSignals();
-
+    if (!this.container || this._extracting) return;
+    const oldForm = this.container.querySelector('#rescue-report-form');
+    const draft = oldForm && !this._clearDraft ? Object.fromEntries(new FormData(oldForm)) : null;
+    const formOpen = !this._clearDraft && this.container.querySelector('.rescue-report-form')?.open;
+    this._clearDraft = false;
+    const focus = this.container.contains(document.activeElement) ? document.activeElement : null;
+    const focusId = focus?.id;
+    const selection = focus?.selectionStart;
+    const state = this.game?.getState() || { pool: { boats: 0, firetrucks: 0, manpower: 0 }, incidentAssignments: [] };
+    const ranked = this._ranked();
+    const plan = allocationPlan(ranked, state);
+    const selected = ranked.find((s) => s.id === this.selectedId);
+    const filtered = ranked.filter((s) => (this.activeFilter === 'all' || s.danger === this.activeFilter) &&
+      `${s.sender} ${s.district} ${s.message}`.toLowerCase().includes(this.searchQuery.toLowerCase()));
+    const top = plan.find((p) => !p.blocked);
     this.container.innerHTML = `
-      <!-- Top Executive Command Bar -->
       <header class="rescue-nav-bar">
-        <div class="rescue-brand-group">
-          <div class="rescue-badge-live">
-            <span class="pulse-dot"></span>
-            <span>LIVE INCIDENT STREAM</span>
-          </div>
-          <h1 class="rescue-brand-title">Rescue Incident Dispatch &amp; LLM Urgency Triage</h1>
-          <span class="rescue-route-tag">ROUTE: /rescue</span>
-        </div>
-
+        <div class="rescue-brand-group"><h1 class="rescue-brand-title">Rescue coordination</h1><span class="rescue-route-tag">SIMULATION</span></div>
         <div class="rescue-stats-group">
-          <div class="rescue-stat-box">
-            <span class="num">${this.signals.length}</span>
-            <span class="lbl">TOTAL ALERTS</span>
-          </div>
-          <div class="rescue-stat-box critical">
-            <span class="num">${this.signals.filter((s) => s.llmScore >= 90).length}</span>
-            <span class="lbl">P1 CRITICAL</span>
-          </div>
-          <div class="rescue-stat-box warning">
-            <span class="num">${this.signals.filter((s) => s.status === 'IN PROGRESS').length}</span>
-            <span class="lbl">DISPATCHED</span>
-          </div>
+          <div class="rescue-stat-box"><span class="num">${state.pool.boats}</span><span class="lbl">BOATS FREE</span></div>
+          <div class="rescue-stat-box"><span class="num">${state.pool.firetrucks}</span><span class="lbl">PUMPS FREE</span></div>
+          <div class="rescue-stat-box"><span class="num">${state.pool.manpower}</span><span class="lbl">PERSONNEL FREE</span></div>
         </div>
-
-        <div class="rescue-nav-actions">
-          <button id="btn-return-globe" class="rescue-btn-globe" type="button" title="Switch back to 3D Globe Navigation">
-            <svg viewBox="0 0 24 24" class="rescue-svg"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-            <span>Back to 3D Map</span>
-          </button>
-        </div>
+        <button id="btn-return-globe" class="rescue-btn-globe" type="button">Back to 3D map</button>
       </header>
-
-      <!-- Main Dashboard Grid -->
+      <div class="rescue-exercise-note">Fictional reports · shared demo resource pool · rule-based priorities · session-only state. One assignment is one unit, not a guarantee of full evacuation.</div>
       <div class="rescue-main-grid">
-        <!-- Left: Incoming Stream & Filter -->
-        <aside class="rescue-stream-column">
-          <div class="rescue-search-row">
-            <input 
-              type="text" 
-              id="rescue-search-input" 
-              class="rescue-search-input" 
-              placeholder="Search sender, district or keywords..." 
-              value="${this.searchQuery}"
-            />
-          </div>
-
-          <!-- Priority Filter Tabs -->
-          <div class="rescue-filter-tabs">
-            <button class="rescue-filter-btn ${this.activeFilter === 'all' ? 'active' : ''}" data-filter="all">ALL (${this.signals.length})</button>
-            <button class="rescue-filter-btn ${this.activeFilter === 'p1' ? 'active' : ''}" data-filter="p1">P1 LIFE THREAT</button>
-            <button class="rescue-filter-btn ${this.activeFilter === 'p2' ? 'active' : ''}" data-filter="p2">P2 MEDICAL</button>
-            <button class="rescue-filter-btn ${this.activeFilter === 'p3' ? 'active' : ''}" data-filter="p3">P3 STRANDED</button>
-          </div>
-
-          <!-- Incident Cards List -->
-          <div class="rescue-cards-list">
-            ${filtered.map((item) => `
-              <div class="rescue-incident-card ${this.selectedSignal?.id === item.id ? 'selected' : ''}" data-id="${item.id}">
-                <div class="incident-card-top">
-                  <span class="incident-rank-badge ${item.badgeClass}">${item.llmRank}</span>
-                  <span class="incident-time">${item.timestamp}</span>
-                </div>
-                <div class="incident-sender">${item.sender}</div>
-                <div class="incident-district">${item.district} • <span class="ch">${item.channel}</span></div>
-                <p class="incident-snippet">${item.message}</p>
-                <div class="incident-card-bottom">
-                  <span class="incident-score">AI Score: <strong>${item.llmScore}/100</strong></span>
-                  <span class="incident-status ${item.status.toLowerCase().replace(' ', '-')}">${item.status}</span>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+        <aside class="rescue-stream-column" aria-label="Prioritized incidents">
+          <div class="rescue-search-row"><label for="rescue-search-input">Search incidents</label><input id="rescue-search-input" class="rescue-search-input" value="${escape(this.searchQuery)}" placeholder="District, sender or message"></div>
+          <div class="rescue-filter-tabs" aria-label="Filter priority">${[['all','All'],['life','P1'],['medical','P2'],['stranded','P3'],['supply','P4']].map(([key,label]) => `<button type="button" class="rescue-filter-btn ${key === this.activeFilter ? 'active' : ''}" data-filter="${key}" aria-pressed="${key === this.activeFilter}">${label}</button>`).join('')}</div>
+          <div class="rescue-cards-list">${filtered.map((s) => `<button type="button" class="rescue-incident-card ${s.id === this.selectedId ? 'selected' : ''}" data-id="${escape(s.id)}" aria-pressed="${s.id === this.selectedId}">
+            <div class="incident-card-top"><span class="incident-rank-badge ${s.badgeClass}">${s.rank}</span><span class="incident-score">${s.score}/100</span></div>
+            <div class="incident-sender">${escape(s.district)}</div><p class="incident-snippet">${escape(s.message)}</p>
+            <span class="incident-status ${statusClass(s.status)}">${s.status}</span>${s.routeBlocked ? '<span class="rescue-blocked">Access blocked</span>' : ''}
+          </button>`).join('') || '<p class="rescue-empty-copy">No matching incidents. Change the filter or search.</p>'}</div>
+          <div class="rescue-demo-controls"><button type="button" id="rescue-inject" class="rescue-btn-globe">Inject urgent demo report</button><span>Recalculates recommendations; active assignments stay assigned.</span></div>
         </aside>
-
-        <!-- Right: AI Urgency Triage & Dispatch Detail -->
         <main class="rescue-detail-column">
-          ${this._renderSelectedIncidentDetail()}
+          <div class="rescue-recommendation" aria-live="polite"><strong>Next recommended assignment</strong><p>${top ? `${escape(ranked.find((s) => s.id === top.incidentId).district)} · ${RESCUE_RESOURCES[top.type].label}` : 'No dispatchable unassigned incident. Review access and resources.'}</p>${top ? `<button type="button" id="rescue-review-next" class="rescue-btn-globe">Review recommendation</button>` : ''}<span>Computed from current needs and availability. Dispatch always requires your approval.</span></div>
+          <p class="rescue-notice" role="status">${escape(this.notice)}</p>
+          ${selected ? this._detail(selected, state, plan.find((p) => p.incidentId === selected.id)) : ''}
+          <details class="rescue-report-form"><summary>Add a distress report</summary>${this._reportForm()}</details>
+          <section class="rescue-activity" aria-label="Activity log"><h2>Activity</h2>${this.activity.slice(0, 8).map((entry) => `<p><time>${escape(entry.time)}</time> ${escape(entry.message)}</p>`).join('') || '<p>No actions yet. Review a recommendation or add a report.</p>'}</section>
         </main>
-      </div>
-    `;
-
-    this._bindEvents();
-  }
-
-  _renderSelectedIncidentDetail() {
-    const item = this.selectedSignal;
-    if (!item) {
-      return `
-        <div class="rescue-empty-state">
-          <h3>Select a distress signal to view AI triage &amp; dispatch options</h3>
-        </div>
-      `;
-    }
-
-    return `
-      <div class="rescue-detail-card">
-        <div class="detail-header">
-          <div>
-            <div class="detail-rank-row">
-              <span class="detail-rank-badge ${item.badgeClass}">${item.llmRank}</span>
-              <span class="detail-score-pill">AI URGENCY SCORE: <strong>${item.llmScore} / 100</strong></span>
-            </div>
-            <h2 class="detail-title">${item.district}</h2>
-            <div class="detail-meta">Reported by <strong>${item.sender}</strong> (${item.phone}) • via ${item.channel} • ${item.timestamp}</div>
-          </div>
-          <div class="detail-status-box">
-            <span class="lbl">DISPATCH STATUS</span>
-            <span class="val ${item.status.toLowerCase().replace(' ', '-')}">${item.status}</span>
-          </div>
-        </div>
-
-        <!-- Raw Citizen Message -->
-        <div class="detail-section">
-          <div class="section-title">ORIGINAL CITIZEN DISTRESS MESSAGE:</div>
-          <div class="citizen-msg-box">
-            "${item.message}"
-          </div>
-        </div>
-
-        <!-- LLM Triage & Urgency Reasoning -->
-        <div class="detail-section">
-          <div class="section-title">LLM AI TRIAGE ASSESSMENT &amp; MULTI-FACTOR REASONING:</div>
-          <div class="llm-reasoning-box">
-            <div class="llm-reasoning-item">
-              <span class="k">Severity Analysis:</span>
-              <span class="v">${item.llmReasoning}</span>
-            </div>
-            <div class="llm-reasoning-item">
-              <span class="k">Recommended Response:</span>
-              <span class="v highlight">${item.recommendedAction}</span>
-            </div>
-            <div class="llm-reasoning-item">
-              <span class="k">GPS Coordinates:</span>
-              <span class="v mono">${item.coords[1].toFixed(4)}° N, ${item.coords[0].toFixed(4)}° E</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Operational Dispatch Action Bar -->
-        <div class="detail-actions-panel">
-          <div class="section-title">INCIDENT DISPATCH ACTIONS:</div>
-          <div class="action-buttons-row">
-            <button class="action-btn dispatch-boat" data-action="dispatch-boat" type="button">
-              <svg viewBox="0 0 24 24" class="btn-svg"><path fill="currentColor" d="M20 21c-1.39 0-2.78-.47-4-1.32-2.44 1.71-5.56 1.71-8 0C6.78 20.53 5.39 21 4 21H2v2h2c1.38 0 2.74-.35 4-.99 2.52 1.29 5.48 1.29 8 0 1.26.65 2.62.99 4 .99h2v-2h-2zM3.95 19H4c1.6 0 3.02-.88 4-2 .98 1.12 2.4 2 4 2s3.02-.88 4-2c.98 1.12 2.4 2 4 2h.05l1.89-6.68c.08-.26.06-.54-.06-.78s-.34-.42-.6-.47L19 11V7l-4-4-4 4v4l-2.28.17c-.26.05-.48.23-.6.47s-.14.52-.06.78L3.95 19zM13 5.83l2 2V11h-4V7.83l2-2z"/></svg>
-              <span>Dispatch Rescue Boat Flotilla</span>
-            </button>
-            <button class="action-btn dispatch-pump" data-action="dispatch-pump" type="button">
-              <svg viewBox="0 0 24 24" class="btn-svg"><path fill="currentColor" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-4.66h14V17z"/></svg>
-              <span>Dispatch Dewatering Pump Unit</span>
-            </button>
-            <button class="action-btn dispatch-heli" data-action="dispatch-heli" type="button">
-              <svg viewBox="0 0 24 24" class="btn-svg"><path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
-              <span>Request Air Aviation Medevac</span>
-            </button>
-            <button class="action-btn locate-globe" data-action="locate-globe" type="button">
-              <svg viewBox="0 0 24 24" class="btn-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-              <span>Locate on 3D Map</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  _getFilteredSignals() {
-    let list = this.signals;
-
-    if (this.activeFilter === 'p1') {
-      list = list.filter((s) => s.llmScore >= 95);
-    } else if (this.activeFilter === 'p2') {
-      list = list.filter((s) => s.llmScore >= 85 && s.llmScore < 95);
-    } else if (this.activeFilter === 'p3') {
-      list = list.filter((s) => s.llmScore < 85);
-    }
-
-    if (this.searchQuery) {
-      const q = this.searchQuery.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.sender.toLowerCase().includes(q) ||
-          s.district.toLowerCase().includes(q) ||
-          s.message.toLowerCase().includes(q)
-      );
-    }
-
-    return list;
-  }
-
-  _bindEvents() {
-    if (!this.container) return;
-
-    // Return to Globe button
-    this.container.querySelector('#btn-return-globe')?.addEventListener('click', () => {
-      this.onReturnToMap();
-    });
-
-    // Filter Buttons
-    this.container.querySelectorAll('.rescue-filter-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const filter = btn.getAttribute('data-filter');
-        this.activeFilter = filter;
-        this._render();
-      });
-    });
-
-    // Search Input
-    const searchInput = this.container.querySelector('#rescue-search-input');
-    searchInput?.addEventListener('input', (e) => {
-      this.searchQuery = e.target.value.trim();
-      const filtered = this._getFilteredSignals();
-      const listEl = this.container.querySelector('.rescue-cards-list');
-      if (listEl) {
-        listEl.innerHTML = filtered.map((item) => `
-          <div class="rescue-incident-card ${this.selectedSignal?.id === item.id ? 'selected' : ''}" data-id="${item.id}">
-            <div class="incident-card-top">
-              <span class="incident-rank-badge ${item.badgeClass}">${item.llmRank}</span>
-              <span class="incident-time">${item.timestamp}</span>
-            </div>
-            <div class="incident-sender">${item.sender}</div>
-            <div class="incident-district">${item.district} • <span class="ch">${item.channel}</span></div>
-            <p class="incident-snippet">${item.message}</p>
-            <div class="incident-card-bottom">
-              <span class="incident-score">AI Score: <strong>${item.llmScore}/100</strong></span>
-              <span class="incident-status ${item.status.toLowerCase().replace(' ', '-')}">${item.status}</span>
-            </div>
-          </div>
-        `).join('');
-        this._bindIncidentCardClicks();
+      </div>`;
+    this._bindEvents(top);
+    if (draft) {
+      const form = this.container.querySelector('#rescue-report-form');
+      for (const [key, value] of Object.entries(draft)) {
+        if (form.elements[key]?.type === 'checkbox') form.elements[key].checked = true;
+        else if (form.elements[key]) form.elements[key].value = value;
       }
-    });
-
-    this._bindIncidentCardClicks();
-    this._bindActionButtons();
+      this.container.querySelector('.rescue-report-form').open = formOpen;
+    }
+    if (focusId) {
+      const nextFocus = this.container.querySelector(`#${focusId}`);
+      nextFocus?.focus({ preventScroll: true });
+      if (typeof selection === 'number' && nextFocus?.type === 'text') nextFocus.setSelectionRange(selection, selection);
+    }
   }
 
-  _bindIncidentCardClicks() {
-    this.container.querySelectorAll('.rescue-incident-card').forEach((card) => {
-      card.addEventListener('click', () => {
-        const id = card.getAttribute('data-id');
-        const found = this.signals.find((s) => s.id === id);
-        if (found) {
-          this.selectedSignal = found;
-          const detailCol = this.container.querySelector('.rescue-detail-column');
-          if (detailCol) {
-            detailCol.innerHTML = this._renderSelectedIncidentDetail();
-            this._bindActionButtons();
-          }
-          this.container.querySelectorAll('.rescue-incident-card').forEach((c) => c.classList.remove('selected'));
-          card.classList.add('selected');
-        }
-      });
-    });
+  _detail(incident, state, suggestion) {
+    const assignment = state.incidentAssignments.find((a) => a.incidentId === incident.id);
+    const blocked = canDispatch(incident, state);
+    return `<section class="rescue-detail-card" aria-label="Selected incident">
+      <div class="detail-header"><div><span class="detail-rank-badge ${incident.badgeClass}">${incident.rank}</span><h2 class="detail-title">${escape(incident.district)}</h2><p class="detail-meta">${escape(incident.sender)} · ${incident.coords[1].toFixed(4)}° N, ${incident.coords[0].toFixed(4)}° E</p></div><strong class="rescue-assignment-status">${incident.status}</strong></div>
+      <p class="citizen-msg-box">${escape(incident.message)}</p>
+      <div class="rescue-reason"><h3>Why this priority?</h3><p>${escape(incident.reason)} Score: ${incident.score}/100, from fixed exercise rules.</p><p>Reviewed need: ${RESCUE_RESOURCES[incident.resource].label}. ${incident.danger === 'medical' ? 'Medical specialists are not modelled in this pool; coordinate medical support separately.' : ''}</p></div>
+      ${assignment ? `<p>Assigned: ${RESCUE_RESOURCES[assignment.type].label} from ${escape(assignment.depotName)}. Illustrative travel estimate: ${assignment.etaMin} min.</p>
+        <button type="button" id="rescue-complete" class="rescue-btn-globe" ${assignment.status !== 'ON SCENE' ? 'disabled' : ''}>Confirm rescue complete &amp; release unit</button>` : `<p>${escape(suggestion?.reason || blocked || '')}</p>
+        <div class="action-buttons-row"><button type="button" id="rescue-dispatch" class="action-btn dispatch-boat" ${blocked || !this.game ? 'disabled' : ''}>Approve &amp; dispatch one ${RESCUE_RESOURCES[incident.resource].label.toLowerCase()}</button>
+        <button type="button" id="rescue-access" class="rescue-btn-globe">${incident.routeBlocked ? 'Mark access reviewed / reopen' : 'Simulate access blocked'}</button></div>`}
+      <button type="button" id="rescue-locate" class="rescue-btn-globe">Locate on 3D map</button>
+      <p class="rescue-limit">Map movement is accelerated to 14 seconds along a straight line. Roads, water routes, arrival times and unit capabilities are illustrative; access is not independently verified.</p>
+    </section>`;
   }
 
-  _bindActionButtons() {
-    this.container.querySelectorAll('.action-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const action = btn.getAttribute('data-action');
-        if (!this.selectedSignal) return;
-
-        if (action === 'locate-globe') {
-          this.onLocateOnGlobe(this.selectedSignal);
-        } else {
-          this.selectedSignal.status = 'DISPATCHED';
-          btn.textContent = 'DISPATCHED & EN ROUTE';
-          btn.style.opacity = '0.6';
-          btn.style.pointerEvents = 'none';
-          const statusVal = this.container.querySelector('.detail-status-box .val');
-          if (statusVal) {
-            statusVal.textContent = 'DISPATCHED';
-            statusVal.className = 'val in-progress';
-          }
-        }
-      });
-    });
+  _reportForm() {
+    return `<form id="rescue-report-form">
+      <label for="report-message">Message (English or Roman Urdu)</label><textarea id="report-message" name="message" required maxlength="2000"></textarea>
+      <button type="button" id="rescue-ai-extract" class="rescue-btn-globe">Use AI to suggest triage fields</button><p id="rescue-ai-status" role="status">${escape(this.aiNotice || 'Optional AI extraction. Review the fields before adding; allocation remains rule-based.')}</p>
+      <label for="report-district">Location label</label><input id="report-district" name="district" required maxlength="100">
+      <div class="rescue-form-grid"><label for="report-lon">Longitude<input id="report-lon" name="lon" type="number" min="-180" max="180" step="any" required></label><label for="report-lat">Latitude<input id="report-lat" name="lat" type="number" min="-90" max="90" step="any" required></label></div>
+      <label for="report-danger">Reviewed urgency</label><select id="report-danger" name="danger"><option value="life">P1 · Life threat</option><option value="medical">P2 · Medical</option><option value="stranded" selected>P3 · Stranded</option><option value="supply">P4 · Support</option></select>
+      <label for="report-resource">Required unit</label><select id="report-resource" name="resource">${Object.entries(RESCUE_RESOURCES).map(([id,r]) => `<option value="${id}">${r.label}</option>`).join('')}</select>
+      <label class="rescue-checkbox"><input name="vulnerable" type="checkbox">Vulnerable people explicitly reported</label><button type="submit" class="rescue-btn-globe">Confirm reviewed report &amp; add</button>
+    </form>`;
   }
 
-  _startSimulatedStream() {
-    // Add incoming realistic simulated messages periodically
-    this._simTimer = setInterval(() => {
-      const extraMessages = [
-        {
-          sender: 'Tariq Mehmood',
-          phone: '+92 334 1029384',
-          district: 'Kot Addu, Punjab',
-          coords: [70.96, 30.47],
-          channel: 'WHATSAPP SOS',
-          message: 'Canal siphon ruptured, flooding wheat fields and approaching residential street. Need municipal drainage backup.',
-          llmRank: 'P3 - STRANDED POPULATION',
-          llmScore: 78,
-          badgeClass: 'p3-evac',
-          llmReasoning: 'Agricultural levee breach approaching edge of residential zone. Safe window approximately 3 hours.',
-          recommendedAction: 'Dispatch irrigation backhoe and sandbag team to plug siphon breach.',
-          status: 'PENDING DISPATCH',
-        },
-        {
-          sender: 'Zahid Hussain',
-          phone: '+92 302 7710293',
-          district: 'Kashmore, Upper Sindh',
-          coords: [69.58, 28.43],
-          channel: 'SMS EMERGENCY',
-          message: 'Emergency: Flash backflow from Indus into school camp. 65 displaced families trapped without dry ground.',
-          llmRank: 'P1 - CRITICAL LIFE THREAT',
-          llmScore: 96,
-          badgeClass: 'p1-critical',
-          llmReasoning: 'Displaced camp inundation with high concentration of children and elderly in fast-rising water.',
-          recommendedAction: 'Immediate dispatch of 3x high-capacity motorboats from Guddu staging depot.',
-          status: 'PENDING DISPATCH',
-        },
-      ];
-
-      const pick = extraMessages[Math.floor(Math.random() * extraMessages.length)];
-      const newSignal = {
-        ...pick,
-        id: `sos-${Date.now()}`,
-        timestamp: 'Just now',
-      };
-
-      this.signals.unshift(newSignal);
+  _bindEvents(top) {
+    const on = (selector, event, fn) => this.container.querySelector(selector)?.addEventListener(event, fn);
+    on('#btn-return-globe', 'click', () => this.onReturnToMap());
+    on('#rescue-search-input', 'input', (e) => { this.searchQuery = e.target.value; this._render(); });
+    this.container.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
+      this.activeFilter = button.dataset.filter;
+      this.selectedId = this._ranked().find((s) => this.activeFilter === 'all' || s.danger === this.activeFilter)?.id;
       this._render();
-    }, 28000);
+    }));
+    this.container.querySelectorAll('[data-id]').forEach((button) => button.addEventListener('click', () => { this.selectedId = button.dataset.id; this.notice = ''; this._render(); }));
+    on('#rescue-review-next', 'click', () => { this.selectedId = top.incidentId; this._render(); });
+    on('#rescue-locate', 'click', () => this.onLocateOnGlobe(this._ranked().find((s) => s.id === this.selectedId)));
+    on('#rescue-dispatch', 'click', () => this._dispatch());
+    on('#rescue-complete', 'click', () => { const result = this.game.completeIncident(this.selectedId); this.notice = result.success ? 'Rescue confirmed complete; demo unit returned to the available pool.' : result.reason; this._render(); });
+    on('#rescue-access', 'click', () => {
+      const incident = this.signals.find((s) => s.id === this.selectedId);
+      incident.routeBlocked = !incident.routeBlocked;
+      this._log(`${incident.district}: access ${incident.routeBlocked ? 'blocked; recommendation withdrawn' : 'reviewed and reopened'}.`);
+      this._render();
+    });
+    on('#rescue-inject', 'click', () => {
+      this._addIncident({ sender: 'Demo school', district: 'Nowshera school emergency', coords: [71.984, 34.019], danger: 'life', vulnerable: true, resource: 'boat', message: 'Exercise: water rising inside a school. Children cannot leave the upper floor. Rescue boat requested.' });
+    });
+    on('#rescue-report-form', 'submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(e.target);
+      this._addIncident({ sender: 'Operator-reviewed report', district: String(data.get('district')).trim(), coords: [Number(data.get('lon')), Number(data.get('lat'))], message: String(data.get('message')).trim(), danger: data.get('danger'), resource: data.get('resource'), vulnerable: data.get('vulnerable') === 'on' }, true);
+    });
+    on('#rescue-ai-extract', 'click', () => this._extractTriage());
+  }
+
+  _addIncident(fields, clearDraft = false) {
+    const duplicate = this.signals.find((s) => s.message.trim().toLowerCase() === fields.message.trim().toLowerCase() &&
+      s.coords[0] === fields.coords[0] && s.coords[1] === fields.coords[1]);
+    if (duplicate) {
+      this.selectedId = duplicate.id;
+      this.notice = 'This report already exists. No duplicate incident was created.';
+      this._render();
+      return;
+    }
+    const incident = { ...fields, id: `sos-${crypto.randomUUID()}`, createdAt: Date.now(), status: 'PENDING DISPATCH' };
+    try { rankIncidents([incident]); } catch { this.notice = 'Check the message, urgency, resource and coordinates.'; this._render(); return; }
+    this.signals.push(incident);
+    this._clearDraft = clearDraft;
+    this.selectedId = incident.id;
+    this._log(`${incident.district}: report added; recommendations recalculated.`);
+    this.notice = 'Report added. Existing assignments have not changed.';
+    this._render();
+  }
+
+  _dispatch() {
+    const incident = this._ranked().find((s) => s.id === this.selectedId);
+    if (!this.game || !incident) return;
+    const blocked = canDispatch(incident, this.game.getState());
+    if (blocked) { this.notice = blocked; this._render(); return; }
+    const result = this.game.dispatchResource(incident.resource, { incidentId: incident.id,
+      target: { id: incident.id, name: incident.district, lon: incident.coords[0], lat: incident.coords[1] } });
+    this.notice = result.success ? 'Assignment approved. Unit and personnel reserved in the shared pool. Return to the map to watch its movement.' : result.reason;
+    this._render();
+  }
+
+  async _extractTriage() {
+    const button = this.container.querySelector('#rescue-ai-extract');
+    const form = this.container.querySelector('#rescue-report-form');
+    const status = this.container.querySelector('#rescue-ai-status');
+    const message = form.elements.message.value.trim();
+    if (!message) { status.textContent = 'Enter a distress message first.'; return; }
+    button.disabled = true;
+    this._extracting = true;
+    status.textContent = 'Extracting suggested fields…';
+    try {
+      const response = await fetch('/api/openai/rescue-triage', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }), signal: AbortSignal.timeout(25000) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'AI unavailable. Review and set the fields manually.');
+      if (!['life','medical','stranded','supply'].includes(data.danger) || !Object.hasOwn(RESCUE_RESOURCES, data.resource) || typeof data.vulnerable !== 'boolean') throw new Error('Invalid AI response. Set the fields manually.');
+      if (form.elements.message.value.trim() !== message) throw new Error('The message changed during extraction. Run it again or set the fields manually.');
+      form.elements.danger.value = data.danger;
+      form.elements.resource.value = data.resource;
+      form.elements.vulnerable.checked = data.vulnerable;
+      status.textContent = 'AI suggested these fields. Verify urgency, unit type and vulnerability; enter coordinates yourself, then confirm the report.';
+    } catch (error) { status.textContent = error.name === 'TimeoutError' ? 'AI timed out. Set the fields manually.' : error.message; }
+    finally {
+      button.disabled = false;
+      this.aiNotice = status.textContent;
+      this._extracting = false;
+      this._render();
+    }
   }
 }

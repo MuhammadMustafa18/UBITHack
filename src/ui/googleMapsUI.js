@@ -346,7 +346,9 @@ export class GoogleMapsUI {
 
     // Dedicated /rescue Route Dashboard (Live distress stream & LLM triage)
     this.rescueDashboard = new RescueDashboardUI({
-      onReturnToGlobe: () => this._showGlobeView(),
+      resourceDefenseGame: this.resourceDefenseGame,
+      floodEngine: this.floodEngine,
+      onReturnToMap: () => this._showGlobeView(),
       onLocateOnGlobe: (sos) => this._locateSosOnGlobe(sos),
     });
 
@@ -2217,7 +2219,7 @@ export class GoogleMapsUI {
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
       label: {
-        text: `🚨 SOS: ${sos.sender}\n${sos.district}\n[${sos.llmRank}]`,
+        text: `SOS: ${sos.sender}\n${sos.district}\n[${sos.rank}]`,
         font: 'bold 13px Inter, sans-serif',
         fillColor: Cesium.Color.WHITE,
         backgroundColor: Cesium.Color.fromCssColorString('#0f172a'),
