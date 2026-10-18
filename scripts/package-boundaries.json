@@ -1665,6 +1665,7 @@
       "src/tools/schema.js",
       "src/ui/googleMapsUI.js",
       "src/ui/rescueDashboard.js",
+      "src/services/supabaseClient.js",
       "src/ui/placeNames.js",
       "src/cyberSonarScene.js",
       "src/cyberSonar.js",
@@ -2513,7 +2514,8 @@
       "pbf",
       "satellite.js",
       "mapillary-js",
-      "@jtarrio/webrtlsdr"
+      "@jtarrio/webrtlsdr",
+      "@supabase/supabase-js"
     ]
   },
   "application-catalog": {

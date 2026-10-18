@@ -108,7 +108,7 @@ export class RescueDashboardUI {
           <div class="rescue-stat-box"><span class="num">${state.pool.firetrucks}</span><span class="lbl">PUMPS FREE</span></div>
           <div class="rescue-stat-box"><span class="num">${state.pool.manpower}</span><span class="lbl">PERSONNEL FREE</span></div>
         </div>
-        <button id="btn-return-globe" class="rescue-btn-globe" type="button">Back to 3D map</button>
+        <button id="btn-request-rescue-modal" class="rescue-btn-sos-request" type="button">Request help / SOS beacon</button><button id="btn-return-globe" class="rescue-btn-globe" type="button">Back to 3D map</button>
       </header>
       <div class="rescue-exercise-note">Fictional reports · shared demo resource pool · rule-based priorities · session-only state. One assignment is one unit, not a guarantee of full evacuation.</div>
       <div class="rescue-main-grid">
@@ -126,7 +126,7 @@ export class RescueDashboardUI {
           <div class="rescue-recommendation" aria-live="polite"><strong>Next recommended assignment</strong><p>${top ? `${escape(ranked.find((s) => s.id === top.incidentId).district)} · ${RESCUE_RESOURCES[top.type].label}` : 'No dispatchable unassigned incident. Review access and resources.'}</p>${top ? `<button type="button" id="rescue-review-next" class="rescue-btn-globe">Review recommendation</button>` : ''}<span>Computed from current needs and availability. Dispatch always requires your approval.</span></div>
           <p class="rescue-notice" role="status">${escape(this.notice)}</p>
           ${selected ? this._detail(selected, state, plan.find((p) => p.incidentId === selected.id)) : ''}
-          <details class="rescue-report-form"><summary>Add a distress report</summary>${this._reportForm()}</details>
+          <details class="rescue-report-form"><summary>Add a distress report / SOS beacon</summary>${this._reportForm()}</details>
           ${this.tacticalAiCommander ? `<section class="gemini-chat-container"><div class="gemini-chat-header"><h2>Scenario copilot</h2></div><div class="gemini-chat-messages" aria-live="polite">${this.chatMessages.map((m) => `<div class="gemini-chat-bubble ${m.sender}">${escape(m.text)}</div>`).join('') || '<p>Ask about this incident, available resources or the active simulation. Chat replies do not dispatch incident resources.</p>'}</div><form id="rescue-copilot-form" class="rescue-copilot-form"><label for="rescue-copilot-input">Question about the selected incident</label><input id="rescue-copilot-input" required maxlength="1000"><button type="submit" class="rescue-btn-globe" ${this.chatBusy ? 'disabled' : ''}>${this.chatBusy ? 'Thinking…' : 'Ask copilot'}</button></form></section>` : ''}
           <section class="rescue-activity" aria-label="Activity log"><h2>Activity</h2>${this.activity.slice(0, 8).map((entry) => `<p><time>${escape(entry.time)}</time> ${escape(entry.message)}</p>`).join('') || '<p>No actions yet. Review a recommendation or add a report.</p>'}</section>
         </main>
@@ -169,16 +169,42 @@ export class RescueDashboardUI {
       <label for="report-message">Message (English or Roman Urdu)</label><textarea id="report-message" name="message" required maxlength="2000"></textarea>
       <button type="button" id="rescue-ai-extract" class="rescue-btn-globe">Use AI to suggest triage fields</button><p id="rescue-ai-status" role="status">${escape(this.aiNotice || 'Optional AI extraction. Review the fields before adding; allocation remains rule-based.')}</p>
       <label for="report-district">Location label</label><input id="report-district" name="district" required maxlength="100">
+      <button type="button" id="rescue-use-gps" class="rescue-btn-globe">Use my location (optional)</button><span id="rescue-gps-status" role="status">Enter coordinates manually if GPS is unavailable. No location is guessed.</span>
       <div class="rescue-form-grid"><label for="report-lon">Longitude<input id="report-lon" name="lon" type="number" min="-180" max="180" step="any" required></label><label for="report-lat">Latitude<input id="report-lat" name="lat" type="number" min="-90" max="90" step="any" required></label></div>
       <label for="report-danger">Reviewed urgency</label><select id="report-danger" name="danger"><option value="life">P1 · Life threat</option><option value="medical">P2 · Medical</option><option value="stranded" selected>P3 · Stranded</option><option value="supply">P4 · Support</option></select>
       <label for="report-resource">Required unit</label><select id="report-resource" name="resource">${Object.entries(RESCUE_RESOURCES).map(([id,r]) => `<option value="${id}">${r.label}</option>`).join('')}</select>
-      <label class="rescue-checkbox"><input name="vulnerable" type="checkbox">Vulnerable people explicitly reported</label><button type="submit" class="rescue-btn-globe">Confirm reviewed report &amp; add</button>
+      <label class="rescue-checkbox"><input name="vulnerable" type="checkbox">Vulnerable people explicitly reported</label>
+      <label class="rescue-checkbox"><input name="beacon" type="checkbox">Also submit a citizen SOS beacon to the shared registry / local queue</label>
+      <label for="report-name">Contact name (optional)</label><input id="report-name" name="sender" maxlength="100">
+      <label for="report-phone">Contact phone (optional)</label><input id="report-phone" name="phone" type="tel" maxlength="40">
+      <div class="rescue-form-grid"><label for="report-count">People needing help<input id="report-count" name="count" type="number" min="1" max="100000" value="1"></label><label for="report-water">Reported water depth (feet)<input id="report-water" name="water" type="number" min="0" max="100" step="any" value="0"></label></div>
+      <p>Registry submission does not contact emergency services or confirm rescue. Offline submissions may only be saved on this device.</p>
+      <button type="submit" class="rescue-btn-globe">Confirm reviewed report &amp; add</button>
     </form>`;
   }
 
   _bindEvents(top) {
     const on = (selector, event, fn) => this.container.querySelector(selector)?.addEventListener(event, fn);
     on('#btn-return-globe', 'click', () => this.onReturnToMap());
+    on('#btn-request-rescue-modal', 'click', () => {
+      const details = this.container.querySelector('.rescue-report-form');
+      details.open = true;
+      const form = details.querySelector('form');
+      form.elements.beacon.checked = true;
+      details.scrollIntoView({ block: 'start' });
+      form.elements.message.focus();
+    });
+    on('#rescue-use-gps', 'click', () => {
+      const status = this.container.querySelector('#rescue-gps-status');
+      if (!navigator.geolocation) { status.textContent = 'GPS unavailable. Enter coordinates manually.'; return; }
+      status.textContent = 'Requesting location permission…';
+      navigator.geolocation.getCurrentPosition((position) => {
+        const form = this.container.querySelector('#rescue-report-form');
+        form.elements.lon.value = position.coords.longitude.toFixed(5);
+        form.elements.lat.value = position.coords.latitude.toFixed(5);
+        this.container.querySelector('#rescue-gps-status').textContent = 'GPS filled. Review the coordinates before submitting.';
+      }, () => { status.textContent = 'Could not obtain GPS. Enter coordinates manually; no default location was substituted.'; }, { timeout: 8000 });
+    });
     on('#rescue-search-input', 'input', (e) => { this.searchQuery = e.target.value; this._render(); });
     this.container.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
       this.activeFilter = button.dataset.filter;
@@ -199,10 +225,25 @@ export class RescueDashboardUI {
     on('#rescue-inject', 'click', () => {
       this._addIncident({ sender: 'Demo school', district: 'Nowshera school emergency', coords: [71.984, 34.019], danger: 'life', vulnerable: true, resource: 'boat', message: 'Exercise: water rising inside a school. Children cannot leave the upper floor. Rescue boat requested.' });
     });
-    on('#rescue-report-form', 'submit', (e) => {
+    on('#rescue-report-form', 'submit', async (e) => {
       e.preventDefault();
       const data = new FormData(e.target);
-      this._addIncident({ sender: 'Operator-reviewed report', district: String(data.get('district')).trim(), coords: [Number(data.get('lon')), Number(data.get('lat'))], message: String(data.get('message')).trim(), danger: data.get('danger'), resource: data.get('resource'), vulnerable: data.get('vulnerable') === 'on' }, true);
+      const fields = { sender: String(data.get('sender') || 'Operator-reviewed report'), district: String(data.get('district')).trim(), coords: [Number(data.get('lon')), Number(data.get('lat'))], message: String(data.get('message')).trim(), danger: data.get('danger'), resource: data.get('resource'), vulnerable: data.get('vulnerable') === 'on' };
+      if (this.signals.some((s) => s.message.toLowerCase() === fields.message.toLowerCase() && s.coords[0] === fields.coords[0] && s.coords[1] === fields.coords[1])) { this._addIncident(fields); return; }
+      if (data.get('beacon') === 'on') {
+        if (this._extracting) return;
+        this._extracting = true;
+        e.target.querySelector('[type="submit"]').disabled = true;
+        try {
+          const { submitRescueRequest } = await import('../services/supabaseClient.js');
+          const result = await submitRescueRequest({ name: fields.sender, phone: data.get('phone'), district: fields.district,
+            latitude: fields.coords[1], longitude: fields.coords[0], message: fields.message, trappedCount: Number(data.get('count')),
+            waterDepthFt: Number(data.get('water')), hasVulnerable: fields.vulnerable, urgencyLevel: fields.danger, channel: 'CHROME WEB SOS' });
+          this._log(result.success ? (result.localOnly ? 'SOS saved on this device only; not delivered to the shared registry.' : 'SOS saved to the shared registry; no emergency-service dispatch confirmed.') : 'SOS could not be saved. Keep a copy and retry.');
+        } catch { this._log('Registry unavailable. Report retained in this session; delivery not confirmed.'); }
+        finally { this._extracting = false; }
+      }
+      this._addIncident(fields, true);
     });
     on('#rescue-ai-extract', 'click', () => this._extractTriage());
     on('#rescue-copilot-form', 'submit', (event) => {
