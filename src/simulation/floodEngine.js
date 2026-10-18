@@ -130,7 +130,24 @@ export class FloodSimulationEngine {
     if (!TIME_SCALES[scaleKey]) return;
     this.timeScale = scaleKey;
     this.speed = TIME_SCALES[scaleKey].defaultSpeed;
-    this.scaleUnits = 0;
+
+    // Seamlessly convert existing simHours into the new scale units so progress is preserved!
+    const currentHours = Number(this.simHours) || 0;
+    if (scaleKey === 'minute') {
+      this.scaleUnits = currentHours * 60.0;
+    } else if (scaleKey === 'hourly') {
+      this.scaleUnits = currentHours;
+    } else if (scaleKey === 'daily') {
+      this.scaleUnits = currentHours / 24.0;
+    } else if (scaleKey === 'weekly') {
+      this.scaleUnits = currentHours / 168.0;
+    }
+
+    const scale = TIME_SCALES[scaleKey];
+    if (this.scaleUnits >= scale.maxUnits) {
+      scale.maxUnits = Math.ceil(this.scaleUnits + scale.step * 20);
+    }
+
     this._syncSimHoursFromUnits();
     this._updateVisuals();
     this._notify();

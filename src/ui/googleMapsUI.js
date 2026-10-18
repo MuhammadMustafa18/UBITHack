@@ -1764,6 +1764,7 @@ export class GoogleMapsUI {
       elem.addEventListener('click', () => {
         const scale = elem.dataset.scale;
         this.selectedTimeScale = scale;
+        this.floodEngine?.setTimeScale(scale);
         card
           .querySelectorAll('.sim-forecast-scale-btn')
           .forEach((b) => b.classList.remove('active'));

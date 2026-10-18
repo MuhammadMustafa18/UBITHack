@@ -254,6 +254,12 @@ export class SimulationBarUI {
   _updateUI(tel) {
     if (!this.container) return;
 
+    // Scale Tabs active state
+    const tabs = this.container.querySelectorAll('.sim-scale-tab');
+    tabs.forEach((t) => {
+      t.classList.toggle('active', t.dataset.scale === tel.timeScale);
+    });
+
     // Time text
     const timeLabel = this.container.querySelector('#sim-time-current');
     if (timeLabel) timeLabel.textContent = tel.formattedTime;
