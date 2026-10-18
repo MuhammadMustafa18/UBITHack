@@ -1,9 +1,46 @@
 /**
- * Google Maps Light Theme for FloodTrace Pakistan
- * Replaces sci-fi HUD with clean, modern, high-contrast Google Maps UI.
+ * FloodTrace Pakistan — Cohere-Inspired Enterprise AI Command Theme
+ * A sober, high-trust, editorial geospatial command center.
+ * Features:
+ * - Monumental display headlines, negative letter-tracking
+ * - Canvas White interrupted by Deep Enterprise Green (#003c33), Near-Black (#17171c), Dark Navy (#071829), and Coral (#ff7759)
+ * - 32px pill CTAs, hairline rules (#d9d9dd, #e5e7eb)
+ * - Uppercase technical mono tags (letter-spacing: 0.08em)
+ * - Flat surfaces with crisp hairline borders, eliminating murky grey drop-shadows
  */
 
-/* Hide legacy sci-fi dark HUD chrome, left panels, and reconnaissance overlays by default */
+:root {
+  --cohere-black: #000000;
+  --cohere-near-black: #17171c;
+  --cohere-green: #003c33;
+  --cohere-green-dark: #002923;
+  --cohere-dark-navy: #071829;
+  --cohere-action-blue: #1863dc;
+  --cohere-coral: #ff7759;
+  --cohere-coral-soft: #ffad9b;
+  --cohere-white: #ffffff;
+  --cohere-soft-stone: #eeece7;
+  --cohere-pale-green: #edfce9;
+  --cohere-pale-blue: #f1f5ff;
+  --cohere-hairline: #d9d9dd;
+  --cohere-border-light: #e5e7eb;
+  --cohere-ink: #212121;
+  --cohere-slate: #75758a;
+  --cohere-muted-slate: #93939f;
+
+  --font-display: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-pill: 32px;
+  --radius-card: 22px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+}
+
+/* ==========================================================================
+   0. Strict Suppression of Legacy HUD Chrome, Left Stack & Bloatware
+   ========================================================================== */
 #title-bar,
 #top-center-actions,
 #command-dock,
@@ -31,105 +68,51 @@
   display: none !important;
 }
 
-/* Red Prominent Floating Exit Airplane Mode Button */
+/* ==========================================================================
+   1. Emergency Exit Airplane Mode Floating Pill
+   ========================================================================== */
 .gmaps-emergency-plane-exit {
   position: fixed;
   top: 76px;
   left: 50%;
   transform: translateX(-50%);
-  background: #d93025 !important;
-  color: #ffffff !important;
-  border: 2px solid #ffffff;
-  border-radius: 24px;
-  padding: 8px 22px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  background: var(--cohere-near-black) !important;
+  color: var(--cohere-white) !important;
+  border: 1px solid var(--cohere-coral);
+  border-radius: var(--radius-pill);
+  padding: 8px 24px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(217, 48, 37, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   z-index: 99999;
   display: flex;
   align-items: center;
-  gap: 8px;
-  letter-spacing: 0.5px;
-  transition: transform 0.15s ease, background-color 0.15s ease;
-  animation: pulsePlaneExit 1.5s infinite alternate;
-}
-
-@keyframes pulsePlaneExit {
-  0% { transform: translateX(-50%) scale(1); }
-  100% { transform: translateX(-50%) scale(1.05); }
+  gap: 10px;
+  letter-spacing: -0.01em;
+  transition: all 0.15s ease;
 }
 
 .gmaps-emergency-plane-exit:hover {
-  background: #b31412 !important;
-  transform: translateX(-50%) scale(1.08);
+  background: var(--cohere-coral) !important;
+  color: var(--cohere-white) !important;
+  border-color: var(--cohere-coral);
+  transform: translateX(-50%) translateY(-1px);
 }
 
 .gmaps-emergency-plane-exit.hidden {
   display: none !important;
 }
 
-/* Specific styling for Plane Mode pill */
-.gmaps-pill-planes.active {
-  background: #fef7e0 !important;
-  color: #b06000 !important;
-  border-color: #f9ab00 !important;
-  font-weight: 600;
-}
-
-/* Floating Exit Plane Mode Banner */
-.gmaps-plane-banner {
-  position: absolute;
-  top: 72px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a73e8;
-  color: #ffffff;
-  padding: 6px 16px 6px 14px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  z-index: 1001;
-  pointer-events: auto;
-}
-
-.gmaps-plane-banner.hidden {
-  display: none !important;
-}
-
-.gmaps-plane-banner-btn {
-  background: #ffffff;
-  color: #d93025;
-  border: none;
-  border-radius: 12px;
-  padding: 4px 12px;
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: all 0.15s ease;
-}
-
-.gmaps-plane-banner-btn:hover {
-  background: #fce8e6;
-  color: #b31412;
-  transform: scale(1.05);
-}
-
 /* ==========================================================================
-   1. Google Maps Top Bar Container & Search Box
+   2. Top Bar Container & Search Box (Cohere Editorial Style)
    ========================================================================== */
 .gmaps-top-container {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
+  top: 14px;
+  left: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -141,48 +124,50 @@
   pointer-events: auto;
 }
 
-/* Crisp floating white search bar */
+/* Crisp floating white search bar with hairline border */
 .gmaps-search-box {
-  background: #ffffff;
-  height: 48px;
-  width: 390px;
-  min-width: 340px;
-  border-radius: 24px;
+  background: var(--cohere-white);
+  height: 46px;
+  width: 380px;
+  min-width: 320px;
+  border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.25), 0 1px 2px rgba(60, 64, 67, 0.15);
+  padding: 0 8px 0 12px;
+  border: 1px solid var(--cohere-hairline);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
-  transition: box-shadow 0.2s ease, width 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .gmaps-search-box:focus-within {
-  box-shadow: 0 3px 12px rgba(60, 64, 67, 0.35), 0 1px 3px rgba(60, 64, 67, 0.2);
+  border-color: var(--cohere-near-black);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
 }
 
 .gmaps-icon-btn {
   background: transparent;
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
-  color: #5f6368;
+  color: var(--cohere-slate);
   padding: 0;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .gmaps-icon-btn:hover {
-  background: #f1f3f4;
-  color: #202124;
+  background: var(--cohere-soft-stone);
+  color: var(--cohere-near-black);
 }
 
 .gmaps-svg-icon {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
 }
 
 .gmaps-search-input {
@@ -191,28 +176,29 @@
   border: none;
   outline: none;
   background: transparent;
-  padding: 0 8px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 14.5px;
-  color: #202124;
-  letter-spacing: normal;
+  padding: 0 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cohere-ink);
+  letter-spacing: -0.01em;
 }
 
 .gmaps-search-input::placeholder {
-  color: #70757a;
+  color: var(--cohere-muted-slate);
   font-weight: 400;
 }
 
 .gmaps-search-divider {
   width: 1px;
-  height: 24px;
-  background: #dadce0;
+  height: 22px;
+  background: var(--cohere-hairline);
   margin: 0 6px;
 }
 
-/* Blue circular action / directions button */
+/* Near-Black circular search action button */
 .gmaps-directions-btn {
-  background: #1a73e8;
+  background: var(--cohere-near-black);
   border: none;
   width: 32px;
   height: 32px;
@@ -222,22 +208,21 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .gmaps-directions-btn:hover {
-  background: #1557b0;
-  transform: scale(1.04);
+  background: var(--cohere-green);
+  transform: scale(1.05);
 }
 
 .gmaps-directions-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 /* ==========================================================================
-   2. Google Maps Horizontal Category Filter Pills
+   3. Category Filter Pills (Cohere Pill Button System)
    ========================================================================== */
 .gmaps-filter-bar {
   display: flex;
@@ -255,37 +240,62 @@
 }
 
 .gmaps-pill {
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 18px;
-  height: 36px;
-  padding: 0 14px;
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-pill);
+  height: 38px;
+  padding: 0 16px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  gap: 7px;
+  font-family: var(--font-body);
   font-size: 13.5px;
   font-weight: 500;
-  color: #3c4043;
+  color: var(--cohere-ink);
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.18);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  letter-spacing: -0.01em;
 }
 
 .gmaps-pill:hover {
-  background: #f8f9fa;
-  border-color: #dadce0;
-  box-shadow: 0 2px 5px rgba(60, 64, 67, 0.25);
-  color: #202124;
+  background: var(--cohere-soft-stone);
+  border-color: var(--cohere-near-black);
+  color: var(--cohere-black);
+  transform: translateY(-1px);
 }
 
 .gmaps-pill.active {
-  background: #e8f0fe;
-  color: #1a73e8;
-  border-color: #1a73e8;
+  background: var(--cohere-near-black);
+  color: var(--cohere-white);
+  border-color: var(--cohere-near-black);
   font-weight: 600;
+}
+
+.gmaps-pill.active .gmaps-pill-icon svg {
+  color: var(--cohere-white);
+}
+
+/* Deep Enterprise Green Featured Command Pill */
+.gmaps-pill-featured {
+  background: var(--cohere-green) !important;
+  color: var(--cohere-white) !important;
+  border-color: var(--cohere-green) !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.gmaps-pill-featured:hover {
+  background: var(--cohere-green-dark) !important;
+  border-color: var(--cohere-green-dark) !important;
+  color: var(--cohere-white) !important;
+  box-shadow: 0 4px 14px rgba(0, 60, 51, 0.3);
+}
+
+.gmaps-pill-featured .gmaps-pill-icon {
+  color: var(--cohere-coral) !important;
 }
 
 .gmaps-pill-icon {
@@ -293,94 +303,79 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   flex-shrink: 0;
 }
 
 .gmaps-pill-icon svg,
 .gmaps-pill-svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   display: block;
 }
 
-.gmaps-item-svg,
-.item-icon-col svg,
-.dropdown-header-title svg {
-  width: 20px;
-  height: 20px;
-  display: block;
-  color: #1a73e8;
-  flex-shrink: 0;
-}
-
-/* Featured Simulate Flood Pill */
-.gmaps-pill-featured {
-  background: #1a73e8;
-  color: #ffffff !important;
-  border-color: #1a73e8;
+/* Plane Mode Pill Active State (Coral Accent) */
+.gmaps-pill-planes.active {
+  background: var(--cohere-coral) !important;
+  color: var(--cohere-white) !important;
+  border-color: var(--cohere-coral) !important;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
-}
-
-.gmaps-pill-featured:hover {
-  background: #1557b0;
-  border-color: #1557b0;
-  box-shadow: 0 3px 8px rgba(26, 115, 232, 0.5);
-  color: #ffffff !important;
 }
 
 /* ==========================================================================
-   3. Top Right NDMA Badge and Quick Actions
+   4. Top Right Quick Actions (Share & Controls)
    ========================================================================== */
 .gmaps-top-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-left: auto;
 }
 
 .gmaps-round-btn {
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-pill);
+  height: 38px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #5f6368;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.2);
+  color: var(--cohere-ink);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.15s ease;
 }
 
 .gmaps-round-btn:hover {
-  background: #f1f3f4;
-  color: #202124;
-  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.3);
+  background: var(--cohere-soft-stone);
+  border-color: var(--cohere-near-black);
+  color: var(--cohere-black);
 }
 
 /* ==========================================================================
-   4. Google Maps Dropdown Card for POIs / Search Results
+   5. Dropdown Cards & POI Lists (Clean Editorial Surface)
    ========================================================================== */
 .gmaps-dropdown-card {
   position: absolute;
-  top: 68px;
-  left: 12px;
-  width: 420px;
-  max-width: calc(100vw - 24px);
-  max-height: calc(100vh - 120px);
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(60, 64, 67, 0.25), 0 1px 3px rgba(60, 64, 67, 0.15);
-  border: 1px solid #dadce0;
+  top: 70px;
+  left: 16px;
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 110px);
+  background: var(--cohere-white);
+  border-radius: var(--radius-card);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--cohere-hairline);
   z-index: 1001;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: gmapsCardEnter 0.2s cubic-bezier(0, 0, 0.2, 1);
+  animation: gmapsCardEnter 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .gmaps-dropdown-card.hidden {
@@ -390,11 +385,11 @@
 @keyframes gmapsCardEnter {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-8px) scale(0.99);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -402,400 +397,349 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f3f4;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--cohere-border-light);
 }
 
 .dropdown-header-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: #202124;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cohere-ink);
+  letter-spacing: -0.02em;
 }
 
 .gmaps-close-btn {
   background: transparent;
   border: none;
-  font-size: 14px;
-  color: #70757a;
+  font-size: 16px;
+  color: var(--cohere-muted-slate);
   cursor: pointer;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
 }
 
 .gmaps-close-btn:hover {
-  background: #f1f3f4;
-  color: #202124;
+  background: var(--cohere-soft-stone);
+  color: var(--cohere-black);
 }
 
 .gmaps-dropdown-body {
   overflow-y: auto;
   max-height: calc(100vh - 180px);
-  padding: 6px 0;
+  padding: 8px 0;
 }
 
 .gmaps-dropdown-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 10px 16px;
+  gap: 14px;
+  padding: 12px 20px;
   cursor: pointer;
   transition: background-color 0.12s ease;
-  border-bottom: 1px solid #f8f9fa;
+  border-bottom: 1px solid var(--cohere-border-light);
+}
+
+.gmaps-dropdown-item:last-child {
+  border-bottom: none;
 }
 
 .gmaps-dropdown-item:hover {
-  background: #f8f9fa;
+  background: var(--cohere-soft-stone);
 }
 
-.item-icon-col {
-  font-size: 20px;
-  line-height: 1.2;
-  margin-top: 2px;
-}
-
-.item-info-col {
-  flex: 1;
-  min-width: 0;
-}
-
-.item-name-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.item-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px;
+.item-name {
+  font-family: var(--font-display);
+  font-size: 14.5px;
   font-weight: 600;
-  color: #1a73e8;
+  color: var(--cohere-ink);
+  letter-spacing: -0.01em;
 }
 
 .item-region {
-  font-size: 12px;
-  color: #5f6368;
-  margin-top: 1px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cohere-slate);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
 }
 
 .item-desc {
-  font-size: 12px;
-  color: #70757a;
-  margin-top: 3px;
-  line-height: 1.35;
-}
-
-.item-badge {
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.badge-danger {
-  background: #fce8e6;
-  color: #c5221f;
-}
-
-.badge-warning {
-  background: #fef7e0;
-  color: #b06000;
-}
-
-.badge-primary {
-  background: #e8f0fe;
-  color: #1967d2;
-}
-
-.badge-info {
-  background: #e6f4ea;
-  color: #137333;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--cohere-slate);
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
 /* ==========================================================================
-   5. Bottom-Left Floating Layers Widget
+   6. Disaster Forecast Engine Dialog (Cohere Sober Command Center)
    ========================================================================== */
-.gmaps-layers-widget {
-  position: absolute;
-  bottom: 24px;
-  left: 16px;
-  z-index: 999;
+.gmaps-dropdown-card.sim-dialog-mode {
+  width: 580px;
+  max-width: calc(100vw - 32px);
+  border-radius: var(--radius-card);
 }
 
-.gmaps-layers-card {
-  width: 60px;
-  height: 60px;
-  border-radius: 10px;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(60, 64, 67, 0.35);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  background: url('https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=2') center/cover no-repeat #2d3748;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.gmaps-layers-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(60, 64, 67, 0.45);
-}
-
-.layers-thumb-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 60%);
-}
-
-.gmaps-layers-label {
-  position: absolute;
-  bottom: 3px;
-  left: 0;
-  right: 0;
+.sim-dialog-header {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--cohere-border-light);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.sim-dialog-title-group h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cohere-black);
+  letter-spacing: -0.03em;
+  margin: 0 0 4px 0;
+}
+
+.sim-dialog-tagline {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cohere-muted-slate);
+  margin: 0;
+}
+
+.sim-dialog-content {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(88vh - 120px);
+  overflow-y: auto;
+}
+
+.sim-dialog-section-label {
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.layers-icon-svg {
-  width: 13px;
-  height: 13px;
-}
-
-/* Layers Popover Menu */
-.gmaps-layers-menu {
-  position: absolute;
-  bottom: 72px;
-  left: 0;
-  width: 280px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(60, 64, 67, 0.25);
-  border: 1px solid #dadce0;
-  padding: 12px;
-  animation: gmapsCardEnter 0.2s ease;
-}
-
-.gmaps-layers-menu.hidden {
-  display: none !important;
-}
-
-.layers-menu-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: #202124;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cohere-slate);
   margin-bottom: 8px;
 }
 
-.layers-types-row {
-  display: flex;
+/* Scenarios Grid */
+.sim-scenarios-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
-  margin-bottom: 12px;
 }
 
-.layer-type-opt {
-  flex: 1;
-  background: transparent;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  padding: 4px;
+.sim-scenario-card {
+  background: var(--cohere-soft-stone);
+  border: 1px solid var(--cohere-border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
   cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: #3c4043;
-  font-weight: 500;
+  justify-content: space-between;
 }
 
-.layer-type-opt.active {
-  border-color: #1a73e8;
-  color: #1a73e8;
+.sim-scenario-card:hover {
+  background: var(--cohere-white);
+  border-color: var(--cohere-near-black);
+  transform: translateY(-1px);
+}
+
+.sim-scenario-card.active {
+  background: var(--cohere-pale-green);
+  border-color: var(--cohere-green);
+  border-width: 2px;
+  padding: 11px 15px; /* offset border */
+}
+
+.sim-scenario-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sim-scenario-title {
+  font-family: var(--font-display);
+  font-size: 14.5px;
   font-weight: 600;
+  color: var(--cohere-ink);
+  letter-spacing: -0.01em;
 }
 
-.layer-type-preview {
-  width: 100%;
-  height: 48px;
-  border-radius: 6px;
-  background: #e0e0e0;
+.sim-scenario-desc {
+  font-size: 12px;
+  color: var(--cohere-slate);
+  margin-top: 2px;
 }
 
-.preview-sat {
-  background: linear-gradient(135deg, #1b3a4b 0%, #2e5339 100%);
+/* Magnitude Pills Row */
+.sim-mag-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.preview-terrain {
-  background: linear-gradient(135deg, #c2a649 0%, #856d28 100%);
+.sim-mag-btn {
+  flex: 1;
+  min-width: 90px;
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cohere-ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
 }
 
-.preview-street {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+.sim-mag-btn:hover {
+  background: var(--cohere-soft-stone);
+  border-color: var(--cohere-near-black);
 }
 
-.layers-divider {
-  height: 1px;
-  background: #dadce0;
-  margin: 10px 0;
+.sim-mag-btn.active {
+  background: var(--cohere-near-black);
+  color: var(--cohere-white);
+  border-color: var(--cohere-near-black);
 }
 
-.layers-toggles-list {
+/* Forecast Timeline Multi-Scale Tabs */
+.sim-forecast-scale-row {
+  display: flex;
+  background: var(--cohere-soft-stone);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 4px;
+  border: 1px solid var(--cohere-hairline);
+}
+
+.sim-forecast-scale-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--cohere-slate);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-forecast-scale-btn.active {
+  background: var(--cohere-white);
+  color: var(--cohere-black);
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Telemetry Box: Sober Dark Navy Console */
+.sim-dialog-telemetry {
+  background: var(--cohere-dark-navy);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  color: var(--cohere-white);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.sim-tel-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
-.layer-toggle-row {
+.sim-tel-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cohere-muted-slate);
+}
+
+.sim-tel-val {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cohere-white);
+}
+
+.sim-tel-val.accent-coral {
+  color: var(--cohere-coral);
+}
+
+/* Dialog Action Buttons */
+.sim-dialog-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12.5px;
-  color: #3c4043;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* Primary Near-Black CTA */
+.gmaps-dialog-start-btn {
+  flex: 1;
+  background: var(--cohere-near-black);
+  color: var(--cohere-white);
+  border: none;
+  border-radius: var(--radius-pill);
+  height: 46px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
-  user-select: none;
-}
-
-.layer-toggle-row input {
-  display: none;
-}
-
-.toggle-switch {
-  width: 32px;
-  height: 18px;
-  background: #dadce0;
-  border-radius: 10px;
-  position: relative;
-  transition: background-color 0.2s ease;
-}
-
-.toggle-switch::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  transition: transform 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.layer-toggle-row input:checked + .toggle-switch {
-  background: #1a73e8;
-}
-
-.layer-toggle-row input:checked + .toggle-switch::after {
-  transform: translateX(14px);
-}
-
-/* ==========================================================================
-   6. Bottom-Right Google Maps Navigation Capsule
-   ========================================================================== */
-.gmaps-nav-capsule {
-  position: absolute;
-  bottom: 24px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 999;
-}
-
-.gmaps-nav-btn {
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 8px;
-  width: 40px;
-  height: 40px;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+}
+
+.gmaps-dialog-start-btn:hover {
+  background: var(--cohere-green);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 60, 51, 0.25);
+}
+
+.gmaps-dialog-exit-btn {
+  background: transparent;
+  color: var(--cohere-slate);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-pill);
+  height: 46px;
+  padding: 0 20px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
-  color: #5f6368;
-  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.2);
   transition: all 0.15s ease;
-  padding: 0;
 }
 
-.gmaps-nav-btn:hover {
-  background: #f1f3f4;
-  color: #202124;
-  box-shadow: 0 3px 8px rgba(60, 64, 67, 0.3);
-}
-
-.gmaps-nav-group {
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.2);
-  overflow: hidden;
-}
-
-.gmaps-nav-group .gmaps-nav-btn {
-  border: none;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-.gmaps-nav-divider {
-  height: 1px;
-  background: #dadce0;
-  margin: 0 4px;
-}
-
-.gmaps-nav-tilt {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 700;
-  font-size: 13px;
-  color: #3c4043;
-}
-
-.gmaps-compass-needle {
-  width: 24px;
-  height: 24px;
-  position: relative;
-  transition: transform 0.1s linear;
-}
-
-.needle-north {
-  position: absolute;
-  top: 3px;
-  left: 9px;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-bottom: 9px solid #ea4335;
-}
-
-.needle-south {
-  position: absolute;
-  bottom: 3px;
-  left: 9px;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-top: 9px solid #bdc1c6;
+.gmaps-dialog-exit-btn:hover {
+  border-color: var(--cohere-coral);
+  color: var(--cohere-coral);
 }
 
 /* ==========================================================================
-   7. Bottom-Center Google Maps Status & Legend Strip
+   7. Bottom Status Strip (Minimalist Command Indicator)
    ========================================================================== */
 .gmaps-bottom-status {
   position: absolute;
@@ -808,653 +752,235 @@
 
 .gmaps-status-pill {
   pointer-events: auto;
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 20px;
-  height: 38px;
-  padding: 0 16px;
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-pill);
+  height: 40px;
+  padding: 0 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  box-shadow: 0 2px 8px rgba(60, 64, 67, 0.2);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  font-family: var(--font-body);
 }
 
 .status-indicator-dot {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #1a73e8;
-  box-shadow: 0 0 6px rgba(26, 115, 232, 0.6);
+  background: var(--cohere-coral);
+  box-shadow: 0 0 6px var(--cohere-coral);
   animation: statusPulse 2s infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
 }
 
 .status-title {
   font-size: 13px;
   font-weight: 500;
-  color: #3c4043;
+  color: var(--cohere-slate);
+  letter-spacing: -0.01em;
 }
-
-.status-legend-bar {
-  display: flex;
-  height: 6px;
-  width: 70px;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.legend-normal { flex: 1; background: #34a853; }
-.legend-alert { flex: 1; background: #fbbc04; }
-.legend-high { flex: 1; background: #ff7043; }
-.legend-critical { flex: 1; background: #ea4335; }
 
 .status-metric {
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
   font-weight: 700;
-  color: #1a73e8;
+  color: var(--cohere-ink);
 }
 
 .gmaps-status-action-btn {
-  background: #e8f0fe;
+  background: var(--cohere-near-black);
   border: none;
-  border-radius: 12px;
-  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
-  color: #1a73e8;
+  color: var(--cohere-white);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .gmaps-status-action-btn:hover {
-  background: #1a73e8;
-  color: #ffffff;
+  background: var(--cohere-green);
 }
 
 /* ==========================================================================
-   8. Flood Simulation Dock — Google Maps Light Card Restyle
+   8. Navigation Capsule (Bottom Right)
+   ========================================================================== */
+.gmaps-nav-capsule {
+  position: absolute;
+  bottom: 24px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 999;
+}
+
+.gmaps-nav-btn {
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--cohere-ink);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+}
+
+.gmaps-nav-btn:hover {
+  background: var(--cohere-soft-stone);
+  border-color: var(--cohere-near-black);
+  transform: translateY(-1px);
+}
+
+.gmaps-nav-group {
+  display: flex;
+  flex-direction: column;
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.gmaps-nav-group .gmaps-nav-btn {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.gmaps-nav-divider {
+  height: 1px;
+  background: var(--cohere-border-light);
+  width: 24px;
+  margin: 0 auto;
+}
+
+.gmaps-tilt-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   9. Simulation Dock — Deep Enterprise Command Palette (#flood-sim-dock)
    ========================================================================== */
 #flood-sim-dock {
-  background: #ffffff !important;
-  color: #202124 !important;
-  border: 1px solid #dadce0 !important;
-  border-radius: 16px !important;
-  box-shadow: 0 4px 24px rgba(60, 64, 67, 0.28), 0 1px 3px rgba(60, 64, 67, 0.15) !important;
-  backdrop-filter: blur(12px) !important;
-}
-
-#flood-sim-dock .sim-glow {
-  display: none !important;
-}
-
-#flood-sim-dock .sim-header {
-  border-bottom: 1px solid #f1f3f4 !important;
-  padding-bottom: 8px;
+  background: var(--cohere-near-black) !important;
+  color: var(--cohere-white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(16px) !important;
+  padding: 16px 20px !important;
 }
 
 #flood-sim-dock .sim-title {
-  color: #202124 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  color: var(--cohere-white) !important;
+  font-family: var(--font-display) !important;
   font-weight: 700 !important;
-  font-size: 13.5px !important;
+  font-size: 15px !important;
+  letter-spacing: -0.02em;
 }
 
 #flood-sim-dock .sim-dot {
-  background: #1a73e8 !important;
-  box-shadow: 0 0 8px rgba(26, 115, 232, 0.6) !important;
+  background: var(--cohere-coral) !important;
+  box-shadow: 0 0 10px var(--cohere-coral) !important;
 }
 
-/* Scale tabs styled as Google pills */
 #flood-sim-dock .sim-scale-tab {
-  background: #f1f3f4 !important;
-  border: 1px solid #dadce0 !important;
-  border-radius: 16px !important;
-  color: #3c4043 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-size: 11.5px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--radius-pill) !important;
+  color: var(--cohere-muted-slate) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
   font-weight: 600 !important;
-  padding: 4px 12px !important;
+  padding: 5px 12px !important;
   transition: all 0.15s ease !important;
 }
 
 #flood-sim-dock .sim-scale-tab:hover {
-  background: #e8eaed !important;
-  color: #202124 !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: var(--cohere-white) !important;
 }
 
 #flood-sim-dock .sim-scale-tab.active {
-  background: #e8f0fe !important;
-  border-color: #1a73e8 !important;
-  color: #1a73e8 !important;
+  background: var(--cohere-white) !important;
+  color: var(--cohere-black) !important;
+  border-color: var(--cohere-white) !important;
+  font-weight: 700 !important;
 }
 
 #flood-sim-dock .sim-btn-danger {
-  background: #fce8e6 !important;
-  border: 1px solid #fad2cf !important;
-  color: #c5221f !important;
-  border-radius: 16px !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--cohere-coral) !important;
+  border-radius: var(--radius-pill) !important;
   font-weight: 600 !important;
+  transition: all 0.15s ease !important;
 }
 
 #flood-sim-dock .sim-btn-danger:hover {
-  background: #c5221f !important;
-  color: #ffffff !important;
+  background: var(--cohere-coral) !important;
+  color: var(--cohere-white) !important;
 }
 
-/* Scenarios & Magnitude Control Rows */
-.sim-scenario-mag-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.sim-selector-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.sim-selector-label {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  color: #5f6368;
-  letter-spacing: 0.5px;
-  min-width: 140px;
-}
-
-.sim-pills-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.sim-chip-pill {
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 14px;
-  padding: 4px 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #3c4043;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.12);
-  transition: all 0.12s ease;
-}
-
-.sim-chip-pill:hover {
-  background: #f1f3f4;
-  color: #202124;
-}
-
-.sim-chip-pill.active {
-  background: #e8f0fe;
-  border-color: #1a73e8;
-  color: #1a73e8;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.25);
-}
-
-.sim-pill-svg {
-  width: 14px;
-  height: 14px;
-  display: block;
-}
-
-/* Telemetry items */
 #flood-sim-dock .sim-tel-item {
-  background: #f8f9fa !important;
-  border: 1px solid #e8eaed !important;
-  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-sm) !important;
 }
 
 #flood-sim-dock .sim-tel-label {
-  color: #5f6368 !important;
+  color: var(--cohere-muted-slate) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
   font-weight: 600 !important;
 }
 
 #flood-sim-dock .sim-tel-val {
-  color: #202124 !important;
-}
-
-#flood-sim-dock .text-alert {
-  color: #d93025 !important;
-}
-
-#flood-sim-dock .text-warning {
-  color: #b06000 !important;
-}
-
-/* Stepper and Play buttons */
-#flood-sim-dock .sim-btn-step {
-  background: #ffffff !important;
-  border: 1px solid #dadce0 !important;
-  border-radius: 20px !important;
-  color: #3c4043 !important;
-  font-weight: 600 !important;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15) !important;
-}
-
-#flood-sim-dock .sim-btn-step:hover {
-  background: #f1f3f4 !important;
-  color: #202124 !important;
+  color: var(--cohere-white) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13.5px !important;
 }
 
 #flood-sim-dock .sim-btn-primary {
-  background: #1a73e8 !important;
+  background: var(--cohere-white) !important;
+  color: var(--cohere-black) !important;
   border: none !important;
-  border-radius: 20px !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.35) !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  padding: 8px 18px !important;
 }
 
 #flood-sim-dock .sim-btn-primary:hover {
-  background: #1557b0 !important;
-}
-
-#flood-sim-dock .sim-btn-toggle {
-  background: #ffffff !important;
-  border: 1px solid #dadce0 !important;
-  border-radius: 20px !important;
-  color: #3c4043 !important;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15) !important;
-}
-
-#flood-sim-dock .sim-btn-toggle.active {
-  background: #e8f0fe !important;
-  border-color: #1a73e8 !important;
-  color: #1a73e8 !important;
-}
-
-/* Scrubber Timeline */
-#flood-sim-dock .sim-time-labels {
-  color: #5f6368 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-weight: 600 !important;
-}
-
-#flood-sim-dock .sim-scrubber {
-  accent-color: #1a73e8 !important;
-}
-
-/* Toast styling */
-#toast {
-  background: #323232 !important;
-  color: #ffffff !important;
-  border-radius: 8px !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-size: 14px !important;
-  border: none !important;
+  background: var(--cohere-soft-stone) !important;
 }
 
 /* ==========================================================================
-   Disaster Forecast Engine Dialog & Toggles
-   ========================================================================== */
-.gmaps-dropdown-card.sim-dialog-mode {
-  width: 530px;
-  max-width: calc(100vw - 24px);
-  max-height: calc(100vh - 90px);
-  overflow-y: auto;
-}
-
-.sim-forecast-header {
-  padding: 14px 18px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e8eaed;
-  background: #ffffff;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.sim-forecast-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sim-forecast-dot {
-  width: 10px;
-  height: 10px;
-  background-color: #1a73e8;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(26, 115, 232, 0.6);
-  animation: pulseSimDot 1.6s infinite ease-in-out;
-}
-
-.sim-forecast-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #202124;
-  text-transform: uppercase;
-}
-
-.sim-forecast-scales {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: #f1f3f4;
-  padding: 3px;
-  border-radius: 8px;
-}
-
-.sim-forecast-scale-btn {
-  background: transparent;
-  border: none;
-  font-size: 11px;
-  font-weight: 700;
-  color: #5f6368;
-  padding: 4px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.sim-forecast-scale-btn:hover {
-  color: #202124;
-}
-
-.sim-forecast-scale-btn.active {
-  background: #ffffff;
-  color: #1a73e8;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.sim-forecast-body {
-  padding: 14px 18px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.sim-section-header {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #5f6368;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.sim-scenarios-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sim-scenario-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 12px;
-  background: #f8f9fa;
-  border: 1.5px solid #e8eaed;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.sim-scenario-card:hover {
-  background: #f1f3f4;
-  border-color: #dadce0;
-}
-
-.sim-scenario-card.active {
-  background: #e8f0fe;
-  border-color: #1a73e8;
-  box-shadow: 0 1px 4px rgba(26, 115, 232, 0.2);
-}
-
-.sim-scenario-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sim-scenario-icon {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #1a73e8;
-}
-
-.sim-scenario-title {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #202124;
-}
-
-.sim-scenario-card.active .sim-scenario-title {
-  color: #1a73e8;
-}
-
-.sim-scenario-badge {
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-.sim-mag-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.sim-mag-btn {
-  background: #ffffff;
-  border: 1.5px solid #dadce0;
-  border-radius: 8px;
-  padding: 8px 4px;
-  text-align: center;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  transition: all 0.15s ease;
-}
-
-.sim-mag-btn:hover {
-  background: #f8f9fa;
-  border-color: #bdc1c6;
-}
-
-.sim-mag-btn.active {
-  background: #fef7e0;
-  border-color: #fbbc04;
-}
-
-.sim-mag-btn.active[data-mag="high"] {
-  background: #fbe9e7;
-  border-color: #ff7043;
-}
-
-.sim-mag-btn.active[data-mag="very_high"] {
-  background: #fce8e6;
-  border-color: #ea4335;
-}
-
-.sim-mag-btn.active[data-mag="super_flood"] {
-  background: #f3e5f5;
-  border-color: #9c27b0;
-}
-
-.sim-mag-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #3c4043;
-}
-
-.sim-mag-mult {
-  font-size: 10px;
-  color: #70757a;
-}
-
-.sim-telemetry-box {
-  background: #f8f9fa;
-  border: 1px solid #e8eaed;
-  border-radius: 8px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sim-telemetry-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.sim-tel-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sim-tel-cell-full {
-  grid-column: span 2;
-}
-
-.sim-tel-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #70757a;
-  text-transform: uppercase;
-}
-
-.sim-tel-val {
-  font-size: 13px;
-  font-weight: 600;
-  color: #202124;
-}
-
-.sim-toggles-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #f8f9fa;
-  border: 1px solid #e8eaed;
-  border-radius: 8px;
-  padding: 10px 14px;
-}
-
-.sim-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-}
-
-.sim-toggle-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.sim-toggle-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #202124;
-}
-
-.sim-toggle-sub {
-  font-size: 10.5px;
-  color: #70757a;
-}
-
-.sim-dialog-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.gmaps-dialog-start-btn {
-  flex: 1;
-  background: #1a73e8;
-  color: #ffffff;
-  border: none;
-  border-radius: 22px;
-  height: 42px;
-  font-size: 13.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.gmaps-dialog-start-btn:hover {
-  background: #1557b0;
-  box-shadow: 0 4px 10px rgba(26, 115, 232, 0.5);
-}
-
-.gmaps-dialog-exit-btn {
-  background: #ffffff;
-  color: #d93025;
-  border: 1.5px solid #fad2cf;
-  border-radius: 22px;
-  height: 42px;
-  padding: 0 16px;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.gmaps-dialog-exit-btn:hover {
-  background: #fce8e6;
-  border-color: #d93025;
-}
-
-/* ==========================================================================
-   Country Threat Polygons Hover Tooltip & Demographics Card
+   10. Country Threat Polygons Hover Tooltip
    ========================================================================== */
 .threat-polygon-tooltip {
   position: fixed;
   z-index: 2500;
-  width: 350px;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #dadce0;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.12);
-  padding: 13px 15px;
+  width: 360px;
+  background: var(--cohere-white);
+  border: 1px solid var(--cohere-hairline);
+  border-radius: var(--radius-card);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  padding: 16px 18px;
   pointer-events: none;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #202124;
+  font-family: var(--font-body);
+  color: var(--cohere-ink);
   animation: threatTooltipEnter 0.15s cubic-bezier(0, 0, 0.2, 1);
   transition: top 0.05s ease, left 0.05s ease;
 }
@@ -1463,268 +989,31 @@
   display: none !important;
 }
 
-@keyframes threatTooltipEnter {
-  from {
-    opacity: 0;
-    transform: scale(0.97) translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.threat-tooltip-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.threat-tooltip-title-col {
-  flex: 1;
-}
-
 .threat-tooltip-reg-name {
-  font-size: 14px;
+  font-family: var(--font-display);
+  font-size: 16px;
   font-weight: 700;
-  color: #1a73e8;
-  line-height: 1.25;
+  color: var(--cohere-black);
+  letter-spacing: -0.02em;
 }
 
 .threat-tooltip-province {
+  font-family: var(--font-mono);
   font-size: 11px;
-  color: #5f6368;
-  margin-top: 1px;
-}
-
-.threat-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 7px;
-  border-radius: 4px;
-  text-transform: uppercase;
+  color: var(--cohere-slate);
   letter-spacing: 0.04em;
-  white-space: nowrap;
-  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.threat-critical {
-  background: #fce8e6;
-  color: #d93025;
-  border: 1px solid #fad2cf;
+/* Toast styling */
+#toast {
+  background: var(--cohere-near-black) !important;
+  color: var(--cohere-white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-pill) !important;
+  padding: 10px 20px !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
 }
-
-.threat-high {
-  background: #fef0e6;
-  color: #e65100;
-  border: 1px solid #ffccbc;
-}
-
-.threat-moderate {
-  background: #fef7e0;
-  color: #b06000;
-  border: 1px solid #ffe082;
-}
-
-.threat-low {
-  background: #e1f5fe;
-  color: #0277bd;
-  border: 1px solid #b3e5fc;
-}
-
-.threat-secure {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #c8e6c9;
-}
-
-.threat-tooltip-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #3c4043;
-  margin-bottom: 8px;
-  background: #f1f3f4;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
-.threat-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.threat-tooltip-pop-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f8f9fa;
-  border: 1px solid #e8eaed;
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin-bottom: 8px;
-}
-
-.threat-pop-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #70757a;
-}
-
-.threat-pop-val {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #202124;
-}
-
-.threat-demographics-section {
-  margin-bottom: 8px;
-}
-
-.threat-demo-header {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #5f6368;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.threat-bar-container {
-  height: 6px;
-  border-radius: 3px;
-  display: flex;
-  overflow: hidden;
-  margin-bottom: 6px;
-  background: #e8eaed;
-}
-
-.threat-bar-segment {
-  height: 100%;
-}
-
-.segment-children {
-  background: #ff7043;
-}
-
-.segment-adults {
-  background: #1a73e8;
-}
-
-.segment-elderly {
-  background: #9c27b0;
-}
-
-.threat-demo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-}
-
-.threat-demo-cell {
-  background: #f8f9fa;
-  border: 1px solid #e8eaed;
-  border-radius: 6px;
-  padding: 5px 3px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 1px;
-}
-
-.demo-chip {
-  font-size: 9.5px;
-  font-weight: 700;
-}
-
-.chip-children {
-  color: #e64a19;
-}
-
-.chip-adults {
-  color: #1557b0;
-}
-
-.chip-elderly {
-  color: #6a1b9a;
-}
-
-.demo-cell-pct {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #202124;
-}
-
-.demo-cell-count {
-  font-size: 9.5px;
-  color: #5f6368;
-}
-
-.threat-special-note {
-  font-size: 10.5px;
-  color: #b06000;
-  background: #fff8e1;
-  border: 1px solid #ffe082;
-  border-radius: 4px;
-  padding: 3px 6px;
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.threat-mini-icon {
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-}
-
-.threat-resources-section {
-  border-top: 1px solid #e8eaed;
-  padding-top: 7px;
-}
-
-.threat-res-header {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #5f6368;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-
-.threat-res-list {
-  display: flex;
-  flex-direction: column;
-  gap: 3.5px;
-}
-
-.threat-res-item {
-  font-size: 11px;
-  color: #3c4043;
-  display: flex;
-  align-items: flex-start;
-  gap: 5px;
-  line-height: 1.25;
-}
-
-.res-icon {
-  font-size: 11px;
-  flex-shrink: 0;
-  line-height: 1.2;
-}
-
-.res-text strong {
-  color: #202124;
-  font-weight: 600;
-}
-
-
