@@ -308,9 +308,44 @@ export class GoogleMapsUI {
 
   _init() {
     this._injectStyles();
+    this._purgeAirplaneMode();
     this._renderDOM();
     this._bindEvents();
     this._syncCompass();
+  }
+
+  _purgeAirplaneMode() {
+    try {
+      if (this.viewer) {
+        this.viewer.trackedEntity = undefined;
+      }
+      this.flightsLayer?.disable?.(this.viewer);
+      this.catalog?.get?.('military')?.disable?.(this.viewer);
+
+      const dataManager = this.styleManager?.dataManager;
+      if (dataManager) {
+        dataManager.setEnabled?.('flights', false, { origin: 'user' })?.catch?.(() => {});
+        dataManager.setEnabled?.('military', false, { origin: 'user' })?.catch?.(() => {});
+      }
+
+      const stored = localStorage.getItem('gev:layer-state:v2');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed.enabledLayerIds)) {
+          parsed.enabledLayerIds = parsed.enabledLayerIds.filter(
+            (id) => id !== 'flights' && id !== 'military',
+          );
+        }
+        if (parsed.options?.flights) {
+          parsed.options.flights.selectedFlightsTrackingId = null;
+          parsed.options.flights.selectedMilitaryTrackingId = null;
+        }
+        localStorage.setItem('gev:layer-state:v2', JSON.stringify(parsed));
+      }
+      document.body.classList.remove('plane-mode-active');
+    } catch (e) {
+      console.warn('[GoogleMapsUI] purge airplane mode:', e);
+    }
   }
 
   _injectStyles() {
@@ -318,6 +353,17 @@ export class GoogleMapsUI {
   }
 
   _renderDOM() {
+    // 0. Emergency Exit Airplane Mode Floating Pill (always visible whenever plane is tracked)
+    const emergencyBtn = document.createElement('button');
+    emergencyBtn.id = 'gmaps-emergency-plane-exit';
+    emergencyBtn.className = 'gmaps-emergency-plane-exit hidden';
+    emergencyBtn.type = 'button';
+    emergencyBtn.title = 'Click or press Escape to cancel airplane tracking and exit';
+    emergencyBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      <span>EXIT AIRPLANE MODE ✕</span>
+    `;
+    document.body.appendChild(emergencyBtn);
     // 1. Top Bar Container
     const topBar = document.createElement('div');
     topBar.id = 'gmaps-top-container';
@@ -776,7 +822,36 @@ export class GoogleMapsUI {
     });
     document.getElementById('gmaps-plane-banner-exit')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.setFlightsLayerEnabled(false);
+      this.exitAirplaneMode();
+    });
+
+    document.getElementById('gmaps-emergency-plane-exit')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.exitAirplaneMode();
+    });
+
+    // Listen for trackedEntity changes (e.g. if an airplane was clicked)
+    if (this.viewer) {
+      this.viewer.trackedEntityChanged.addEventListener(() => {
+        const hasTracked = Boolean(this.viewer.trackedEntity);
+        const emergencyBtn = document.getElementById('gmaps-emergency-plane-exit');
+        if (emergencyBtn) {
+          emergencyBtn.classList.toggle('hidden', !hasTracked);
+        }
+      });
+      // Initial check in case viewer woke up with tracked entity
+      if (this.viewer.trackedEntity) {
+        document.getElementById('gmaps-emergency-plane-exit')?.classList.remove('hidden');
+      }
+    }
+
+    // Press Escape to immediately exit Airplane Mode and unlock camera
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (this.viewer?.trackedEntity || document.body.classList.contains('plane-mode-active')) {
+          this.exitAirplaneMode();
+        }
+      }
     });
 
     // Close dropdown on outside click
@@ -1310,6 +1385,12 @@ export class GoogleMapsUI {
           .setEnabled('military', false, { origin: 'user' })
           .catch(() => {});
       }
+      if (this.viewer) {
+        this.viewer.trackedEntity = undefined;
+      }
+      const emergencyBtn = document.getElementById('gmaps-emergency-plane-exit');
+      if (emergencyBtn) emergencyBtn.classList.add('hidden');
+
       this.flightsLayer?.disable?.(this.viewer);
       this.catalog?.get?.('military')?.disable?.(this.viewer);
       document.body.classList.remove('plane-mode-active');
@@ -1332,8 +1413,12 @@ export class GoogleMapsUI {
         }
       } catch {}
 
-      this._showToast('Plane mode EXITED — air traffic hidden');
+      this._showToast('Plane mode EXITED — air traffic hidden & camera freed');
     }
+  }
+
+  exitAirplaneMode() {
+    this.setFlightsLayerEnabled(false);
   }
 
   _showToast(msg) {

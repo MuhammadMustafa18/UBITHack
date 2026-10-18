@@ -3,7 +3,7 @@
  * Replaces sci-fi HUD with clean, modern, high-contrast Google Maps UI.
  */
 
-/* Hide legacy sci-fi dark HUD chrome and reconnaissance overlays by default */
+/* Hide legacy sci-fi dark HUD chrome, left panels, and reconnaissance overlays by default */
 #title-bar,
 #top-center-actions,
 #command-dock,
@@ -21,15 +21,53 @@
 #traffic-sync-chip,
 #cctv-sync-chip,
 .flight-contact-window,
-#world-overlay-root {
+#world-overlay-root,
+#left-panel-stack,
+#key-setup-chip,
+#display-controls,
+#tracked-readout,
+#detection-overlay,
+#detection-canvas {
   display: none !important;
 }
 
-/* When Plane Mode is explicitly enabled by the user, allow clean air traffic display */
-body.plane-mode-active #intel-hud,
-body.plane-mode-active #right-context-rail {
-  /* Keep background clean and unobtrusive even if plane mode is on */
-  display: block !important;
+/* Red Prominent Floating Exit Airplane Mode Button */
+.gmaps-emergency-plane-exit {
+  position: fixed;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d93025 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff;
+  border-radius: 24px;
+  padding: 8px 22px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(217, 48, 37, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  animation: pulsePlaneExit 1.5s infinite alternate;
+}
+
+@keyframes pulsePlaneExit {
+  0% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1.05); }
+}
+
+.gmaps-emergency-plane-exit:hover {
+  background: #b31412 !important;
+  transform: translateX(-50%) scale(1.08);
+}
+
+.gmaps-emergency-plane-exit.hidden {
+  display: none !important;
 }
 
 /* Specific styling for Plane Mode pill */
