@@ -608,33 +608,43 @@ export class FloodSimulationEngine {
   }
 
   _getActiveCorridorCartesians() {
-    const activeCoords = [];
+    const waypoints = this.waypoints || [];
+    if (!waypoints.length) return [];
     const tel = this.getCurrentTelemetry();
-    const waypoints = this.waypoints;
+    if (!tel) return [];
+
+    const distinct = [];
+    const pushIfDistinct = (p) => {
+      if (!p) return;
+      if (distinct.length === 0) {
+        distinct.push(p);
+        return;
+      }
+      const prev = distinct[distinct.length - 1];
+      if (Cesium.Cartesian3.distance(prev, p) > 10.0) {
+        distinct.push(p);
+      }
+    };
 
     for (const wp of waypoints) {
       if (this.simHours >= wp.timeHours) {
-        activeCoords.push(Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat));
+        pushIfDistinct(Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat));
       }
     }
 
-    activeCoords.push(
-      Cesium.Cartesian3.fromDegrees(tel.crestLon, tel.crestLat),
-    );
+    pushIfDistinct(Cesium.Cartesian3.fromDegrees(tel.crestLon, tel.crestLat));
 
-    if (activeCoords.length < 2) {
-      const p1 = Cesium.Cartesian3.fromDegrees(
-        waypoints[0].lon,
-        waypoints[0].lat,
-      );
+    if (distinct.length < 2) {
+      const p1 = distinct[0] || Cesium.Cartesian3.fromDegrees(waypoints[0].lon, waypoints[0].lat);
+      const nextWp = waypoints[1] || { lon: waypoints[0].lon + 0.05, lat: waypoints[0].lat + 0.05 };
       const p2 = Cesium.Cartesian3.fromDegrees(
-        waypoints[1] ? waypoints[1].lon : waypoints[0].lon + 0.05,
-        waypoints[1] ? waypoints[1].lat : waypoints[0].lat + 0.05,
+        waypoints[0].lon + (nextWp.lon - waypoints[0].lon) * 0.05,
+        waypoints[0].lat + (nextWp.lat - waypoints[0].lat) * 0.05,
       );
       return [p1, p2];
     }
 
-    return activeCoords;
+    return distinct;
   }
 
   _getActiveCorridorWidth() {
