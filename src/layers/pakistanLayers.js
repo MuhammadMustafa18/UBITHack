@@ -9,39 +9,228 @@ import * as Cesium from 'cesium';
 // Key national landmarks & infrastructure across Pakistan
 export const MAP_LANDMARKS = [
   // Glaciers
-  { id: 'shisper', name: 'Shisper Glacier (GLOF Hazard)', lat: 36.452, lon: 74.886, type: 'glacier', color: '#00e5ff' },
-  { id: 'passu', name: 'Passu Glacier', lat: 36.478, lon: 74.898, type: 'glacier', color: '#00e5ff' },
-  { id: 'baltoro', name: 'Baltoro Glacier (K2)', lat: 35.735, lon: 76.388, type: 'glacier', color: '#00e5ff' },
-  { id: 'siachen', name: 'Siachen Glacier', lat: 35.421, lon: 77.108, type: 'glacier', color: '#00e5ff' },
+  {
+    id: 'shisper',
+    name: 'Shisper Glacier (GLOF Hazard)',
+    lat: 36.452,
+    lon: 74.886,
+    type: 'glacier',
+    color: '#00e5ff',
+  },
+  {
+    id: 'passu',
+    name: 'Passu Glacier',
+    lat: 36.478,
+    lon: 74.898,
+    type: 'glacier',
+    color: '#00e5ff',
+  },
+  {
+    id: 'baltoro',
+    name: 'Baltoro Glacier (K2)',
+    lat: 35.735,
+    lon: 76.388,
+    type: 'glacier',
+    color: '#00e5ff',
+  },
+  {
+    id: 'siachen',
+    name: 'Siachen Glacier',
+    lat: 35.421,
+    lon: 77.108,
+    type: 'glacier',
+    color: '#00e5ff',
+  },
 
   // Dams & Barrages
-  { id: 'tarbela', name: 'Tarbela Dam (Hydel & Flood Choke)', lat: 34.144, lon: 72.701, type: 'dam', color: '#1a73e8' },
-  { id: 'mangla', name: 'Mangla Dam (Jhelum River)', lat: 33.146, lon: 73.645, type: 'dam', color: '#1a73e8' },
-  { id: 'warsak', name: 'Warsak Dam (Kabul River)', lat: 34.167, lon: 71.350, type: 'dam', color: '#1a73e8' },
-  { id: 'marala', name: 'Head Marala (Chenab Border Entry)', lat: 32.671, lon: 74.468, type: 'barrage', color: '#1a73e8' },
-  { id: 'chashma', name: 'Chashma Barrage', lat: 32.434, lon: 71.379, type: 'barrage', color: '#1a73e8' },
-  { id: 'taunsa', name: 'Taunsa Barrage (DG Khan / Punjab)', lat: 30.704, lon: 70.848, type: 'barrage', color: '#1a73e8' },
-  { id: 'guddu', name: 'Guddu Barrage (Upper Sindh Entry)', lat: 28.424, lon: 69.703, type: 'barrage', color: '#1a73e8' },
-  { id: 'sukkur', name: 'Sukkur Barrage (Indus Central)', lat: 27.705, lon: 68.857, type: 'barrage', color: '#1a73e8' },
-  { id: 'kotri', name: 'Kotri Barrage (Delta Discharge)', lat: 25.439, lon: 68.314, type: 'barrage', color: '#1a73e8' },
+  {
+    id: 'tarbela',
+    name: 'Tarbela Dam (Hydel & Flood Choke)',
+    lat: 34.144,
+    lon: 72.701,
+    type: 'dam',
+    color: '#1a73e8',
+  },
+  {
+    id: 'mangla',
+    name: 'Mangla Dam (Jhelum River)',
+    lat: 33.146,
+    lon: 73.645,
+    type: 'dam',
+    color: '#1a73e8',
+  },
+  {
+    id: 'warsak',
+    name: 'Warsak Dam (Kabul River)',
+    lat: 34.167,
+    lon: 71.35,
+    type: 'dam',
+    color: '#1a73e8',
+  },
+  {
+    id: 'marala',
+    name: 'Head Marala (Chenab Border Entry)',
+    lat: 32.671,
+    lon: 74.468,
+    type: 'barrage',
+    color: '#1a73e8',
+  },
+  {
+    id: 'chashma',
+    name: 'Chashma Barrage',
+    lat: 32.434,
+    lon: 71.379,
+    type: 'barrage',
+    color: '#1a73e8',
+  },
+  {
+    id: 'taunsa',
+    name: 'Taunsa Barrage (DG Khan / Punjab)',
+    lat: 30.704,
+    lon: 70.848,
+    type: 'barrage',
+    color: '#1a73e8',
+  },
+  {
+    id: 'guddu',
+    name: 'Guddu Barrage (Upper Sindh Entry)',
+    lat: 28.424,
+    lon: 69.703,
+    type: 'barrage',
+    color: '#1a73e8',
+  },
+  {
+    id: 'sukkur',
+    name: 'Sukkur Barrage (Indus Central)',
+    lat: 27.705,
+    lon: 68.857,
+    type: 'barrage',
+    color: '#1a73e8',
+  },
+  {
+    id: 'kotri',
+    name: 'Kotri Barrage (Delta Discharge)',
+    lat: 25.439,
+    lon: 68.314,
+    type: 'barrage',
+    color: '#1a73e8',
+  },
 
   // Major Cities & Flood Hotspots
-  { id: 'isb', name: 'Islamabad / Rawalpindi', lat: 33.684, lon: 73.047, type: 'city', color: '#ffffff' },
-  { id: 'peshawar', name: 'Peshawar Valley', lat: 34.015, lon: 71.524, type: 'city', color: '#ffffff' },
-  { id: 'nowshera', name: 'Nowshera Flood Funnel', lat: 34.015, lon: 71.985, type: 'hotspot', color: '#ea4335' },
-  { id: 'lahore', name: 'Lahore (Ravi Basin)', lat: 31.520, lon: 74.358, type: 'city', color: '#ffffff' },
-  { id: 'multan', name: 'Multan (Chenab Corridor)', lat: 30.157, lon: 71.524, type: 'city', color: '#ffffff' },
-  { id: 'dgkhan', name: 'DG Khan (Koh-e-Suleman)', lat: 30.056, lon: 70.634, type: 'hotspot', color: '#ea4335' },
-  { id: 'rajanpur', name: 'Rajanpur Hill Torrent Belt', lat: 29.104, lon: 70.325, type: 'hotspot', color: '#ea4335' },
-  { id: 'larkana', name: 'Larkana / Mohenjo-daro', lat: 27.559, lon: 68.212, type: 'hotspot', color: '#ea4335' },
-  { id: 'dadu', name: 'Dadu & Lake Manchar Basin', lat: 26.734, lon: 67.779, type: 'hotspot', color: '#ea4335' },
-  { id: 'hyderabad', name: 'Hyderabad & Gidu Bund', lat: 25.396, lon: 68.357, type: 'city', color: '#ffffff' },
-  { id: 'karachi', name: 'Karachi & Indus Delta', lat: 24.860, lon: 67.001, type: 'city', color: '#ffffff' },
+  {
+    id: 'isb',
+    name: 'Islamabad / Rawalpindi',
+    lat: 33.684,
+    lon: 73.047,
+    type: 'city',
+    color: '#ffffff',
+  },
+  {
+    id: 'peshawar',
+    name: 'Peshawar Valley',
+    lat: 34.015,
+    lon: 71.524,
+    type: 'city',
+    color: '#ffffff',
+  },
+  {
+    id: 'nowshera',
+    name: 'Nowshera Flood Funnel',
+    lat: 34.015,
+    lon: 71.985,
+    type: 'hotspot',
+    color: '#ea4335',
+  },
+  {
+    id: 'lahore',
+    name: 'Lahore (Ravi Basin)',
+    lat: 31.52,
+    lon: 74.358,
+    type: 'city',
+    color: '#ffffff',
+  },
+  {
+    id: 'multan',
+    name: 'Multan (Chenab Corridor)',
+    lat: 30.157,
+    lon: 71.524,
+    type: 'city',
+    color: '#ffffff',
+  },
+  {
+    id: 'dgkhan',
+    name: 'DG Khan (Koh-e-Suleman)',
+    lat: 30.056,
+    lon: 70.634,
+    type: 'hotspot',
+    color: '#ea4335',
+  },
+  {
+    id: 'rajanpur',
+    name: 'Rajanpur Hill Torrent Belt',
+    lat: 29.104,
+    lon: 70.325,
+    type: 'hotspot',
+    color: '#ea4335',
+  },
+  {
+    id: 'larkana',
+    name: 'Larkana / Mohenjo-daro',
+    lat: 27.559,
+    lon: 68.212,
+    type: 'hotspot',
+    color: '#ea4335',
+  },
+  {
+    id: 'dadu',
+    name: 'Dadu & Lake Manchar Basin',
+    lat: 26.734,
+    lon: 67.779,
+    type: 'hotspot',
+    color: '#ea4335',
+  },
+  {
+    id: 'hyderabad',
+    name: 'Hyderabad & Gidu Bund',
+    lat: 25.396,
+    lon: 68.357,
+    type: 'city',
+    color: '#ffffff',
+  },
+  {
+    id: 'karachi',
+    name: 'Karachi & Indus Delta',
+    lat: 24.86,
+    lon: 67.001,
+    type: 'city',
+    color: '#ffffff',
+  },
 
   // Rivers
-  { id: 'indus_river', name: 'River Indus (Sindhu)', lat: 31.5, lon: 71.0, type: 'river', color: '#4fc3f7' },
-  { id: 'chenab_river', name: 'River Chenab', lat: 31.8, lon: 72.8, type: 'river', color: '#4fc3f7' },
-  { id: 'kabul_river', name: 'River Kabul', lat: 34.12, lon: 71.85, type: 'river', color: '#4fc3f7' },
+  {
+    id: 'indus_river',
+    name: 'River Indus (Sindhu)',
+    lat: 31.5,
+    lon: 71.0,
+    type: 'river',
+    color: '#4fc3f7',
+  },
+  {
+    id: 'chenab_river',
+    name: 'River Chenab',
+    lat: 31.8,
+    lon: 72.8,
+    type: 'river',
+    color: '#4fc3f7',
+  },
+  {
+    id: 'kabul_river',
+    name: 'River Kabul',
+    lat: 34.12,
+    lon: 71.85,
+    type: 'river',
+    color: '#4fc3f7',
+  },
 ];
 
 // Population exposure density polygons along the vulnerable Indus Basin
@@ -154,7 +343,7 @@ export const RELIEF_RESOURCES = [
     id: 'hyderabad_pdma',
     name: 'PDMA Central Stockpile (Hyderabad)',
     type: 'depot',
-    lat: 25.40,
+    lat: 25.4,
     lon: 68.36,
     radiusM: 28000,
     assets: '55,000 Emergency Tents, Mobile Water Filtration Rigs',
@@ -216,10 +405,10 @@ export class PakistanLayersManager {
       const pointColor = isGlacier
         ? Cesium.Color.fromCssColorString('#00f0ff')
         : isDamOrBarrage
-        ? Cesium.Color.fromCssColorString('#1a73e8')
-        : isHotspot
-        ? Cesium.Color.fromCssColorString('#ea4335')
-        : Cesium.Color.WHITE;
+          ? Cesium.Color.fromCssColorString('#1a73e8')
+          : isHotspot
+            ? Cesium.Color.fromCssColorString('#ea4335')
+            : Cesium.Color.WHITE;
 
       const ent = this.viewer.entities.add({
         name: `Label: ${lm.name}`,
@@ -235,9 +424,10 @@ export class PakistanLayersManager {
         },
         label: {
           text: lm.name,
-          font: isDamOrBarrage || isGlacier || isHotspot
-            ? '600 12.5px "Google Sans", "Segoe UI", Roboto, sans-serif'
-            : '500 11.5px "Google Sans", "Segoe UI", Roboto, sans-serif',
+          font:
+            isDamOrBarrage || isGlacier || isHotspot
+              ? '600 12.5px "Google Sans", "Segoe UI", Roboto, sans-serif'
+              : '500 11.5px "Google Sans", "Segoe UI", Roboto, sans-serif',
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           fillColor: Cesium.Color.WHITE,
           outlineColor: Cesium.Color.fromCssColorString('#202124'),
@@ -246,16 +436,19 @@ export class PakistanLayersManager {
           backgroundColor: isHotspot
             ? Cesium.Color.fromCssColorString('#c62828').withAlpha(0.82)
             : isGlacier
-            ? Cesium.Color.fromCssColorString('#00838f').withAlpha(0.82)
-            : isDamOrBarrage
-            ? Cesium.Color.fromCssColorString('#0d47a1').withAlpha(0.82)
-            : Cesium.Color.fromCssColorString('#212121').withAlpha(0.75),
+              ? Cesium.Color.fromCssColorString('#00838f').withAlpha(0.82)
+              : isDamOrBarrage
+                ? Cesium.Color.fromCssColorString('#0d47a1').withAlpha(0.82)
+                : Cesium.Color.fromCssColorString('#212121').withAlpha(0.75),
           backgroundPadding: new Cesium.Cartesian2(6, 4),
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -11),
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           scaleByDistance: new Cesium.NearFarScalar(1.0e3, 1.0, 5.0e6, 0.45),
-          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 5.0e6),
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(
+            0.0,
+            5.0e6,
+          ),
         },
       });
 
@@ -275,7 +468,7 @@ export class PakistanLayersManager {
         polygon: {
           hierarchy,
           material: new Cesium.ColorMaterialProperty(
-            Cesium.Color.fromCssColorString(zone.colorHex).withAlpha(0.38)
+            Cesium.Color.fromCssColorString(zone.colorHex).withAlpha(0.38),
           ),
           outline: true,
           outlineColor: Cesium.Color.fromCssColorString(zone.colorHex),
@@ -306,7 +499,8 @@ export class PakistanLayersManager {
           outlineColor: Cesium.Color.fromCssColorString('#202124'),
           outlineWidth: 3,
           showBackground: true,
-          backgroundColor: Cesium.Color.fromCssColorString('#212121').withAlpha(0.85),
+          backgroundColor:
+            Cesium.Color.fromCssColorString('#212121').withAlpha(0.85),
           backgroundPadding: new Cesium.Cartesian2(7, 4),
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -12),
@@ -330,7 +524,7 @@ export class PakistanLayersManager {
           semiMajorAxis: res.radiusM,
           semiMinorAxis: res.radiusM,
           material: new Cesium.ColorMaterialProperty(
-            Cesium.Color.fromCssColorString(res.color).withAlpha(0.22)
+            Cesium.Color.fromCssColorString(res.color).withAlpha(0.22),
           ),
           outline: true,
           outlineColor: Cesium.Color.fromCssColorString(res.color),
@@ -360,7 +554,8 @@ export class PakistanLayersManager {
           outlineColor: Cesium.Color.fromCssColorString('#1b5e20'),
           outlineWidth: 3,
           showBackground: true,
-          backgroundColor: Cesium.Color.fromCssColorString('#0a3614').withAlpha(0.88),
+          backgroundColor:
+            Cesium.Color.fromCssColorString('#0a3614').withAlpha(0.88),
           backgroundPadding: new Cesium.Cartesian2(8, 5),
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -14),
@@ -395,7 +590,11 @@ export class PakistanLayersManager {
 
   destroy() {
     if (this.viewer && this.viewer.entities) {
-      for (const ent of [...this._labelEntities, ...this._populationEntities, ...this._resourceEntities]) {
+      for (const ent of [
+        ...this._labelEntities,
+        ...this._populationEntities,
+        ...this._resourceEntities,
+      ]) {
         this.viewer.entities.remove(ent);
       }
     }

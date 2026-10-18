@@ -519,6 +519,15 @@ export const BHOTE_KOSHI_LOCATOR_CREDIT = {
     '(CC BY-NC 4.0)',
 };
 
+export const AGAAHI_CORRIDOR_CREDIT = {
+  key: 'agaahi-corridor',
+  html:
+    'Swat–Kabul corridor: river network <a href="https://www.hydrosheds.org/products/hydrorivers" target="_blank" rel="noopener">HydroRIVERS v1.0</a> (Lehner &amp; Grill 2013, HydroSHEDS licence); ' +
+    'population <a href="https://hub.worldpop.org/geodata/summary?id=74863" target="_blank" rel="noopener">WorldPop 2025</a> (CC BY 4.0); ' +
+    'places <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> (ODbL); ' +
+    '2022 flood extent <a href="https://unosat.org/products/3346" target="_blank" rel="noopener">UNOSAT product 3346</a>',
+};
+
 /** @type {Set<string>} Keys of dynamic credits already registered this session. */
 const _dynamicCreditKeys = new Set();
 

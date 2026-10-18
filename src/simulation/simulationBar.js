@@ -64,9 +64,9 @@ export class SimulationBarUI {
               <svg viewBox="0 0 24 24" class="sim-pill-svg"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>
               <span>Hill Torrents &amp; Rain</span>
             </button>
-            <button class="sim-chip-pill" data-scenario="riverine" type="button" title="Kabul & Indus River Levee Ruptures (2022 Super Flood Scale)">
+            <button class="sim-chip-pill" data-scenario="riverine" type="button" title="Swat–Kabul corridor: Kalam trigger down the real HydroRIVERS network">
               <svg viewBox="0 0 24 24" class="sim-pill-svg"><path fill="currentColor" d="M21 12c-1.19 0-2.27-.47-3.07-1.23-.74.77-1.8 1.23-2.93 1.23-1.14 0-2.19-.47-2.93-1.23-.75.76-1.81 1.23-3.07 1.23s-2.32-.47-3.07-1.23C5.19 11.53 4.14 12 3 12c-.55 0-1-.45-1-1s.45-1 1-1c.6 0 1.15-.24 1.55-.63C5.35 8.57 6.4 8 7.6 8s2.25.57 3.05 1.37c.4-.39.95-.63 1.55-.63s1.15.24 1.55.63C14.55 8.57 15.6 8 16.8 8s2.25.57 3.05 1.37c.4-.39.95-.63 1.55-.63.55 0 1 .45 1 1s-.45 1-1.4 1.26z"/></svg>
-              <span>Riverine Super Flood</span>
+              <span>Swat–Kabul (Real)</span>
             </button>
             <button class="sim-chip-pill" data-scenario="cyclone" type="button" title="Arabian Sea Cyclone Storm Surge (Thatta/Karachi/Delta Backflow)">
               <svg viewBox="0 0 24 24" class="sim-pill-svg"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
@@ -188,7 +188,9 @@ export class SimulationBarUI {
     });
 
     // Scenario Pills
-    const scenarioPills = this.container.querySelectorAll('#sim-scenario-pills .sim-chip-pill');
+    const scenarioPills = this.container.querySelectorAll(
+      '#sim-scenario-pills .sim-chip-pill',
+    );
     scenarioPills.forEach((pill) => {
       pill.addEventListener('click', () => {
         const scenarioKey = pill.dataset.scenario;
@@ -199,7 +201,9 @@ export class SimulationBarUI {
     });
 
     // Magnitude Pills
-    const magPills = this.container.querySelectorAll('#sim-magnitude-pills .sim-chip-pill');
+    const magPills = this.container.querySelectorAll(
+      '#sim-magnitude-pills .sim-chip-pill',
+    );
     magPills.forEach((pill) => {
       pill.addEventListener('click', () => {
         const magKey = pill.dataset.magnitude;
@@ -313,14 +317,19 @@ export class SimulationBarUI {
 
     const disEl = this.container.querySelector('#sim-tel-discharge');
     if (disEl)
-      disEl.textContent = `${tel.dischargeCusecs.toLocaleString()} Cusecs`;
+      disEl.textContent =
+        tel.dischargeCusecs == null
+          ? 'No gauge data'
+          : `${tel.dischargeCusecs.toLocaleString()} Cusecs`;
 
     const stageEl = this.container.querySelector('#sim-tel-stage');
-    if (stageEl) stageEl.textContent = `+${tel.stageRiseM} m`;
+    if (stageEl)
+      stageEl.textContent =
+        tel.stageRiseM == null ? 'No gauge data' : `+${tel.stageRiseM} m`;
 
     const statEl = this.container.querySelector('#sim-tel-status');
     if (statEl) {
-      statEl.textContent = `${tel.status} (${tel.magnitudeLabel})`;
+      statEl.textContent = `${tel.status} (${tel.magnitudeLabel})${tel.dataBasis === 'real' ? '' : ' · ILLUSTRATIVE'}`;
       if (tel.magnitudeColor) {
         statEl.style.color = tel.magnitudeColor;
       }

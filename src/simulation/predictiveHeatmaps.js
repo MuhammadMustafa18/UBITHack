@@ -92,13 +92,25 @@ export class PredictiveHeatmaps {
     const tertiaryWp = upcoming[2] || null;
 
     const targetList = [
-      { wp: nextWp, tier: 'critical', etaHours: Math.max(0.1, nextWp.timeHours - simHours) },
+      {
+        wp: nextWp,
+        tier: 'critical',
+        etaHours: Math.max(0.1, nextWp.timeHours - simHours),
+      },
     ];
     if (secondaryWp) {
-      targetList.push({ wp: secondaryWp, tier: 'warning', etaHours: Math.max(0.5, secondaryWp.timeHours - simHours) });
+      targetList.push({
+        wp: secondaryWp,
+        tier: 'warning',
+        etaHours: Math.max(0.5, secondaryWp.timeHours - simHours),
+      });
     }
     if (tertiaryWp) {
-      targetList.push({ wp: tertiaryWp, tier: 'watch', etaHours: Math.max(1.0, tertiaryWp.timeHours - simHours) });
+      targetList.push({
+        wp: tertiaryWp,
+        tier: 'watch',
+        etaHours: Math.max(1.0, tertiaryWp.timeHours - simHours),
+      });
     }
 
     this._renderPredictiveZones(targetList, tel);
@@ -113,7 +125,8 @@ export class PredictiveHeatmaps {
       const { wp, tier, etaHours } = item;
       const baseRadius = wp.radialSpillRadiusM || 5000;
       const radiusM = Math.max(2500, baseRadius * magScale * 1.15);
-      const coords = createFloodplainPolygon(wp.lat, wp.lon, radiusM, 0.6);
+      const coords =
+        wp.polygon || createFloodplainPolygon(wp.lat, wp.lon, radiusM, 0.6);
       const hierarchy = Cesium.Cartesian3.fromDegreesArray(coords);
 
       let fillColor;
@@ -133,12 +146,22 @@ export class PredictiveHeatmaps {
         outlineColor = Cesium.Color.fromCssColorString('#ffeb3b');
         labelPrefix = 'DOWNSTREAM WATCH';
       }
+      if (wp.windowH) {
+        labelPrefix =
+          tier === 'critical'
+            ? 'NEXT COMMUNITY TO WATCH'
+            : 'COMMUNITY TO WATCH';
+      }
 
-      const etaFormatted = etaHours < 1
-        ? `${Math.round(etaHours * 60)} min`
-        : `${etaHours.toFixed(1)} hrs`;
+      const etaFormatted =
+        etaHours < 1
+          ? `${Math.round(etaHours * 60)} min`
+          : `${etaHours.toFixed(1)} hrs`;
 
-      const estDischarge = Math.round((wp.dischargeCusecs || 300000) * (this.floodEngine.magnitudeMultiplier || 1.0));
+      const estDischarge = Math.round(
+        (wp.dischargeCusecs || 300000) *
+          (this.floodEngine.magnitudeMultiplier || 1.0),
+      );
 
       // 1. Polygon Entity
       const polyEntity = this.viewer.entities.add({
@@ -155,11 +178,17 @@ export class PredictiveHeatmaps {
       this._entities.push(polyEntity);
 
       // 2. Central Pin & Floating Label Entity
-      const labelText = `${labelPrefix}\n${wp.name}\nETA: T+${etaFormatted} | Est: ${estDischarge.toLocaleString()} Cfs`;
+      const labelText = wp.windowH
+        ? `${labelPrefix}\n${wp.name}\nWindow: ${Math.max(0, wp.windowH[0] - tel.simHours).toFixed(1)}–${Math.max(0, wp.windowH[1] - tel.simHours).toFixed(1)} h (illustrative)\n≈${Math.round(wp.population).toLocaleString()} people (WorldPop)`
+        : `${labelPrefix}\n${wp.name}\nETA: T+${etaFormatted} | Est: ${estDischarge.toLocaleString()} Cfs`;
 
       const labelEntity = this.viewer.entities.add({
         name: `Label - ${wp.name}`,
-        position: Cesium.Cartesian3.fromDegrees(wp.lon, wp.lat, (wp.alt || 50) + 40),
+        position: Cesium.Cartesian3.fromDegrees(
+          wp.lon,
+          wp.lat,
+          (wp.alt || 50) + 40,
+        ),
         point: {
           pixelSize: tier === 'critical' ? 12 : 9,
           color: outlineColor,
@@ -175,15 +204,19 @@ export class PredictiveHeatmaps {
           outlineColor: Cesium.Color.fromCssColorString('#1e2124'),
           outlineWidth: 3,
           showBackground: true,
-          backgroundColor: tier === 'critical'
-            ? Cesium.Color.fromCssColorString('#b71c1c').withAlpha(0.88)
-            : Cesium.Color.fromCssColorString('#e65100').withAlpha(0.85),
+          backgroundColor:
+            tier === 'critical'
+              ? Cesium.Color.fromCssColorString('#b71c1c').withAlpha(0.88)
+              : Cesium.Color.fromCssColorString('#e65100').withAlpha(0.85),
           backgroundPadding: new Cesium.Cartesian2(8, 5),
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -14),
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           scaleByDistance: new Cesium.NearFarScalar(1.0e3, 1.0, 4.5e6, 0.45),
-          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 4.5e6),
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(
+            0.0,
+            4.5e6,
+          ),
         },
       });
       this._entities.push(labelEntity);
