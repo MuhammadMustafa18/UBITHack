@@ -262,7 +262,7 @@ const MUTATIONS = [
   {
     defect: "the owner-authored first-run line is quietly rewritten",
     file: 'html',
-    from: "Pakistan's rivers in 3D, built only on public satellite, weather and gauge data. Pick where to start.",
+    from: "Pakistan’s rivers in 3D, built only on public satellite, weather and gauge data. Pick where to start.",
     to: "It feels like a forbidden cockpit. It isn't — every feed is public, and every contact is live.",
   },
   {
