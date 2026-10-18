@@ -44,7 +44,7 @@ export const THREAT_LEVELS = {
     label: 'LOW ADVISORY',
     badgeClass: 'threat-low',
     fillColor: '#0288d1',
-    fillAlpha: 0.20,
+    fillAlpha: 0.2,
     outlineColor: '#29b6f6',
     outlineWidth: 1.5,
     statusText: 'Upstream Basin Monitoring & Inflow Buffer',
@@ -60,6 +60,48 @@ export const THREAT_LEVELS = {
     statusText: 'High Elevation Relief Staging & Logistics Haven',
   },
 };
+
+export const COMMUNITY_BANDS = {
+  high: {
+    level: 3,
+    label: 'HIGH EXPOSURE',
+    badgeClass: 'threat-high',
+    fillColor: '#ff6f00',
+    fillAlpha: 0.5,
+    outlineColor: '#ff9100',
+    outlineWidth: 2,
+  },
+  medium: {
+    level: 2,
+    label: 'MEDIUM EXPOSURE',
+    badgeClass: 'threat-moderate',
+    fillColor: '#ffb703',
+    fillAlpha: 0.4,
+    outlineColor: '#ffd166',
+    outlineWidth: 1.5,
+  },
+  low: {
+    level: 1,
+    label: 'LOW EXPOSURE',
+    badgeClass: 'threat-low',
+    fillColor: '#0288d1',
+    fillAlpha: 0.28,
+    outlineColor: '#29b6f6',
+    outlineWidth: 1,
+  },
+};
+
+const COMMUNITY_STATUS_TEXT = {
+  observed_exceed: 'Exercise trigger reach (simulated)',
+  propagated_watch: 'Downstream of the exercise trigger',
+  no_data: 'Not on the trigger path · no data is not safe',
+};
+
+export const escapeHtml = (value) =>
+  String(value).replace(
+    /[&<>"]/g,
+    (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch],
+  );
 
 /**
  * 19 Comprehensive Contiguous Regional Polygons Covering All of Pakistan
@@ -84,7 +126,10 @@ export const PAKISTAN_REGIONS = [
       rationsWater: '30,000 Rations & 8 Portable Filtration Plants',
     },
     center: [35.9, 74.5],
-    polygon: [73.5, 35.2, 74.0, 36.8, 75.0, 37.1, 76.5, 36.5, 77.2, 35.6, 75.8, 35.0, 74.5, 35.2],
+    polygon: [
+      73.5, 35.2, 74.0, 36.8, 75.0, 37.1, 76.5, 36.5, 77.2, 35.6, 75.8, 35.0,
+      74.5, 35.2,
+    ],
   },
   {
     id: 'swat_hazara_kp',
@@ -105,7 +150,9 @@ export const PAKISTAN_REGIONS = [
       rationsWater: '65,000 Food Packs & 12 Clean Water Bowsers',
     },
     center: [34.8, 72.8],
-    polygon: [71.8, 34.5, 71.8, 35.8, 73.0, 35.8, 73.6, 35.2, 73.5, 34.2, 72.6, 34.2],
+    polygon: [
+      71.8, 34.5, 71.8, 35.8, 73.0, 35.8, 73.6, 35.2, 73.5, 34.2, 72.6, 34.2,
+    ],
   },
   {
     id: 'peshawar_valley_kp',
@@ -501,6 +548,7 @@ export class CountryThreatPolygons {
         } else if (!tel.active && this.active) {
           this.disable();
         } else if (this.active) {
+          if (tel.scenarioKey !== this._scenarioKey) this._createPolygons();
           this._updateThreatVisuals(tel);
         }
       });
@@ -537,16 +585,21 @@ export class CountryThreatPolygons {
 
   _createPolygons() {
     this._clearPolygons();
+    const scenario = this.floodEngine?.activeScenario;
+    this._scenarioKey = scenario?.id;
     if (!this.viewer || !this.viewer.entities) return;
 
-    for (const reg of PAKISTAN_REGIONS) {
+    const regions = scenario?.communities
+      ? scenario.communities.filter((c) => c.band)
+      : PAKISTAN_REGIONS;
+    for (const reg of regions) {
       const hierarchy = Cesium.Cartesian3.fromDegreesArray(reg.polygon);
       const entity = this.viewer.entities.add({
         name: `ThreatZone: ${reg.name}`,
         polygon: {
           hierarchy,
           material: new Cesium.ColorMaterialProperty(
-            Cesium.Color.fromCssColorString('#0288d1').withAlpha(0.25)
+            Cesium.Color.fromCssColorString('#0288d1').withAlpha(0.25),
           ),
           outline: true,
           outlineColor: Cesium.Color.fromCssColorString('#29b6f6'),
@@ -577,6 +630,7 @@ export class CountryThreatPolygons {
    * current flood crest location, and elapsed physical simulation hours.
    */
   _calculateThreatLevel(region, tel) {
+    if (region.band) return COMMUNITY_BANDS[region.band];
     const scenarioKey = tel.scenarioKey || 'glacier';
     const simHours = tel.simHours || 0;
     const [cLat, cLon] = region.center;
@@ -595,16 +649,37 @@ export class CountryThreatPolygons {
       } else if (region.id === 'central_punjab') {
         threat = simHours > 12 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
       } else if (region.id === 'south_punjab') {
-        threat = simHours > 28 ? THREAT_LEVELS.CRITICAL : simHours > 14 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
+        threat =
+          simHours > 28
+            ? THREAT_LEVELS.CRITICAL
+            : simHours > 14
+              ? THREAT_LEVELS.HIGH
+              : THREAT_LEVELS.MODERATE;
       } else if (region.id === 'upper_sindh_guddu') {
-        threat = simHours > 48 ? THREAT_LEVELS.CRITICAL : simHours > 24 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
+        threat =
+          simHours > 48
+            ? THREAT_LEVELS.CRITICAL
+            : simHours > 24
+              ? THREAT_LEVELS.HIGH
+              : THREAT_LEVELS.MODERATE;
       } else if (region.id === 'central_sindh_larkana') {
-        threat = simHours > 56 ? THREAT_LEVELS.CRITICAL : simHours > 36 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
+        threat =
+          simHours > 56
+            ? THREAT_LEVELS.CRITICAL
+            : simHours > 36
+              ? THREAT_LEVELS.HIGH
+              : THREAT_LEVELS.MODERATE;
       } else if (region.id === 'dadu_manchar_sindh') {
         threat = simHours > 64 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
-      } else if (region.id === 'potohar_islamabad' || region.id === 'western_punjab_thal') {
+      } else if (
+        region.id === 'potohar_islamabad' ||
+        region.id === 'western_punjab_thal'
+      ) {
         threat = THREAT_LEVELS.MODERATE;
-      } else if (region.id === 'hunza_diamer_gb' || region.id === 'makran_coastal_balochistan') {
+      } else if (
+        region.id === 'hunza_diamer_gb' ||
+        region.id === 'makran_coastal_balochistan'
+      ) {
         threat = THREAT_LEVELS.SECURE;
       }
     } else if (scenarioKey === 'glacier') {
@@ -617,18 +692,30 @@ export class CountryThreatPolygons {
         threat = simHours > 24 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
       } else if (region.id === 'western_punjab_thal') {
         threat = simHours > 36 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
-      } else if (region.id === 'derajat_suleman' || region.id === 'south_punjab') {
+      } else if (
+        region.id === 'derajat_suleman' ||
+        region.id === 'south_punjab'
+      ) {
         threat = simHours > 48 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
-      } else if (region.id === 'upper_sindh_guddu' || region.id === 'central_sindh_larkana') {
+      } else if (
+        region.id === 'upper_sindh_guddu' ||
+        region.id === 'central_sindh_larkana'
+      ) {
         threat = simHours > 60 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
-      } else if (region.id === 'makran_coastal_balochistan' || region.id === 'quetta_highlands_balochistan') {
+      } else if (
+        region.id === 'makran_coastal_balochistan' ||
+        region.id === 'quetta_highlands_balochistan'
+      ) {
         threat = THREAT_LEVELS.SECURE;
       }
     } else if (scenarioKey === 'rain') {
       // Koh-e-Suleman Hill Torrents (Rajanpur / DG Khan)
       if (region.id === 'derajat_suleman') {
         threat = THREAT_LEVELS.CRITICAL;
-      } else if (region.id === 'south_punjab' || region.id === 'kacchi_plains_balochistan') {
+      } else if (
+        region.id === 'south_punjab' ||
+        region.id === 'kacchi_plains_balochistan'
+      ) {
         threat = simHours > 8 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
       } else if (region.id === 'upper_sindh_guddu') {
         threat = simHours > 18 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
@@ -636,29 +723,18 @@ export class CountryThreatPolygons {
         threat = simHours > 30 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
       } else if (region.id === 'dadu_manchar_sindh') {
         threat = simHours > 42 ? THREAT_LEVELS.HIGH : THREAT_LEVELS.MODERATE;
-      } else if (region.id === 'hunza_diamer_gb' || region.id === 'potohar_islamabad') {
-        threat = THREAT_LEVELS.SECURE;
-      }
-    } else if (scenarioKey === 'riverine') {
-      // 2022 Super Flood / Levee Cataclysm
-      if (region.id === 'peshawar_valley_kp') {
-        threat = THREAT_LEVELS.CRITICAL;
-      } else if (region.id === 'derajat_suleman' || region.id === 'south_punjab') {
-        threat = simHours > 18 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
-      } else if (region.id === 'upper_sindh_guddu') {
-        threat = simHours > 28 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
-      } else if (region.id === 'central_sindh_larkana') {
-        threat = simHours > 38 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
-      } else if (region.id === 'dadu_manchar_sindh') {
-        threat = simHours > 46 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
-      } else if (region.id === 'lower_sindh_delta') {
-        threat = simHours > 55 ? THREAT_LEVELS.CRITICAL : THREAT_LEVELS.HIGH;
-      } else if (region.id === 'hunza_diamer_gb') {
+      } else if (
+        region.id === 'hunza_diamer_gb' ||
+        region.id === 'potohar_islamabad'
+      ) {
         threat = THREAT_LEVELS.SECURE;
       }
     } else if (scenarioKey === 'cyclone') {
       // Arabian Sea Coastal Storm Surge
-      if (region.id === 'karachi_coastal' || region.id === 'lower_sindh_delta') {
+      if (
+        region.id === 'karachi_coastal' ||
+        region.id === 'lower_sindh_delta'
+      ) {
         threat = THREAT_LEVELS.CRITICAL;
       } else if (region.id === 'makran_coastal_balochistan') {
         threat = THREAT_LEVELS.HIGH;
@@ -690,11 +766,18 @@ export class CountryThreatPolygons {
       entity.currentThreatInfo = threat;
 
       const isHovered = this.hoveredRegion && this.hoveredRegion.id === id;
-      const alpha = isHovered ? Math.min(0.72, threat.fillAlpha + 0.18) : threat.fillAlpha;
-      const outlineWidth = isHovered ? threat.outlineWidth + 1.5 : threat.outlineWidth;
+      const styleKey = `${threat.label}|${isHovered}`;
+      if (entity.threatStyleKey === styleKey) continue;
+      entity.threatStyleKey = styleKey;
+      const alpha = isHovered
+        ? Math.min(0.72, threat.fillAlpha + 0.18)
+        : threat.fillAlpha;
+      const outlineWidth = isHovered
+        ? threat.outlineWidth + 1.5
+        : threat.outlineWidth;
 
       entity.polygon.material = new Cesium.ColorMaterialProperty(
-        Cesium.Color.fromCssColorString(threat.fillColor).withAlpha(alpha)
+        Cesium.Color.fromCssColorString(threat.fillColor).withAlpha(alpha),
       );
       entity.polygon.outlineColor = isHovered
         ? Cesium.Color.WHITE
@@ -707,14 +790,20 @@ export class CountryThreatPolygons {
     this._unbindHoverEvents();
     if (!this.viewer?.scene?.canvas) return;
 
-    this._eventHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+    this._eventHandler = new Cesium.ScreenSpaceEventHandler(
+      this.viewer.scene.canvas,
+    );
 
     this._eventHandler.setInputAction((movement) => {
       if (!this.active) return;
 
       const pickedObject = this.viewer.scene.pick(movement.endPosition);
 
-      if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.threatRegionData) {
+      if (
+        Cesium.defined(pickedObject) &&
+        pickedObject.id &&
+        pickedObject.id.threatRegionData
+      ) {
         const entity = pickedObject.id;
         const reg = entity.threatRegionData;
         const threat = entity.currentThreatInfo || THREAT_LEVELS.LOW;
@@ -751,15 +840,27 @@ export class CountryThreatPolygons {
   _showTooltip(reg, threat, mousePos) {
     if (!this._tooltipEl) return;
 
-    const childrenCount = Math.round(reg.population * (reg.demographics.childrenPct / 100));
-    const adultsCount = Math.round(reg.population * (reg.demographics.adultsPct / 100));
-    const elderlyCount = Math.round(reg.population * (reg.demographics.elderlyPct / 100));
+    if (reg.band) {
+      this._tooltipEl.innerHTML = this._communityTooltipHtml(reg, threat);
+      this._placeTooltip(mousePos);
+      return;
+    }
+
+    const childrenCount = Math.round(
+      reg.population * (reg.demographics.childrenPct / 100),
+    );
+    const adultsCount = Math.round(
+      reg.population * (reg.demographics.adultsPct / 100),
+    );
+    const elderlyCount = Math.round(
+      reg.population * (reg.demographics.elderlyPct / 100),
+    );
 
     this._tooltipEl.innerHTML = `
       <div class="threat-tooltip-header">
         <div class="threat-tooltip-title-col">
           <div class="threat-tooltip-reg-name">${reg.name}</div>
-          <div class="threat-tooltip-province">${reg.province} • Threat Assessment Zone</div>
+          <div class="threat-tooltip-province">${reg.province} • Illustrative zone · figures not sourced</div>
         </div>
         <span class="threat-badge ${threat.badgeClass}">${threat.label}</span>
       </div>
@@ -837,7 +938,60 @@ export class CountryThreatPolygons {
       </div>
     `;
 
-    // Tooltip positioning clamped within viewport
+    this._placeTooltip(mousePos);
+  }
+
+  _communityTooltipHtml(c, band) {
+    const windowText = c.windowH
+      ? `+${c.windowH[0]}–${c.windowH[1]} h after trigger (illustrative, 1–3 m/s)`
+      : 'Not on the trigger path';
+    const histText =
+      c.histFlood2022 == null
+        ? 'Not available'
+        : `${Math.round(c.histFlood2022 * 100)}% of area inside the UNOSAT 2022 extent`;
+    return `
+      <div class="threat-tooltip-header">
+        <div class="threat-tooltip-title-col">
+          <div class="threat-tooltip-reg-name">${escapeHtml(c.name)}</div>
+          <div class="threat-tooltip-province">${escapeHtml(c.placeType)} • Community to watch</div>
+        </div>
+        <span class="threat-badge ${band.badgeClass}">${band.label}</span>
+      </div>
+
+      <div class="threat-tooltip-status">
+        <span class="threat-status-dot" style="background-color: ${band.fillColor};"></span>
+        <span>${COMMUNITY_STATUS_TEXT[c.status]}</span>
+      </div>
+
+      <div class="threat-tooltip-pop-row">
+        <span class="threat-pop-label">≈ POPULATION · WORLDPOP 2025, MODELLED</span>
+        <span class="threat-pop-val">≈${Math.round(c.population).toLocaleString()} people</span>
+      </div>
+
+      <div class="threat-resources-section">
+        <div class="threat-res-list">
+          <div class="threat-res-item">
+            <span class="res-text"><strong>Arrival window:</strong> ${windowText}</span>
+          </div>
+          <div class="threat-res-item">
+            <span class="res-text"><strong>2022 flood:</strong> ${histText}</span>
+          </div>
+          <div class="threat-res-item">
+            <span class="res-text"><strong>Distance to river:</strong> ≈${Math.round(c.distanceToRiverM).toLocaleString()} m</span>
+          </div>
+          <div class="threat-res-item">
+            <span class="res-text"><strong>OSM facilities:</strong> ${c.facilities.health} health · ${c.facilities.school} schools · ${c.facilities.shelter} shelter candidates</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="threat-special-note">
+        <span>Exercise data, not an official warning. Sources: HydroRIVERS, WorldPop, OpenStreetMap, UNOSAT.</span>
+      </div>
+    `;
+  }
+
+  _placeTooltip(mousePos) {
     const tooltipWidth = 360;
     const tooltipHeight = 440;
     let posX = mousePos.x + 20;
