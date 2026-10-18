@@ -35,6 +35,7 @@ import { TacticalAiCommander } from '../simulation/tacticalAiCommander.js';
 import { RiskGridLayer } from '../intelligence/gridLayer.js';
 import { RiskDashboardPanel } from '../intelligence/dashboardPanel.js';
 import { CopilotPanel } from '../intelligence/copilotPanel.js';
+import { CommandDashboard } from './commandDashboard.js';
 import { renderCellCard } from '../intelligence/cellCard.js';
 import { cellExplain } from '../intelligence/queries.js';
 import {
@@ -413,6 +414,7 @@ export class GoogleMapsUI {
     this._bindEvents();
     this._syncCompass();
     this._initRouting();
+    this.commandDashboard = new CommandDashboard(this);
   }
 
   _purgeAirplaneMode() {
@@ -1542,6 +1544,7 @@ export class GoogleMapsUI {
   }
 
   _showSimulationScenarioCard() {
+    if (this.commandDashboard?.focusForecast()) return;
     this.activeCategory = 'simulate';
     document
       .querySelectorAll('.gmaps-pill')
@@ -1896,45 +1899,55 @@ export class GoogleMapsUI {
       });
 
     // 5. Start button (Explicit user launch)
-    card.querySelector('#dialog-start-btn')?.addEventListener('click', async () => {
-      await this.floodEngine?.setScenario(this.selectedScenarioKey);
-      if (
-        this.floodEngine &&
-        this.floodEngine.scenarioKey !== this.selectedScenarioKey
-      ) {
-        this._showToast('Corridor data unavailable; simulation not started');
-        return;
-      }
-      this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
-      this.floodEngine?.setTimeScale(this.selectedTimeScale);
-      this.simulationBarUI?.show();
-
-      // Launch Resource Defense Game if enabled
-      if (this.resourceManagementEnabled) {
-        this.resourceDefenseGame?.start();
-      } else {
-        this.resourceDefenseGame?.stop();
-      }
-
-      this.floodEngine?.start();
-      this._closeDropdown();
-      const activeSc = FLOOD_SCENARIOS[this.selectedScenarioKey];
-      this._showToast(`Simulation started: ${this.selectedOriginPoint ? this.selectedOriginPoint.name : (activeSc?.name || 'Flood Forecast')}`);
-    });
+    card
+      .querySelector('#dialog-start-btn')
+      ?.addEventListener('click', () => this._launchSimulation());
 
     // 6. Exit button
-    card.querySelector('#dialog-exit-btn')?.addEventListener('click', () => {
-      this.resourceDefenseGame?.stop();
-      this.floodEngine?.exit();
-      this.simulationBarUI?.hide();
-      this._closeDropdown();
-      this._showToast('Disaster forecast simulation stopped');
-    });
+    card
+      .querySelector('#dialog-exit-btn')
+      ?.addEventListener('click', () => this._exitSimulation());
 
     // 7. Close button
     card.querySelector('#sim-dialog-close')?.addEventListener('click', () => {
       this._closeDropdown();
     });
+  }
+
+  async _launchSimulation() {
+    await this.floodEngine?.setScenario(this.selectedScenarioKey);
+    if (
+      this.floodEngine &&
+      this.floodEngine.scenarioKey !== this.selectedScenarioKey
+    ) {
+      this._showToast('Corridor data unavailable; simulation not started');
+      return;
+    }
+    this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
+    this.floodEngine?.setTimeScale(this.selectedTimeScale);
+    this.simulationBarUI?.show();
+
+    // Launch Resource Defense Game if enabled
+    if (this.resourceManagementEnabled) {
+      this.resourceDefenseGame?.start?.();
+    } else {
+      this.resourceDefenseGame?.stop?.();
+    }
+
+    this.floodEngine?.start();
+    this._closeDropdown();
+    const activeSc = FLOOD_SCENARIOS[this.selectedScenarioKey];
+    this._showToast(`Simulation started: ${this.selectedOriginPoint ? this.selectedOriginPoint.name : (activeSc?.name || 'Flood Forecast')}`);
+    this.commandDashboard?.refresh();
+  }
+
+  _exitSimulation() {
+    this.resourceDefenseGame?.stop?.();
+    this.floodEngine?.exit();
+    this.simulationBarUI?.hide();
+    this._closeDropdown();
+    this._showToast('Disaster forecast simulation stopped');
+    this.commandDashboard?.refresh();
   }
 
   _updateDialogTelemetry(card) {
@@ -2731,6 +2744,7 @@ export class GoogleMapsUI {
   }
 
   destroy() {
+    this.commandDashboard?.destroy();
     this._exitOriginPickerMode();
     this.rescueDashboard?.destroy();
     this.resourceDefenseGame?.destroy();

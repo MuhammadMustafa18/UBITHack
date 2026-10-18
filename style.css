@@ -36,6 +36,7 @@
 @import './src/ui/styles/rescue-dashboard.css';
 @import './src/ui/styles/tactical-ai.css';
 @import './src/ui/styles/shadcn-theme.css';
+@import './src/ui/styles/command-dashboard.css';
 
 .agahi-cell-card {
   position: fixed;

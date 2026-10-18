@@ -275,8 +275,6 @@
 .sim-scenario-desc,
 .sim-dialog-section-label,
 .sim-tel-label,
-.agahi-dash-kpi-label,
-.agahi-dash-h,
 .agahi-dash-msg,
 .agahi-dash-bar-value,
 .agahi-dash-cell-id,
@@ -891,7 +889,6 @@
   color: var(--sc-foreground);
 }
 
-.agahi-copilot-user,
 .msg-user,
 .gemini-chat-bubble.user {
   background: var(--sc-primary) !important;
@@ -900,7 +897,6 @@
   border-radius: 10px 10px 3px 10px !important;
 }
 
-.agahi-copilot-assistant,
 .msg-assistant,
 .gemini-chat-bubble.assistant {
   background: var(--sc-muted) !important;
