@@ -70,6 +70,7 @@ export class ResourceDefenseGame {
 
     // Active Dispatches (Moving vehicles on 3D globe)
     this.dispatches = [];
+    this.incidentAssignments = new Map();
     this._dispatchCounter = 0;
     this._entities = [];
     this._animFrame = null;
@@ -131,6 +132,7 @@ export class ResourceDefenseGame {
         progress: d.progress,
         etaMin: Math.max(1, Math.round((1 - d.progress) * d.simDurationMin)),
       })),
+      incidentAssignments: [...this.incidentAssignments.values()].map((a) => ({ ...a })),
     };
   }
 
@@ -193,9 +195,16 @@ export class ResourceDefenseGame {
   /**
    * Dispatch a resource to the active downstream target
    */
-  dispatchResource(resourceTypeId) {
+  dispatchResource(resourceTypeId, { target, incidentId } = {}) {
     const resType = RESOURCE_TYPES[resourceTypeId];
     if (!resType) return { success: false, reason: 'Invalid resource type' };
+    if (incidentId && this.incidentAssignments.has(incidentId)) {
+      return { success: false, reason: 'This incident already has an assignment.' };
+    }
+    if (target && (!Number.isFinite(target.lat) || !Number.isFinite(target.lon) ||
+      Math.abs(target.lat) > 90 || Math.abs(target.lon) > 180)) {
+      return { success: false, reason: 'Valid incident coordinates are required.' };
+    }
 
     // Check pool limits
     if (resourceTypeId === 'firetruck' && this.pool.firetrucks <= 0) {
@@ -208,7 +217,7 @@ export class ResourceDefenseGame {
       return { success: false, reason: 'Insufficient manpower reserve!' };
     }
 
-    const targetWp = this.targetState.targetWp;
+    const targetWp = target || this.targetState.targetWp;
     if (!targetWp) {
       return { success: false, reason: 'No active flood target to safeguard!' };
     }
@@ -230,6 +239,7 @@ export class ResourceDefenseGame {
 
     const dispatchObj = {
       id: dispatchId,
+      incidentId,
       type: resType,
       depot: depot,
       target: targetWp,
@@ -293,10 +303,17 @@ export class ResourceDefenseGame {
     }
 
     this.dispatches.push(dispatchObj);
+    if (incidentId) {
+      this.incidentAssignments.set(incidentId, {
+        incidentId, dispatchId, type: resourceTypeId, status: 'EN ROUTE',
+        depotName: depot.name, etaMin: simDurationMin,
+      });
+    }
     this._notify();
 
     return {
       success: true,
+      dispatchId,
       depotName: depot.name,
       simDurationMin: simDurationMin,
     };
@@ -357,6 +374,18 @@ export class ResourceDefenseGame {
       if (dispatchObj.carEntity) this.viewer.entities.remove(dispatchObj.carEntity);
       if (dispatchObj.lineEntity) this.viewer.entities.remove(dispatchObj.lineEntity);
     }
+    this._entities = this._entities.filter((entity) =>
+      entity !== dispatchObj.carEntity && entity !== dispatchObj.lineEntity);
+
+    if (dispatchObj.incidentId) {
+      const assignment = this.incidentAssignments.get(dispatchObj.incidentId);
+      if (assignment) assignment.status = 'ON SCENE';
+      this._notify();
+      return;
+    }
+
+    // A delivery to an earlier target must not defend a different downstream town.
+    if (dispatchObj.target !== this.targetState.targetWp) return;
 
     // Apply defense boost
     this.targetState.currentDefense += resType.defenseValue;
@@ -434,7 +463,25 @@ export class ResourceDefenseGame {
     return R * c;
   }
 
+  completeIncident(incidentId) {
+    const assignment = this.incidentAssignments.get(incidentId);
+    if (!assignment || assignment.status !== 'ON SCENE') {
+      return { success: false, reason: 'Confirm completion after the unit arrives.' };
+    }
+    const type = RESOURCE_TYPES[assignment.type];
+    if (type.id === 'boat') this.pool.boats += 1;
+    if (type.id === 'firetruck') this.pool.firetrucks += 1;
+    this.pool.manpower += type.manpowerCost;
+    assignment.status = 'COMPLETED';
+    this._notify();
+    return { success: true };
+  }
+
   resetPool() {
+    // Active incident reservations cannot be erased by the map's reset control.
+    if ([...this.incidentAssignments.values()].some((a) => a.status !== 'COMPLETED')) {
+      return false;
+    }
     this.pool = {
       firetrucks: 24,
       boats: 40,
@@ -443,7 +490,9 @@ export class ResourceDefenseGame {
     };
     this._clearEntities();
     this.dispatches = [];
+    this.incidentAssignments.clear();
     this._notify();
+    return true;
   }
 
   _clearEntities() {
