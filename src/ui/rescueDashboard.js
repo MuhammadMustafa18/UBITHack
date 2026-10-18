@@ -229,6 +229,7 @@ export class RescueDashboardUI {
       e.preventDefault();
       const data = new FormData(e.target);
       const fields = { sender: String(data.get('sender') || 'Operator-reviewed report'), district: String(data.get('district')).trim(), coords: [Number(data.get('lon')), Number(data.get('lat'))], message: String(data.get('message')).trim(), danger: data.get('danger'), resource: data.get('resource'), vulnerable: data.get('vulnerable') === 'on' };
+      if (!fields.message || !fields.district) { this.notice = 'Enter a message and a location label.'; this._render(); return; }
       if (this.signals.some((s) => s.message.toLowerCase() === fields.message.toLowerCase() && s.coords[0] === fields.coords[0] && s.coords[1] === fields.coords[1])) { this._addIncident(fields); return; }
       if (data.get('beacon') === 'on') {
         if (this._extracting) return;

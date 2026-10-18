@@ -64,9 +64,14 @@ does not provide it. Provider tests mock requests and make no paid API calls.
 
 ## Exercise limits
 
-Reports, resources and outcomes are simulated and kept in this browser session's
-memory. No SMS/WhatsApp gateway, persistence, authentication or real emergency
-dispatch is claimed. Each assignment is one unit, not a promise that everyone
+Default reports, resources and outcomes are simulated; assignments stay in this
+browser session's memory. The upstream citizen-beacon submission is preserved
+in the report form: opt in to save a report to its existing Supabase registry,
+with a device-local queue on failure. The activity log distinguishes those
+outcomes; neither confirms contact with emergency services. GPS is optional and
+never falls back to an invented location. No SMS/WhatsApp gateway, assignment
+persistence, authentication or real emergency dispatch is claimed. Each
+assignment is one unit, not a promise that everyone
 listed can be evacuated. Medical specialists, carrying capacity, road/water
 passability and real travel timing are not modelled. Movement takes 14 real
 seconds on a straight line regardless of the illustrative distance estimate.
@@ -76,6 +81,7 @@ seconds on a straight line regardless of the illustrative distance estimate.
 ```sh
 node --test src/simulation/rescueAllocation.test.mjs src/simulation/resourceDefenseGame.test.mjs server/providers/openai/rescue-triage.test.mjs
 node --test src/simulation/tacticalAiCommander.test.mjs
+node --test src/services/supabaseClient.test.mjs
 npm run check:boundaries
 npm run build
 ```

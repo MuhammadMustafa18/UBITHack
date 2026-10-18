@@ -74,7 +74,11 @@ try {
   page.removeAllListeners('request');
   page.on('request', (request) => request.url().endsWith('/api/openai/rescue-triage')
     ? request.respond({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'AI unavailable. Set fields manually.' }) })
-    : request.continue());
+    : request.url().includes('.supabase.co/rest/v1/rescue_requests')
+      ? request.respond({ status: request.method() === 'OPTIONS' ? 204 : 503,
+        headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': '*', 'access-control-allow-headers': '*' },
+        contentType: 'application/json', body: request.method() === 'OPTIONS' ? '' : JSON.stringify({ message: 'Offline fixture' }) })
+      : request.continue());
   await page.click('#rescue-ai-extract');
   await page.waitForFunction(() => document.querySelector('#rescue-ai-status').textContent.includes('manually'));
   await page.type('#report-district', '<img src=x onerror=alert(1)> Test district');
@@ -84,6 +88,14 @@ try {
   await page.click('#rescue-report-form [type="submit"]');
   assert.equal(await page.evaluate(() => window.dashboard.signals.length), count + 1);
   assert.equal(await page.$$('.rescue-detail-card img').then((items) => items.length), 0);
+  await page.click('#btn-request-rescue-modal');
+  await page.type('#report-message', 'Exercise beacon: family needs evacuation');
+  await page.type('#report-district', 'Demo beacon location');
+  await page.type('#report-lon', '71.98');
+  await page.type('#report-lat', '34.01');
+  await page.click('#rescue-report-form [type="submit"]');
+  await page.waitForFunction(() => window.dashboard.activity.some((entry) => entry.message.includes('saved on this device only')));
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('floodtrace:citizen_sos_queue')).length), 1);
   await page.click('#rescue-review-next');
   await page.click('.rescue-report-form summary');
   await page.type('#report-message', 'Draft must survive a resource update');
