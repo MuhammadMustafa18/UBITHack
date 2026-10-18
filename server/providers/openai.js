@@ -1,5 +1,6 @@
 import { defaultSourceRoot } from './common/source-root.js';
 import { handleHudSummary } from './openai/hud-summary.js';
+import { handleRescueTriage } from './openai/rescue-triage.js';
 import { createDebugLogHandler } from './openai/debug-log.js';
 import {
   createRealtimeOAuthLoginHandler,
@@ -25,6 +26,7 @@ function openAiRealtimeProxy({
     // Cost-bearing and log endpoints refuse cross-site browser requests
     // (see server/providers/common/same-site.js and SECURITY.md).
     middlewares.use('/api/openai/hud-summary', sameSiteGated(handleHudSummary));
+    middlewares.use('/api/openai/rescue-triage', sameSiteGated(handleRescueTriage));
 
     middlewares.use(
       '/api/realtime/debug-log',
