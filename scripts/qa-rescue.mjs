@@ -57,7 +57,12 @@ try {
   assert.equal(await page.evaluate(() => window.game.incidentAssignments.size), 1);
   await page.type('#rescue-copilot-input', 'Which incident should be helped first?');
   await page.click('#rescue-copilot-form [type="submit"]');
-  await page.waitForFunction(() => document.querySelector('.gemini-chat-messages').textContent.includes('Rule-based context'));
+  await page.waitForFunction(() => document.querySelector('.gemini-chat-messages').textContent.includes('Rule-based context')).catch(async (error) => {
+    console.log('Copilot state:', await page.evaluate(() => ({ messages: window.dashboard.chatMessages,
+      busy: window.dashboard.chatBusy, input: document.querySelector('#rescue-copilot-input').value,
+      form: document.querySelector('#rescue-copilot-form').innerText })), errors);
+    throw error;
+  });
   assert.equal(await page.evaluate(() => window.game.incidentAssignments.size), 1);
   await page.click('#rescue-locate');
   assert.ok(await page.evaluate(() => window.locatedIncident));

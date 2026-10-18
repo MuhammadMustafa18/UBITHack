@@ -871,6 +871,7 @@
 .rescue-filter-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
 .rescue-filter-btn { min-height: 44px; }
 .rescue-detail-column { min-width: 0; padding: 24px; gap: 20px; }
+.rescue-detail-column > * { flex-shrink: 0; }
 .rescue-detail-card { padding: 24px; border-radius: 14px; }
 .detail-header { flex-wrap: wrap; }
 .detail-title { overflow-wrap: anywhere; font-size: 24px; }
