@@ -30,18 +30,26 @@ const LOCAL_STORAGE_SOS_KEY = 'floodtrace:citizen_sos_queue';
  * with automatic offline queuing.
  */
 export async function submitRescueRequest(sosPayload) {
+  const latitude = Number(sosPayload.latitude);
+  const longitude = Number(sosPayload.longitude);
+  if (sosPayload.latitude == null || sosPayload.longitude == null ||
+    sosPayload.latitude === '' || sosPayload.longitude === '' ||
+    !Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+    Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
+    return { success: false, message: 'Valid coordinates are required. No location was guessed.' };
+  }
   const payload = {
     sender_name: sosPayload.name || 'Anonymous Citizen',
     phone: sosPayload.phone || '+92 300 0000000',
     district: sosPayload.district || 'Unspecified District',
-    latitude: Number(sosPayload.latitude) || 30.3753,
-    longitude: Number(sosPayload.longitude) || 69.3451,
+    latitude,
+    longitude,
     channel: sosPayload.channel || 'CHROME WEB SOS',
     message: sosPayload.message || 'Urgent flood evacuation assistance requested.',
     urgency_level: sosPayload.urgencyLevel || 'P1 - CRITICAL LIFE THREAT',
     trapped_count: Number(sosPayload.trappedCount) || 1,
     has_children_or_elderly: Boolean(sosPayload.hasVulnerable),
-    water_depth_ft: Number(sosPayload.waterDepthFt) || 3,
+    water_depth_ft: Number.isFinite(Number(sosPayload.waterDepthFt)) ? Number(sosPayload.waterDepthFt) : 0,
     status: 'PENDING DISPATCH',
     created_at: new Date().toISOString(),
   };
@@ -54,15 +62,15 @@ export async function submitRescueRequest(sosPayload) {
 
     if (error) {
       console.warn('[Supabase] Insert failed or table not created, queuing locally:', error.message);
-      saveSosLocally(payload);
-      return { success: true, localOnly: true, data: payload, message: 'Saved to local emergency queue' };
+      const saved = saveSosLocally(payload);
+      return { success: saved, localOnly: true, data: payload, message: saved ? 'Saved to local emergency queue' : 'Local storage unavailable; report not saved' };
     }
 
     return { success: true, localOnly: false, data: data?.[0] || payload };
   } catch (err) {
     console.warn('[Supabase] Network or DB error, saving locally:', err);
-    saveSosLocally(payload);
-    return { success: true, localOnly: true, data: payload, message: 'Saved to local emergency queue' };
+    const saved = saveSosLocally(payload);
+    return { success: saved, localOnly: true, data: payload, message: saved ? 'Saved to local emergency queue' : 'Local storage unavailable; report not saved' };
   }
 }
 
@@ -91,8 +99,10 @@ function saveSosLocally(sos) {
     const queue = getLocalSosQueue();
     queue.unshift({ ...sos, id: `local-sos-${Date.now()}` });
     localStorage.setItem(LOCAL_STORAGE_SOS_KEY, JSON.stringify(queue.slice(0, 100)));
+    return true;
   } catch (e) {
     console.warn('[Supabase] Local save failed:', e);
+    return false;
   }
 }
 

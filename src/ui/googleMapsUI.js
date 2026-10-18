@@ -379,9 +379,10 @@ export class GoogleMapsUI {
       tacticalAiCommander: this.tacticalAiCommander,
       resourceDefenseGame: this.resourceDefenseGame,
       floodEngine: this.floodEngine,
-      onReturnToGlobe: () => this._showGlobeView(),
+      onReturnToMap: () => this._showGlobeView(),
       onLocateOnGlobe: (sos) => this._locateSosOnGlobe(sos),
     });
+    this.tacticalAiCommander.getIncidents = () => this.rescueDashboard._ranked();
 
     // Origin Picker State
     this.selectedOriginPoint = null;
@@ -2416,7 +2417,7 @@ export class GoogleMapsUI {
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
       label: {
-        text: `🚨 SOS: ${sos.sender}\n${sos.district}\n[${sos.llmRank}]`,
+        text: `SOS: ${sos.sender}\n${sos.district}\n[${sos.rank}]`,
         font: 'bold 13px Inter, sans-serif',
         fillColor: Cesium.Color.WHITE,
         backgroundColor: Cesium.Color.fromCssColorString('#0f172a'),

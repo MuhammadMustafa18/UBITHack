@@ -327,6 +327,7 @@
       "server/providers/openai/constants.js",
       "server/providers/openai/debug-log.js",
       "server/providers/openai/hud-summary.js",
+      "server/providers/openai/rescue-triage.js",
       "server/providers/openai/instructions.js",
       "server/providers/openai/rate-limit.js",
       "server/providers/openai/realtime.js",
@@ -1644,6 +1645,27 @@
       "./standalone/catalog"
     ],
     "modules": [
+      "src/layers/pakistanLayers.js",
+      "src/simulation/corridorResponse.js",
+      "src/simulation/countryThreatPolygons.js",
+      "src/simulation/demographicHeatmapEngine.js",
+      "src/simulation/floodEngine.js",
+      "src/simulation/flowData.js",
+      "src/simulation/livePredictionEngine.js",
+      "src/simulation/predictiveHeatmaps.js",
+      "src/simulation/relayCatalog.js",
+      "src/simulation/rescueAllocation.js",
+      "src/simulation/resourceDefenseGame.js",
+      "src/simulation/responsePanel.js",
+      "src/simulation/riverCorridor.js",
+      "src/simulation/simulationBar.js",
+      "src/simulation/tacticalAiCommander.js",
+      "src/tools/area.js",
+      "src/tools/catalog.js",
+      "src/tools/schema.js",
+      "src/ui/googleMapsUI.js",
+      "src/ui/rescueDashboard.js",
+      "src/services/supabaseClient.js",
       "src/ui/placeNames.js",
       "src/cyberSonarScene.js",
       "src/cyberSonar.js",
@@ -2492,7 +2514,8 @@
       "pbf",
       "satellite.js",
       "mapillary-js",
-      "@jtarrio/webrtlsdr"
+      "@jtarrio/webrtlsdr",
+      "@supabase/supabase-js"
     ]
   },
   "application-catalog": {
