@@ -26,7 +26,7 @@ export class SimulationBarUI {
     this.container.innerHTML = `
       <div class="sim-glow"></div>
       
-      <!-- Top header with scale tabs and exit -->
+      <!-- Top header with scale tabs, minimize, and exit -->
       <div class="sim-header">
         <div class="sim-status-badge">
           <span class="sim-dot"></span>
@@ -38,9 +38,12 @@ export class SimulationBarUI {
             <button class="sim-scale-tab" data-scale="weekly" type="button" title="Week-by-week catastrophic basin pooling & drainage (Week 1 - 8)">WEEKLY</button>
           </div>
         </div>
-        <button id="sim-exit-btn" class="sim-btn sim-btn-danger" type="button" title="Exit simulation and return to real-time monitoring">
-          <span>✕</span> EXIT SIMULATION
-        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="sim-dock-min-btn" class="hud-minimize-toggle-btn" type="button" title="Minimize / Expand Dock">—</button>
+          <button id="sim-exit-btn" class="sim-btn sim-btn-danger" type="button" title="Exit simulation and return to real-time monitoring">
+            <span>✕</span> EXIT SIMULATION
+          </button>
+        </div>
       </div>
 
       <!-- Scenarios & Dynamic Magnitude Row -->
@@ -148,12 +151,23 @@ export class SimulationBarUI {
           <span>FOLLOW WAVE</span>
         </button>
       </div>
+
+      <!-- Resource Defense & Emergency Logistics Simulation Game Section -->
+      <div id="sim-resource-defense-container" class="hidden"></div>
     `;
 
     document.body.appendChild(this.container);
   }
 
   _wireEvents() {
+    // Minimize / Expand Dock button
+    this.container
+      .querySelector('#sim-dock-min-btn')
+      ?.addEventListener('click', (e) => {
+        const isMin = this.container.classList.toggle('sim-dock-minimized');
+        e.currentTarget.textContent = isMin ? '+' : '—';
+      });
+
     // Exit button
     this.container
       .querySelector('#sim-exit-btn')
@@ -313,6 +327,104 @@ export class SimulationBarUI {
     }
   }
 
+  setResourceDefenseGame(game) {
+    this.resourceGame = game;
+    const resBox = this.container?.querySelector('#sim-resource-defense-container');
+    if (!resBox) return;
+
+    if (!game) {
+      resBox.classList.add('hidden');
+      return;
+    }
+
+    resBox.classList.remove('hidden');
+    game.subscribe((gameState) => {
+      this._renderResourceDefenseUI(gameState, resBox);
+    });
+    this._renderResourceDefenseUI(
+      {
+        pool: game.pool,
+        targetState: game.targetState,
+        dispatches: game.dispatches,
+      },
+      resBox
+    );
+  }
+
+  _renderResourceDefenseUI(state, container) {
+    if (!container || !state) return;
+    const { pool, targetState, dispatches } = state;
+    const target = targetState.targetWp;
+    const isSecured = targetState.safeguardPct >= 100;
+
+    container.innerHTML = `
+      <div class="res-defense-section">
+        <div class="res-defense-header">
+          <div class="res-defense-title-group">
+            <span class="res-game-dot"></span>
+            <span class="res-defense-title">RESOURCE DEFENSE &amp; SAFGUARD SIMULATION</span>
+          </div>
+          <span class="res-target-status-badge ${isSecured ? 'secured' : ''}">
+            ${targetState.status}
+          </span>
+        </div>
+
+        <div class="res-target-meta-row">
+          <span>Target Hotspot: <strong class="res-target-name">${target ? target.name : 'Indus Downstream Basin'}</strong></span>
+          <span>Flood Crest: <strong class="res-target-eta">ETA ${targetState.etaHours.toFixed(1)}h</strong></span>
+        </div>
+
+        <div class="res-defense-bar-wrap">
+          <div class="res-defense-bar-fill" style="width: ${targetState.safeguardPct}%;"></div>
+        </div>
+
+        <div class="res-defense-stats-row">
+          <span>Safeguard Score: <strong>${targetState.currentDefense} / ${targetState.requiredDefense} PTS (${targetState.safeguardPct}%)</strong></span>
+          <span>Arrived: <strong>${targetState.arrivedFiretrucks}🚒 ${targetState.arrivedBoats}🚤 ${targetState.arrivedManpower}👥</strong></span>
+        </div>
+
+        <!-- Nationwide Currency Dispatch Buttons -->
+        <div class="res-dispatch-actions">
+          <button id="res-btn-dispatch-truck" class="res-dispatch-btn btn-truck" type="button" ${pool.firetrucks <= 0 ? 'disabled' : ''}>
+            <span>+ 🚒 Firetruck (${pool.firetrucks})</span>
+          </button>
+          <button id="res-btn-dispatch-boat" class="res-dispatch-btn btn-boat" type="button" ${pool.boats <= 0 ? 'disabled' : ''}>
+            <span>+ 🚤 Rescue Boat (${pool.boats})</span>
+          </button>
+          <button id="res-btn-dispatch-crew" class="res-dispatch-btn btn-crew" type="button" ${pool.manpower <= 25 ? 'disabled' : ''}>
+            <span>+ 👥 Manpower (${pool.manpower})</span>
+          </button>
+        </div>
+
+        ${dispatches && dispatches.length > 0 ? `
+          <div class="res-active-dispatches-list">
+            ${dispatches.map((d) => `
+              <div class="res-dispatch-item">
+                <div class="res-item-left">
+                  <span>${d.type.name}</span>
+                  <span style="color: #64748b;">•</span>
+                  <span style="color: #94a3b8;">${d.depot.name.split(' ')[0]}</span>
+                </div>
+                <div class="res-item-eta">En Route (${Math.round(d.progress * 100)}% • ${d.etaMin}m)</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    // Bind dispatch clicks
+    container.querySelector('#res-btn-dispatch-truck')?.addEventListener('click', () => {
+      this.resourceGame?.dispatchResource('firetruck');
+    });
+    container.querySelector('#res-btn-dispatch-boat')?.addEventListener('click', () => {
+      this.resourceGame?.dispatchResource('boat');
+    });
+    container.querySelector('#res-btn-dispatch-crew')?.addEventListener('click', () => {
+      this.resourceGame?.dispatchResource('crew');
+    });
+  }
+
   show() {
     if (this.container) {
       this.container.classList.remove('hidden');
@@ -335,3 +447,4 @@ export class SimulationBarUI {
     }
   }
 }
+
