@@ -1171,7 +1171,7 @@ export class CommandDashboard {
     [...items]
       .sort((a, b) => (a.w === peak ? -1 : b.w === peak ? 1 : a.f - b.f))
       .forEach((it) => {
-        if (it.f > 0 && labeled.every((o) => Math.abs(o.f - it.f) >= 0.17)) labeled.push(it);
+        if (it.f > 0 && labeled.every((o) => Math.abs(o.f - it.f) >= 0.26)) labeled.push(it);
       });
     r['tl-markers'].innerHTML = items
       .map((it) => {
