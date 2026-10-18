@@ -373,7 +373,7 @@ export class CommandDashboard {
         ${LOGO}
         <div class="cd-brand-text">
           <div class="cd-brand-name">Agaahi</div>
-          <div class="cd-brand-sub">River · People · Infrastructure · Ahead of risk</div>
+          <div class="cd-brand-sub">Flood intelligence · Pakistan</div>
         </div>
       </div>
       <div class="cd-search-slot"></div>

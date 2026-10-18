@@ -9,7 +9,7 @@ const BAND_COLORS = [
   { max: Infinity, hex: '#c62828', label: 'High' },
 ];
 const NO_DATA_HEX = '#9e9e9e';
-const FILL_ALPHA = 0.55;
+const FILL_ALPHA = 0.32;
 const NO_DATA_ALPHA = 0.25;
 const HIGHLIGHT_ALPHA = 0.9;
 const HAZARD_LABELS = {
