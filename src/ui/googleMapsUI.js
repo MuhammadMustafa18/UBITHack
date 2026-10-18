@@ -14,6 +14,15 @@ import { PakistanLayersManager } from '../layers/pakistanLayers.js';
 import { PredictiveHeatmaps } from '../simulation/predictiveHeatmaps.js';
 import { CountryThreatPolygons } from '../simulation/countryThreatPolygons.js';
 import {
+  LivePredictionEngine,
+  RISK_MODULES,
+  PREDICTION_GRID_CELLS,
+} from '../simulation/livePredictionEngine.js';
+import {
+  DemographicHeatmapEngine,
+  HEATMAP_MODES,
+} from '../simulation/demographicHeatmapEngine.js';
+import {
   FLOOD_SCENARIOS,
   FLOOD_MAGNITUDES,
   TIME_SCALES,
@@ -32,6 +41,8 @@ export const ICONS = {
   cyclone: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   pin: `<svg viewBox="0 0 24 24" class="gmaps-item-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
   plane: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
+  prediction: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>`,
+  heatmap: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>`,
 };
 
 export const PAKISTAN_LOCATIONS = {
@@ -303,6 +314,12 @@ export class GoogleMapsUI {
     // Country Threat Polygons dividing the entire country during flood simulation
     this.countryThreatPolygons = new CountryThreatPolygons(this.viewer, this.floodEngine);
 
+    // Live AI Risk Prediction Pipeline Engine (Earth Observation & 6 Risk Modules)
+    this.livePredictionEngine = new LivePredictionEngine(this.viewer);
+
+    // Dynamic Demographic & Risk Heatmap Engine (Population, Age, Resources, Risk)
+    this.demographicHeatmapEngine = new DemographicHeatmapEngine(this.viewer);
+
     this._init();
   }
 
@@ -397,7 +414,15 @@ export class GoogleMapsUI {
           <span class="gmaps-pill-icon">${ICONS.simulate}</span>
           <span>Simulate Flood</span>
         </button>
-        <button class="gmaps-pill" data-category="glaciers" type="button" title="Karakoram Glaciers & GLOF Lakes">
+        <button id="gmaps-pill-prediction" class="gmaps-pill gmaps-pill-prediction" type="button" title="Live AI Risk Prediction &amp; Earth Observation Pipeline">
+          <span class="gmaps-pill-icon">${ICONS.prediction}</span>
+          <span>Live Prediction</span>
+        </button>
+        <button id="gmaps-pill-heatmap" class="gmaps-pill gmaps-pill-heatmap" type="button" title="Demographic &amp; Disaster Risk Heatmaps (Population, Age, Resources, Risk)">
+          <span class="gmaps-pill-icon">${ICONS.heatmap}</span>
+          <span>Heatmaps</span>
+        </button>
+        <button class="gmaps-pill" data-category="glaciers" type="button" title="Karakoram Glaciers &amp; GLOF Lakes">
           <span class="gmaps-pill-icon">${ICONS.glacier}</span>
           <span>Glaciers &amp; GLOF</span>
         </button>
@@ -587,6 +612,346 @@ export class GoogleMapsUI {
       </div>
     `;
     document.body.appendChild(statusStrip);
+
+    // 6. Live AI Risk Prediction Console (Earth Observation & 6 Risk Modules)
+    this._renderPredictionPanelDOM();
+
+    // 7. Demographic & Risk Heatmap Floating Capsule (Population, Age, Resources, Risk)
+    this._renderHeatmapCapsuleDOM();
+
+    // 8. Bilingual Advisory Executive Modal (NDMA Field Briefing)
+    this._renderBilingualModalDOM();
+  }
+
+  _renderPredictionPanelDOM() {
+    const predPanel = document.createElement('div');
+    predPanel.id = 'gmaps-prediction-panel';
+    predPanel.className = 'gmaps-prediction-panel hidden';
+
+    const cellOptions = PREDICTION_GRID_CELLS.map(
+      (c) => `<option value="${c.id}">${c.name} (${c.compositeGrade})</option>`
+    ).join('');
+
+    const modulesHtml = Object.values(RISK_MODULES).map((mod) => `
+      <div class="pred-module-chip active" data-module-id="${mod.id}" title="${mod.subtitle}">
+        <span class="mod-icon">${mod.icon}</span>
+        <div class="mod-text">
+          <span class="mod-title">${mod.title}</span>
+          <span class="mod-tag">${mod.tag}</span>
+        </div>
+        <span class="mod-toggle-dot"></span>
+      </div>
+    `).join('');
+
+    predPanel.innerHTML = `
+      <div class="pred-header">
+        <div class="pred-title-group">
+          <div class="pred-tag">✦ LIVE EARTH OBSERVATION &amp; GEE PIPELINE</div>
+          <h3 class="pred-title">AI Risk Prediction Engine</h3>
+        </div>
+        <button id="pred-close-btn" class="pred-icon-close" type="button" title="Close Prediction Panel">✕</button>
+      </div>
+
+      <!-- 4-Step Pipeline -->
+      <div class="pred-pipeline-box">
+        <div class="pred-section-label">HOW IT WORKS: 4-STEP AI DATA PIPELINE</div>
+        <div class="pred-stepper">
+          <div class="pred-step">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <div class="step-name">Data In (Earth Observation)</div>
+              <div class="step-detail">Ingests Sentinel-1 SAR, drone feeds, ERA5 reanalysis &amp; ground telemetry</div>
+            </div>
+          </div>
+          <div class="pred-step">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <div class="step-name">AI Engine (Processing &amp; Modelling)</div>
+              <div class="step-detail">Google Earth Engine pipelines &amp; ML inundation classification</div>
+            </div>
+          </div>
+          <div class="pred-step">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <div class="step-name">Intelligence (Grid-Level Risk)</div>
+              <div class="step-detail">Granular 30m grid resolution risk profiles (not national averages)</div>
+            </div>
+          </div>
+          <div class="pred-step">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <div class="step-name">Decisions (Action on Ground)</div>
+              <div class="step-detail">Risk maps, dashboards &amp; bilingual advisories for budget &amp; field briefings</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Risk Modules Grid -->
+      <div class="pred-section-label">KEY FEATURES &amp; MODULES (CLICK TO TOGGLE 3D MAP LAYERS)</div>
+      <div class="pred-modules-grid">
+        ${modulesHtml}
+      </div>
+
+      <!-- 30m Granular Grid Inspection -->
+      <div class="pred-section-label">GRANULAR OBSERVATION GRID (SELECT REGIONAL CELL)</div>
+      <div class="pred-cell-selector-row">
+        <select id="pred-cell-select" class="pred-select">
+          ${cellOptions}
+        </select>
+      </div>
+
+      <div id="pred-cell-details" class="pred-cell-card">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Footer Action Row -->
+      <div class="pred-actions-row">
+        <button id="pred-advisory-btn" class="pred-btn-primary" type="button" title="View executive bilingual advisory in English and Urdu">
+          <span>📄 Bilingual Advisory (EN / اردو)</span>
+        </button>
+        <button id="pred-refresh-btn" class="pred-btn-secondary" type="button" title="Re-ingest Sentinel SAR and ERA5 reanalysis">
+          <span>↻ Refresh Satellite Feeds</span>
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(predPanel);
+  }
+
+  _renderHeatmapCapsuleDOM() {
+    const capsule = document.createElement('div');
+    capsule.id = 'gmaps-heatmap-capsule';
+    capsule.className = 'gmaps-heatmap-capsule hidden';
+
+    capsule.innerHTML = `
+      <div class="heatmap-header">
+        <div class="heatmap-title-group">
+          <span class="heatmap-badge">THEMATIC HEATMAPS</span>
+          <span class="heatmap-title">Pakistan Demographics &amp; Hazard Overlay</span>
+        </div>
+        <button id="heatmap-close-btn" class="heatmap-close-btn" type="button" title="Close Heatmaps">✕</button>
+      </div>
+
+      <div class="heatmap-toggles-row">
+        <button class="heatmap-toggle-btn active" data-mode="population" type="button" title="Population density &amp; headcount across 19 regions (Digital Census 2023)">
+          <span class="icon">👥</span>
+          <span>Population</span>
+        </button>
+        <button class="heatmap-toggle-btn" data-mode="age" type="button" title="Vulnerable dependents: Children under 5 and elderly over 65">
+          <span class="icon">👶</span>
+          <span>Age</span>
+        </button>
+        <button class="heatmap-toggle-btn" data-mode="resources" type="button" title="Critical relief inventory: Rescue boats, shelter camps, medical &amp; air assets">
+          <span class="icon">🏥</span>
+          <span>Resources</span>
+        </button>
+        <button class="heatmap-toggle-btn" data-mode="risk" type="button" title="Composite multi-hazard risk index combining exposure &amp; levee history">
+          <span class="icon">⚠️</span>
+          <span>Risk</span>
+        </button>
+      </div>
+
+      <div class="heatmap-legend" id="heatmap-legend">
+        <div class="legend-scale-bar population-ramp"></div>
+        <div class="legend-labels">
+          <span id="heatmap-legend-min">1.8M (Sparse GB)</span>
+          <span id="heatmap-legend-active">Mode: Population Density</span>
+          <span id="heatmap-legend-max">21.5M (High Density)</span>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(capsule);
+  }
+
+  _renderBilingualModalDOM() {
+    const modal = document.createElement('div');
+    modal.id = 'gmaps-bilingual-modal';
+    modal.className = 'gmaps-bilingual-modal hidden';
+
+    modal.innerHTML = `
+      <div class="bilingual-modal-backdrop"></div>
+      <div class="bilingual-modal-card">
+        <div class="bilingual-header">
+          <div class="bilingual-title-group">
+            <span class="bilingual-badge">NDMA / PDMA EMERGENCY INTELLIGENCE ADVISORY</span>
+            <h2 class="bilingual-headline" id="bilingual-headline">Field Briefing: Sukkur Barrage Bottleneck Corridor</h2>
+          </div>
+          <button id="bilingual-close-btn" class="bilingual-close-btn" type="button">✕</button>
+        </div>
+
+        <div class="bilingual-body">
+          <div class="bilingual-column english-col">
+            <div class="lang-tag">ENGLISH BRIEFING (CABINET &amp; BUDGET BRIEFING)</div>
+            <h4 class="advisory-sub" id="advisory-en-sub">Priority Hazard Assessment</h4>
+            <p class="advisory-text" id="advisory-en-text"></p>
+            
+            <div class="advisory-metrics-box">
+              <div class="advisory-metric">
+                <span class="k">Model Confidence:</span>
+                <span class="v">94.2% (Random Forest Classifier)</span>
+              </div>
+              <div class="advisory-metric">
+                <span class="k">Data Feeds:</span>
+                <span class="v">Sentinel-1 SAR C-Band + ERA5 Atmospheric</span>
+              </div>
+              <div class="advisory-metric">
+                <span class="k">Recommended Action:</span>
+                <span class="v" id="advisory-en-action">Emergency Evacuation &amp; Levee Reinforcement</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bilingual-column urdu-col" dir="rtl">
+            <div class="lang-tag">قومی ایمرجنسی ہدایت نامہ (فیلڈ بریفنگ)</div>
+            <h4 class="advisory-sub" id="advisory-ur-sub">سیلابی خطرے کی فوری وارننگ</h4>
+            <p class="advisory-text" id="advisory-ur-text"></p>
+
+            <div class="advisory-metrics-box">
+              <div class="advisory-metric">
+                <span class="k">ماڈل کا یقین:</span>
+                <span class="v">94.2 فیصد (مشین لرننگ ماڈل)</span>
+              </div>
+              <div class="advisory-metric">
+                <span class="k">ڈیٹا ذرائع:</span>
+                <span class="v">سینٹینل 1 ریڈار اور موسمیاتی ڈیٹا</span>
+              </div>
+              <div class="advisory-metric">
+                <span class="k">تجویز کردہ اقدام:</span>
+                <span class="v" id="advisory-ur-action">کچے کے علاقوں سے فوری انخلاء اور ریلیف کیمپوں کا قیام</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bilingual-footer">
+          <button id="bilingual-copy-btn" class="bilingual-btn-secondary" type="button">Copy Advisory Text</button>
+          <button id="bilingual-dismiss-btn" class="bilingual-btn-primary" type="button">Acknowledge &amp; Close</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  toggleLivePrediction(enabled) {
+    const isNowActive = enabled !== undefined ? enabled : !this.livePredictionEngine?.active;
+    const pill = document.getElementById('gmaps-pill-prediction');
+    const panel = document.getElementById('gmaps-prediction-panel');
+
+    if (isNowActive) {
+      this.livePredictionEngine?.enable();
+      pill?.classList.add('active');
+      panel?.classList.remove('hidden');
+      this._updatePredictionCellDisplay(this.livePredictionEngine?.selectedCell);
+      this._showToast('Live AI Risk Prediction active — 30m Earth observation grid enabled');
+    } else {
+      this.livePredictionEngine?.disable();
+      pill?.classList.remove('active');
+      panel?.classList.add('hidden');
+      this._showToast('Live Prediction closed');
+    }
+  }
+
+  toggleHeatmaps(enabled, mode = 'population') {
+    const isNowActive = enabled !== undefined ? enabled : !this.demographicHeatmapEngine?.active;
+    const pill = document.getElementById('gmaps-pill-heatmap');
+    const capsule = document.getElementById('gmaps-heatmap-capsule');
+
+    if (isNowActive) {
+      this.demographicHeatmapEngine?.enable(mode);
+      pill?.classList.add('active');
+      capsule?.classList.remove('hidden');
+      this._updateHeatmapLegend(mode);
+      this._showToast(`Heatmap active: ${HEATMAP_MODES[mode]?.name}`);
+    } else {
+      this.demographicHeatmapEngine?.disable();
+      pill?.classList.remove('active');
+      capsule?.classList.add('hidden');
+      this._showToast('Heatmap closed');
+    }
+  }
+
+  _updateHeatmapLegend(mode) {
+    const minEl = document.getElementById('heatmap-legend-min');
+    const activeEl = document.getElementById('heatmap-legend-active');
+    const maxEl = document.getElementById('heatmap-legend-max');
+    const rampEl = document.querySelector('.legend-scale-bar');
+
+    if (mode === 'population') {
+      if (minEl) minEl.textContent = '1.8M (Sparse GB)';
+      if (activeEl) activeEl.textContent = 'Metric: Population Density';
+      if (maxEl) maxEl.textContent = '21.5M (Central Punjab)';
+      if (rampEl) rampEl.className = 'legend-scale-bar population-ramp';
+    } else if (mode === 'age') {
+      if (minEl) minEl.textContent = '38.0% Dependent';
+      if (activeEl) activeEl.textContent = 'Metric: Children <5 & Elderly >65';
+      if (maxEl) maxEl.textContent = '46.2% Critical Dependent';
+      if (rampEl) rampEl.className = 'legend-scale-bar age-ramp';
+    } else if (mode === 'resources') {
+      if (minEl) minEl.textContent = 'Local Sector Unit';
+      if (activeEl) activeEl.textContent = 'Metric: Relief Logistics Staging Hubs';
+      if (maxEl) maxEl.textContent = 'Major Regional Command Hub';
+      if (rampEl) rampEl.className = 'legend-scale-bar resources-ramp';
+    } else {
+      if (minEl) minEl.textContent = 'Low Hazard (0-60)';
+      if (activeEl) activeEl.textContent = 'Metric: Composite Climate Risk Index';
+      if (maxEl) maxEl.textContent = 'Critical Inundation (90-100)';
+      if (rampEl) rampEl.className = 'legend-scale-bar risk-ramp';
+    }
+  }
+
+  _updatePredictionCellDisplay(cell) {
+    const details = document.getElementById('pred-cell-details');
+    if (!details || !cell) return;
+
+    details.innerHTML = `
+      <div class="cell-stat-header">
+        <span class="cell-name">${cell.name}</span>
+        <span class="cell-grade ${cell.compositeScore >= 90 ? 'critical' : 'high'}">${cell.compositeScore}/100 [${cell.compositeGrade}]</span>
+      </div>
+      <div class="cell-stats-grid">
+        <div class="cell-stat-item">
+          <span class="k">🌊 Flood (SAR):</span>
+          <span class="v">${cell.floodExposure} (${cell.sarBackscatterDb} dB)</span>
+        </div>
+        <div class="cell-stat-item">
+          <span class="k">🔥 Heat (LST):</span>
+          <span class="v">${cell.lstAnomalyC}</span>
+        </div>
+        <div class="cell-stat-item">
+          <span class="k">⛰️ Terrain Drainage:</span>
+          <span class="v">${cell.slopeDrainage}</span>
+        </div>
+        <div class="cell-stat-item">
+          <span class="k">🌫️ Air Quality:</span>
+          <span class="v">${cell.airQuality}</span>
+        </div>
+        <div class="cell-stat-item full">
+          <span class="k">🌱 Vegetation (NDVI):</span>
+          <span class="v">${cell.ndviTrend}</span>
+        </div>
+      </div>
+      <div class="cell-advisory-snippet">
+        <strong>Instant Field Advisory:</strong> ${cell.advisoryEn}
+      </div>
+    `;
+  }
+
+  _openBilingualAdvisory(cell = this.livePredictionEngine?.selectedCell || PREDICTION_GRID_CELLS[0]) {
+    const modal = document.getElementById('gmaps-bilingual-modal');
+    if (!modal) return;
+
+    const headline = document.getElementById('bilingual-headline');
+    const enText = document.getElementById('advisory-en-text');
+    const urText = document.getElementById('advisory-ur-text');
+
+    if (headline) headline.textContent = `Field Briefing: ${cell.name}`;
+    if (enText) enText.textContent = cell.advisoryEn;
+    if (urText) urText.textContent = cell.advisoryUr;
+
+    modal.classList.remove('hidden');
   }
 
   _bindEvents() {
@@ -616,6 +981,99 @@ export class GoogleMapsUI {
       } else {
         this._showSimulationScenarioCard();
       }
+    });
+
+    // 1b. Live Prediction Trigger
+    document.getElementById('gmaps-pill-prediction')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleLivePrediction();
+    });
+
+    document.getElementById('pred-close-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleLivePrediction(false);
+    });
+
+    // 1c. Heatmaps Trigger
+    document.getElementById('gmaps-pill-heatmap')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleHeatmaps();
+    });
+
+    document.getElementById('heatmap-close-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleHeatmaps(false);
+    });
+
+    // Heatmap Mode Buttons
+    document.querySelectorAll('.heatmap-toggle-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const mode = btn.getAttribute('data-mode');
+        document.querySelectorAll('.heatmap-toggle-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.demographicHeatmapEngine?.setMode(mode);
+        this._updateHeatmapLegend(mode);
+      });
+    });
+
+    // Prediction Module Chips Toggle
+    document.querySelectorAll('.pred-module-chip').forEach((chip) => {
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const modId = chip.getAttribute('data-module-id');
+        const isNowActive = !chip.classList.contains('active');
+        chip.classList.toggle('active', isNowActive);
+        this.livePredictionEngine?.setModuleActive(modId, isNowActive);
+        this._showToast(`${isNowActive ? 'Active' : 'Muted'}: ${modId.toUpperCase()} Intelligence Layer`);
+      });
+    });
+
+    // Prediction Observation Cell Select
+    document.getElementById('pred-cell-select')?.addEventListener('change', (e) => {
+      const cellId = e.target.value;
+      this.livePredictionEngine?.setSelectedCell(cellId);
+      this._updatePredictionCellDisplay(this.livePredictionEngine?.selectedCell);
+    });
+
+    // Bilingual Advisory Open & Dismiss
+    document.getElementById('pred-advisory-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this._openBilingualAdvisory();
+    });
+
+    document.getElementById('bilingual-close-btn')?.addEventListener('click', () => {
+      document.getElementById('gmaps-bilingual-modal')?.classList.add('hidden');
+    });
+
+    document.getElementById('bilingual-dismiss-btn')?.addEventListener('click', () => {
+      document.getElementById('gmaps-bilingual-modal')?.classList.add('hidden');
+    });
+
+    document.querySelector('.bilingual-modal-backdrop')?.addEventListener('click', () => {
+      document.getElementById('gmaps-bilingual-modal')?.classList.add('hidden');
+    });
+
+    document.getElementById('bilingual-copy-btn')?.addEventListener('click', () => {
+      const en = document.getElementById('advisory-en-text')?.textContent || '';
+      const ur = document.getElementById('advisory-ur-text')?.textContent || '';
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(`--- NDMA DISASTER ADVISORY ---\n${en}\n\n--- قومی ڈیزاسٹر مینجمنٹ اتھارٹی ہدایت نامہ ---\n${ur}`);
+      }
+      this._showToast('Advisory briefing copied to clipboard');
+    });
+
+    // Refresh satellite feeds simulated button
+    document.getElementById('pred-refresh-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      btn.classList.add('loading');
+      btn.textContent = '↻ Ingesting Sentinel-1 SAR & ERA5...';
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.textContent = '↻ Refresh Satellite Feeds';
+        this._showToast('Satellite feeds updated: Sentinel-1 SAR pass + GEE reanalysis complete');
+      }, 1200);
     });
 
     // 2. Category Pills (Glaciers, Dams, Hotspots)
@@ -835,9 +1293,20 @@ export class GoogleMapsUI {
       }
     }
 
-    // Press Escape to immediately exit Airplane Mode and unlock camera
+    // Press Escape to immediately exit Airplane Mode, close panels, and unlock camera
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        const bilingualModal = document.getElementById('gmaps-bilingual-modal');
+        if (bilingualModal && !bilingualModal.classList.contains('hidden')) {
+          bilingualModal.classList.add('hidden');
+          return;
+        }
+        if (this.livePredictionEngine?.active) {
+          this.toggleLivePrediction(false);
+        }
+        if (this.demographicHeatmapEngine?.active) {
+          this.toggleHeatmaps(false);
+        }
         if (this.viewer?.trackedEntity || document.body.classList.contains('plane-mode-active')) {
           this.exitAirplaneMode();
         }
