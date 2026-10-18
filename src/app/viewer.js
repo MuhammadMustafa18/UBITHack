@@ -121,7 +121,12 @@ export function createApplicationViewer({ container, creditContainer }) {
     baseLayer: false,
     creditContainer,
     msaaSamples: 1, // Performance optimization for smooth 60 FPS on low RAM
-    contextOptions: { webgl: { preserveDrawingBuffer: true, powerPreference: 'high-performance' } },
+    contextOptions: {
+      webgl: {
+        preserveDrawingBuffer: true,
+        powerPreference: 'high-performance',
+      },
+    },
   });
   try {
     viewer.targetFrameRate = 60;
