@@ -35,6 +35,7 @@
 @import './src/ui/styles/google-maps-theme.css';
 @import './src/ui/styles/rescue-dashboard.css';
 @import './src/ui/styles/tactical-ai.css';
+@import './src/ui/styles/shadcn-theme.css';
 
 .agahi-cell-card {
   position: fixed;
@@ -57,7 +58,7 @@
   z-index: 1;
   border: 0;
   background: transparent;
-  color: #5f6368;
+  color: var(--sc-muted-foreground);
   font-size: 14px;
   cursor: pointer;
 }
