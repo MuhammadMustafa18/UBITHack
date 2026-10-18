@@ -427,12 +427,6 @@ export class GoogleMapsUI {
         </button>
       </div>
 
-      <!-- Floating Exit Plane Mode Banner (prominently visible whenever plane mode is ON) -->
-      <div id="gmaps-plane-banner" class="gmaps-plane-banner hidden">
-        <span>✈️ Live Air Traffic Active</span>
-        <button id="gmaps-plane-banner-exit" class="gmaps-plane-banner-btn" type="button">EXIT PLANE MODE ✕</button>
-      </div>
-
       <!-- Top Right Quick Actions -->
       <div class="gmaps-top-right">
         <button id="gmaps-share-btn" class="gmaps-round-btn" type="button" title="Share 3D View Link" aria-label="Share">
@@ -819,10 +813,6 @@ export class GoogleMapsUI {
       e.stopPropagation();
       const currentActive = document.body.classList.contains('plane-mode-active');
       this.setFlightsLayerEnabled(!currentActive);
-    });
-    document.getElementById('gmaps-plane-banner-exit')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.exitAirplaneMode();
     });
 
     document.getElementById('gmaps-emergency-plane-exit')?.addEventListener('click', (e) => {
@@ -1357,7 +1347,6 @@ export class GoogleMapsUI {
     const planeCheck = document.getElementById('gmaps-check-plane');
     const pill = document.getElementById('gmaps-pill-planes');
     const pillLabel = document.getElementById('gmaps-pill-planes-label');
-    const banner = document.getElementById('gmaps-plane-banner');
 
     if (enabled) {
       if (dataManager) {
@@ -1372,7 +1361,6 @@ export class GoogleMapsUI {
       if (planeCheck) planeCheck.checked = true;
       if (pill) pill.classList.add('active');
       if (pillLabel) pillLabel.textContent = 'Exit Plane Mode ✕';
-      if (banner) banner.classList.remove('hidden');
       this._showToast('Plane mode ON — live air traffic enabled');
     } else {
       if (dataManager) {
@@ -1397,7 +1385,6 @@ export class GoogleMapsUI {
       if (planeCheck) planeCheck.checked = false;
       if (pill) pill.classList.remove('active');
       if (pillLabel) pillLabel.textContent = 'Plane Mode';
-      if (banner) banner.classList.add('hidden');
 
       // Clean local storage so it stays off
       try {
