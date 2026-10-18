@@ -1,0 +1,50 @@
+[
+  {
+    "aoi": "fixture",
+    "name": "Sukkur (fixture)",
+    "nameUr": "سکھر (نمونہ)",
+    "bbox": [
+      68.7,
+      27.55,
+      69,
+      27.85
+    ],
+    "file": "grid/fixture.json"
+  },
+  {
+    "aoi": "sukkur",
+    "name": "Sukkur",
+    "nameUr": "سکھر",
+    "bbox": [
+      68.7,
+      27.55,
+      69,
+      27.85
+    ],
+    "file": "grid/sukkur.json"
+  },
+  {
+    "aoi": "karachi",
+    "name": "Karachi",
+    "nameUr": "کراچی",
+    "bbox": [
+      66.85,
+      24.75,
+      67.35,
+      25.1
+    ],
+    "file": "grid/karachi.json"
+  },
+  {
+    "aoi": "swat_kabul",
+    "name": "Swat–Kabul corridor",
+    "nameUr": "سوات–کابل راہداری",
+    "bbox": [
+      68.88,
+      32.83,
+      72.87,
+      36.61
+    ],
+    "file": "grid/swat_kabul.json"
+  }
+]

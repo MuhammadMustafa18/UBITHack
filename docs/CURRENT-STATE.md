@@ -5782,3 +5782,24 @@ datacenters, dams and the Nepal locator retain that shared credit while displaye
 
 Military fragments stitch by source identity. Different mapped parcels merge only
 when their footprints touch or contain one another, never across a seam tolerance gap.
+
+## Agahi Climate Intelligence (2026-10-18)
+
+Grid risk scoring lives in `src/intelligence/` (`scoring`, `gridStore`, `queries`,
+`grounding`, `advisory` are pure; `gridLayer`, `cellCard`, `dashboardPanel`,
+`copilotPanel` are UI). Grids are static JSON in `public/data/agahi/grid/<aoi>.json`
+for AOIs listed in `public/data/agahi/aois.json`; missing metrics are `null` and
+a cell with composite coverage under 0.5 is `insufficient_data`. The four
+`CLIMATE_TOOLS` in `src/tools/queries/climate.js` are part of `coreTools`, so MCP
+and voice see them. `POST /api/agahi/copilot` (`server/providers/agahiCopilot.js`,
+same-site gated, rate limited with the OpenAI limiter) runs a tool loop and
+replaces ungrounded answers with a deterministic summary; without
+`OPENAI_API_KEY` it returns 503 and the panel keeps its quick-question chips.
+
+`GoogleMapsUI` owns the wiring: the Risk Intel pill shows the dashboard and
+`RiskGridLayer` (hazard dropdown, cell card on click or row select) and the
+Copilot pill toggles the copilot panel with the current AOI and selected cell as
+context. The grid data credit is registered when the layer shows, using the
+Open-Meteo credit when the loaded grid has `pipeline: "openmeteo"`. The shipped
+grids use that pipeline (see `pipeline/agahi/README.md`); a `gee` pipeline is not
+built.
