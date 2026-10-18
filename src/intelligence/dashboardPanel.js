@@ -30,16 +30,23 @@ const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
 const fmtInt = (x) => (isNum(x) ? Math.round(x).toLocaleString('en-US') : NO_DATA);
 const fmtPct = (x) => (isNum(x) ? `${Math.round(x * 100)}%` : NO_DATA);
 
-function kpisOf(summary) {
+function kpisOf(summary, grid) {
   const counts = summary.bandCounts || {};
   const highElev = (counts.high || 0) + (counts.elevated || 0);
+  const cellKm = isNum(grid?.cellDeg) ? (grid.cellDeg * 111).toFixed(1) : null;
   return [
-    ['Cells', fmtInt(summary.cells)],
-    ['High + elevated', summary.cells ? `${Math.round((highElev / summary.cells) * 100)}%` : NO_DATA],
-    ['Population in high band', fmtInt(summary.popByBand?.high)],
-    ['Mean coverage', fmtPct(summary.coverageMean)],
+    ['Cells', fmtInt(summary.cells), cellKm ? `(${cellKm} km cells)` : ''],
+    ['High + elevated', summary.cells ? `${Math.round((highElev / summary.cells) * 100)}%` : NO_DATA, `(${fmtInt(highElev)} cells)`],
+    ['Population in high band', fmtInt(summary.popByBand?.high), '(est.)'],
+    ['Mean coverage', fmtPct(summary.coverageMean), '(valid data)'],
   ];
 }
+
+const ICON_RISK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 3 6v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V6l-9-4zm0 2.2 7 3.1V12c0 4-2.9 7.9-7 9-4.1-1.1-7-5-7-9V7.3l7-3.1zM11 7h2v6h-2V7zm0 8h2v2h-2v-2z"/></svg>';
+const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>';
+const ICON_PRINT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>';
+const ICON_CHEVRON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10 6 8.6 7.4 13.2 12l-4.6 4.6L10 18l6-6z"/></svg>';
+const LEGEND_BANDS = ['high', 'elevated', 'moderate', 'low', 'insufficient_data'];
 
 function sourcesOf(grid) {
   return Object.entries(grid.sources || {}).map(([key, src]) => {
@@ -68,7 +75,7 @@ function buildBriefing({ entry, grid, summary, top, today }) {
   const hazardRows = HAZARDS.map(
     (h) => `<tr><td>${esc(HAZARD_LABELS[h])}</td><td>${esc(isNum(summary.hazardMeans?.[h]) ? summary.hazardMeans[h] : NO_DATA)}</td></tr>`,
   ).join('');
-  const kpiRows = kpisOf(summary)
+  const kpiRows = kpisOf(summary, grid)
     .map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`)
     .join('');
   const sources = sourcesOf(grid)
@@ -118,9 +125,10 @@ export class RiskDashboardPanel {
     this.container.className = 'agahi-dash hidden';
     this.container.innerHTML = `
       <div class="agahi-dash-header">
+        <span class="agahi-dash-icon">${ICON_RISK}</span>
         <span class="agahi-dash-title">Risk Intelligence</span>
         <span class="agahi-dash-badge" data-slot="badge"></span>
-        <button class="agahi-dash-close" type="button" data-act="close" aria-label="Close">✕</button>
+        <button class="agahi-dash-close" type="button" data-act="close" aria-label="Close Risk Intelligence">✕</button>
       </div>
       <div class="agahi-dash-body" data-slot="body"></div>
     `;
@@ -135,13 +143,26 @@ export class RiskDashboardPanel {
 
   show(aoi) {
     this.visible = true;
-    this.container.classList.remove('hidden');
+    this.container.classList.remove('hidden', 'agahi-collapsed');
     this._load(aoi || this._aoi || 'sukkur');
   }
 
   hide() {
     this.visible = false;
-    this.container.classList.add('hidden');
+    this.container.classList.add(this.docked ? 'agahi-collapsed' : 'hidden');
+  }
+
+  dock(slot, aoi) {
+    this.docked = true;
+    this.container.classList.add('agahi-docked');
+    slot.appendChild(this.container);
+    this.show(aoi);
+  }
+
+  setLanguage(lang) {
+    if (lang !== 'en' && lang !== 'ur') return;
+    this._lang = lang;
+    this._render();
   }
 
   toggle() {
@@ -188,7 +209,10 @@ export class RiskDashboardPanel {
     const el = e.target.closest('[data-act]');
     if (!el) return;
     const act = el.dataset.act;
-    if (act === 'close') this.hide();
+    if (act === 'close') {
+      if (this.docked && !this.visible) this.show();
+      else this.hide();
+    }
     else if (act === 'hazard') {
       this._hazard = el.dataset.value;
       this._render();
@@ -226,11 +250,11 @@ export class RiskDashboardPanel {
     this.badge.classList.toggle('agahi-dash-badge-fallback', pipeline === 'openmeteo');
     this.badge.hidden = !pipeline;
 
-    const select = `<select class="agahi-dash-select" data-act="aoi" aria-label="Area of interest">${
+    const select = `<label class="agahi-dash-aoi"><span>Area of interest</span><select class="agahi-dash-select" data-act="aoi">${
       (this._aois.length ? this._aois : [{ aoi: this._aoi, name: this._aoi }])
         .map((a) => `<option value="${esc(a.aoi)}"${a.aoi === this._aoi ? ' selected' : ''}>${esc(a.name || a.aoi)}</option>`)
         .join('')
-    }</select>`;
+    }</select></label>`;
 
     let content;
     if (this._error) {
@@ -246,24 +270,31 @@ export class RiskDashboardPanel {
 
   _renderLoaded() {
     const s = this._summary;
-    const kpis = kpisOf(s)
-      .map(([k, v]) => `<div class="agahi-dash-kpi"><div class="agahi-dash-kpi-value">${esc(v)}</div><div class="agahi-dash-kpi-label">${esc(k)}</div></div>`)
+    const kpis = kpisOf(s, this._grid)
+      .map(
+        ([k, v, sub]) =>
+          `<div class="agahi-dash-kpi"><div class="agahi-dash-kpi-value">${esc(v)}</div><div class="agahi-dash-kpi-label">${esc(k)}</div>${sub ? `<div class="agahi-dash-kpi-sub">${esc(sub)}</div>` : ''}</div>`,
+      )
       .join('');
+
+    const legend = LEGEND_BANDS.map(
+      (b) => `<span class="agahi-dash-legend-item"><i class="agahi-dash-swatch agahi-dash-band-${b}"></i>${esc(BAND_LABELS[b])}</span>`,
+    ).join('');
 
     const bars = HAZARDS.map((h) => {
       const v = s.hazardMeans?.[h];
       const band = bandOf(v);
       return `<div class="agahi-dash-bar-row">
         <span class="agahi-dash-bar-label">${esc(HAZARD_LABELS[h])}</span>
-        <span class="agahi-dash-bar-track"><span class="agahi-dash-bar-fill agahi-dash-band-${band}" style="width:${isNum(v) ? Math.max(0, Math.min(100, v)) : 0}%"></span></span>
         <span class="agahi-dash-bar-value">${isNum(v) ? esc(v) : NO_DATA}</span>
+        <span class="agahi-dash-bar-track"><span class="agahi-dash-bar-fill agahi-dash-band-${band}" style="width:${isNum(v) ? Math.max(0, Math.min(100, v)) : 0}%"></span></span>
       </div>`;
     }).join('');
 
-    const chips = ['composite', ...HAZARDS]
+    const tabs = ['composite', ...HAZARDS]
       .map(
         (h) =>
-          `<button type="button" class="agahi-dash-chip${h === this._hazard ? ' active' : ''}" data-act="hazard" data-value="${h}">${esc(HAZARD_LABELS[h])}</button>`,
+          `<button type="button" role="tab" aria-selected="${h === this._hazard}" class="agahi-dash-chip${h === this._hazard ? ' active' : ''}" data-act="hazard" data-value="${h}">${esc(h === 'composite' ? 'All' : HAZARD_LABELS[h])}</button>`,
       )
       .join('');
     const top = rankCells(this._grid, { hazard: this._hazard, limit: TOP_N });
@@ -271,35 +302,48 @@ export class RiskDashboardPanel {
       ? top
           .map(
             (r, i) => `<tr data-cell="${esc(r.id)}" tabindex="0">
-              <td>${i + 1}</td><td class="agahi-dash-cell-id">${esc(r.id)}</td><td>${esc(r.score)}</td>
+              <td class="agahi-dash-rank">${i + 1}</td><td class="agahi-dash-cell-id">${esc(r.id)}</td><td class="agahi-dash-num">${esc(r.score)}</td>
               <td><span class="agahi-dash-pill agahi-dash-band-${esc(r.band)}">${esc(BAND_LABELS[r.band] || r.band)}</span></td>
-              <td>${esc(fmtInt(r.pop))}</td></tr>`,
+              <td class="agahi-dash-num">${esc(fmtInt(r.pop))}</td><td class="agahi-dash-chev">${ICON_CHEVRON}</td></tr>`,
           )
           .join('')
-      : `<tr><td colspan="5" class="agahi-dash-empty">${NO_DATA}</td></tr>`;
+      : `<tr><td colspan="6" class="agahi-dash-empty">${NO_DATA}</td></tr>`;
 
     const entry = this._entry();
-    const adv = advisory({ ...s, name: entry?.name, nameUr: entry?.nameUr }, this._lang);
+    const input = { ...s, name: entry?.name, nameUr: entry?.nameUr };
+    const en = advisory(input, 'en');
+    const ur = advisory(input, 'ur');
     const langBtn = (l, label) =>
-      `<button type="button" class="agahi-dash-chip${this._lang === l ? ' active' : ''}" data-act="lang" data-value="${l}">${label}</button>`;
-    const advBlock =
-      this._lang === 'ur'
-        ? `<div class="agahi-dash-adv agahi-dash-adv-ur" dir="rtl" lang="ur"><h4>${esc(adv.title)}</h4><ul>${adv.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul><p class="agahi-dash-note" dir="ltr" lang="en">${esc(adv.note)}</p></div>`
-        : `<div class="agahi-dash-adv" dir="ltr" lang="en"><h4>${esc(adv.title)}</h4><ul>${adv.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>`;
+      `<button type="button" aria-pressed="${this._lang === l}" class="agahi-dash-seg${this._lang === l ? ' active' : ''}" data-act="lang" data-value="${l}">${label}</button>`;
+    const col = (adv, l) =>
+      `<div class="agahi-dash-adv-col${this._lang === l ? ' is-primary' : ''}${l === 'ur' ? ' agahi-dash-adv-ur' : ''}" dir="${l === 'ur' ? 'rtl' : 'ltr'}" lang="${l}"><ul>${adv.lines.map((line) => `<li>${esc(line)}</li>`).join('')}</ul></div>`;
+    const note = this._lang === 'ur' ? ur.note : en.note;
+    const hazardName = this._hazard === 'composite' ? 'composite' : HAZARD_LABELS[this._hazard].toLowerCase();
 
     return `
       <div class="agahi-dash-kpis">${kpis}</div>
-      <h4 class="agahi-dash-h">Mean hazard score</h4>
+      <div class="agahi-dash-section-head">
+        <h4 class="agahi-dash-h">Mean hazard score <span>(selected area)</span></h4>
+        <div class="agahi-dash-legend">${legend}</div>
+      </div>
       <div class="agahi-dash-bars">${bars}</div>
-      <h4 class="agahi-dash-h">Top ${TOP_N} cells</h4>
-      <div class="agahi-dash-chips">${chips}</div>
-      <table class="agahi-dash-table"><thead><tr><th>#</th><th>Cell</th><th>Score</th><th>Band</th><th>Pop.</th></tr></thead><tbody>${rows}</tbody></table>
-      <h4 class="agahi-dash-h">Area advisory</h4>
-      <div class="agahi-dash-chips">${langBtn('en', 'EN')}${langBtn('ur', 'اردو')}</div>
-      ${advBlock}
+      <div class="agahi-dash-section-head">
+        <h4 class="agahi-dash-h">Top ${TOP_N} cells <span>(by ${esc(hazardName)} hazard score)</span></h4>
+      </div>
+      <div class="agahi-dash-chips" role="tablist" aria-label="Hazard">${tabs}</div>
+      <table class="agahi-dash-table"><thead><tr><th>#</th><th>Cell ID</th><th>Score</th><th>Band</th><th>Population</th><th><span class="agahi-dash-sr">Open</span></th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="agahi-dash-adv">
+        <div class="agahi-dash-section-head">
+          <h4 class="agahi-dash-h agahi-dash-adv-title">Area advisory — ${esc(entry?.name || s.aoi)}</h4>
+          <div class="agahi-dash-segs" role="group" aria-label="Advisory language">${langBtn('en', 'EN')}${langBtn('ur', 'اردو')}</div>
+        </div>
+        <div class="agahi-dash-adv-cols">${col(en, 'en')}${col(ur, 'ur')}</div>
+        ${note ? `<p class="agahi-dash-note" dir="${this._lang === 'ur' ? 'rtl' : 'ltr'}">${esc(note)}</p>` : ''}
+      </div>
       <div class="agahi-dash-actions">
-        <button type="button" class="agahi-dash-btn" data-act="download">Download briefing</button>
-        <button type="button" class="agahi-dash-btn" data-act="print">Print</button>
-      </div>`;
+        <button type="button" class="agahi-dash-btn" data-act="download">${ICON_DOWNLOAD}<span>Download briefing</span></button>
+        <button type="button" class="agahi-dash-btn agahi-dash-btn-outline" data-act="print">${ICON_PRINT}<span>Print</span></button>
+      </div>
+      <p class="agahi-dash-foot">Missing data is shown as <em>no data</em>, never as low risk.</p>`;
   }
 }

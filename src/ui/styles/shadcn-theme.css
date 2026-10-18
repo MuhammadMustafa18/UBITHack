@@ -1,0 +1,1070 @@
+:root {
+  --sc-background: #09090b;
+  --sc-foreground: #fafafa;
+  --sc-card: rgba(9, 9, 11, 0.9);
+  --sc-muted: #18181b;
+  --sc-muted-foreground: #a1a1aa;
+  --sc-subtle: #71717a;
+  --sc-accent: #27272a;
+  --sc-border: #27272a;
+  --sc-border-strong: #3f3f46;
+  --sc-ring: rgba(212, 212, 216, 0.35);
+  --sc-primary: #fafafa;
+  --sc-primary-foreground: #18181b;
+  --sc-primary-hover: #e4e4e7;
+  --sc-radius: 10px;
+  --sc-radius-sm: 6px;
+  --sc-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sc-on-map-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.75);
+  --sc-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --cohere-black: #fafafa;
+  --cohere-near-black: #fafafa;
+  --cohere-ink: #fafafa;
+  --cohere-white: #09090b;
+  --cohere-green: #fafafa;
+  --cohere-green-dark: #e4e4e7;
+  --cohere-dark-navy: #18181b;
+  --cohere-action-blue: #a1a1aa;
+  --cohere-coral: #d4d4d8;
+  --cohere-coral-soft: #71717a;
+  --cohere-soft-stone: #27272a;
+  --cohere-pale-green: #18181b;
+  --cohere-pale-blue: #18181b;
+  --cohere-hairline: #27272a;
+  --cohere-border-light: #27272a;
+  --cohere-slate: #a1a1aa;
+  --cohere-muted-slate: #71717a;
+  --radius-pill: 9999px;
+  --radius-card: 12px;
+  --radius-md: 8px;
+  --radius-sm: 6px;
+}
+
+.gmaps-dropdown-card,
+.gmaps-prediction-panel,
+.gmaps-heatmap-capsule,
+.bilingual-modal-card,
+.threat-polygon-tooltip,
+.demographic-heatmap-tooltip,
+.origin-hover-callout,
+#flood-sim-dock,
+.flood-sim-dock,
+.agahi-dash,
+.agahi-copilot,
+.agahi-grid-legend,
+.agahi-grid-card,
+.corridor-panel,
+.tactical-ai-drawer,
+.gmaps-layers-menu {
+  background: var(--sc-card) !important;
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid var(--sc-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--sc-shadow) !important;
+  color: var(--sc-foreground) !important;
+  font-family: var(--sc-font);
+}
+
+.agahi-cell-card .agahi-grid-card {
+  box-shadow: none !important;
+}
+
+.agahi-cell-card {
+  border-radius: 12px;
+  box-shadow: var(--sc-shadow);
+}
+
+.gmaps-top-container {
+  font-family: var(--sc-font);
+}
+
+.gmaps-search-box {
+  background: rgba(9, 9, 11, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+  box-shadow: var(--sc-shadow);
+}
+
+.gmaps-search-box:focus-within {
+  border-color: var(--sc-border-strong);
+  box-shadow: 0 0 0 3px var(--sc-ring), var(--sc-shadow);
+}
+
+.gmaps-search-input {
+  color: var(--sc-foreground);
+}
+
+.gmaps-search-input::placeholder {
+  color: var(--sc-subtle);
+}
+
+.gmaps-icon-btn {
+  color: var(--sc-muted-foreground);
+  border-radius: var(--sc-radius-sm);
+}
+
+.gmaps-icon-btn:hover {
+  background: var(--sc-accent);
+  color: var(--sc-foreground);
+}
+
+.gmaps-directions-btn {
+  background: var(--sc-primary);
+  border-radius: var(--sc-radius-sm);
+}
+
+.gmaps-directions-btn:hover {
+  background: var(--sc-primary-hover);
+  transform: none;
+}
+
+.gmaps-directions-icon path {
+  fill: var(--sc-primary-foreground);
+}
+
+.gmaps-pill,
+.gmaps-pill-featured,
+.gmaps-pill-planes.active,
+.gmaps-round-btn,
+.gmaps-status-pill {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(250, 250, 250, 0.22) !important;
+  box-shadow: none !important;
+  color: #d4d4d8 !important;
+  font-family: var(--sc-font);
+  font-weight: 500;
+  text-shadow: var(--sc-on-map-shadow);
+  transform: none !important;
+}
+
+.gmaps-pill {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
+  gap: 7px;
+}
+
+.gmaps-pill .gmaps-pill-icon,
+.gmaps-pill-featured .gmaps-pill-icon {
+  color: currentColor !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
+}
+
+.gmaps-pill .gmaps-pill-svg {
+  color: currentColor !important;
+}
+
+.gmaps-pill:hover,
+.gmaps-pill-featured:hover,
+.gmaps-round-btn:hover {
+  border-color: rgba(250, 250, 250, 0.55) !important;
+  color: var(--sc-foreground) !important;
+}
+
+.gmaps-pill.active,
+.gmaps-pill-planes.active,
+.gmaps-pill-featured.active {
+  border-color: var(--sc-foreground) !important;
+  color: var(--sc-foreground) !important;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--sc-foreground), 0 0 14px rgba(250, 250, 250, 0.18) !important;
+}
+
+.gmaps-pill.active .gmaps-pill-icon svg {
+  color: var(--sc-foreground);
+}
+
+.gmaps-pill:focus-visible,
+.gmaps-round-btn:focus-visible,
+.gmaps-nav-btn:focus-visible {
+  outline: 2px solid var(--sc-foreground);
+  outline-offset: 2px;
+}
+
+.gmaps-status-pill .status-title {
+  color: #d4d4d8;
+}
+
+.gmaps-status-pill .status-metric {
+  color: var(--sc-foreground);
+}
+
+.status-indicator-dot,
+.tactical-ai-pulse-dot,
+.sim-dot,
+.res-game-dot,
+.sim-forecast-dot,
+.rescue-badge-live .pulse-dot {
+  background: var(--sc-foreground) !important;
+  box-shadow: 0 0 8px rgba(250, 250, 250, 0.6) !important;
+}
+
+.gmaps-nav-btn,
+.gmaps-nav-group {
+  background: rgba(9, 9, 11, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: var(--sc-border);
+  color: var(--sc-foreground);
+  box-shadow: var(--sc-shadow);
+}
+
+.gmaps-nav-btn:hover {
+  background: var(--sc-accent);
+  border-color: var(--sc-border-strong);
+  transform: none;
+}
+
+.gmaps-nav-group .gmaps-nav-btn {
+  background: transparent;
+}
+
+.gmaps-dropdown-header,
+.agahi-copilot-header,
+.tactical-ai-header,
+.agahi-copilot-chips,
+.agahi-copilot-form {
+  border-color: var(--sc-border) !important;
+}
+
+.tactical-ai-header,
+.tactical-ai-glance-bar,
+.tactical-ai-settings-panel,
+.tactical-ai-chips,
+.tactical-ai-input-bar {
+  background: transparent !important;
+  border-color: var(--sc-border) !important;
+}
+
+.dropdown-header-title,
+.sim-dialog-title-group h3,
+.agahi-dash-title,
+.agahi-copilot-title,
+.tactical-ai-header-title,
+.tactical-ai-btn-title,
+.agahi-grid-card-id,
+.agahi-grid-legend-title,
+.pred-title,
+.heatmap-title,
+.bilingual-headline,
+.item-name,
+.sim-scenario-title,
+.rescue-brand-title,
+.detail-title,
+.detail-headline h2,
+.gemini-chat-header-title,
+.incident-sender,
+.rescue-sender-name,
+.res-defense-title,
+.res-target-name,
+.threat-tooltip-reg-name,
+.callout-title {
+  color: var(--sc-foreground) !important;
+  font-family: var(--sc-font);
+  letter-spacing: -0.015em;
+}
+
+.item-region,
+.item-desc,
+.sim-scenario-desc,
+.sim-dialog-section-label,
+.sim-tel-label,
+.agahi-dash-msg,
+.agahi-dash-bar-value,
+.agahi-dash-cell-id,
+.agahi-dash-empty,
+.agahi-grid-legend-row,
+.agahi-grid-card-coords,
+.agahi-grid-section-title,
+.agahi-grid-bar-value,
+.agahi-grid-metric span:first-child,
+.agahi-grid-muted,
+.agahi-grid-note,
+.agahi-grid-sources,
+.agahi-copilot-computed,
+.agahi-copilot-foot,
+.corridor-meta,
+.corridor-muted,
+.corridor-panel-foot,
+.corridor-stats > div,
+.tactical-ai-header-subtitle,
+.glance-label,
+.settings-group label,
+.pred-section-label,
+.cell-stat-item .k,
+.rescue-route-tag,
+.rescue-stat-box .lbl,
+.incident-time,
+.incident-district,
+.incident-score,
+.incident-snippet,
+.detail-meta,
+.detail-sub-meta,
+.detail-status-box .lbl,
+.section-title,
+.rescue-empty-state,
+.llm-reasoning-item .k,
+.llm-reasoning-item .v.mono,
+.callout-elev,
+.callout-desc,
+.threat-tooltip-province,
+.threat-tooltip-status,
+.threat-pop-label,
+.threat-demo-header,
+.threat-res-header,
+.threat-res-item,
+.demo-chip,
+.res-target-meta-row,
+.res-defense-stats-row,
+.rescue-district-tag,
+.rescue-msg-excerpt,
+.ai-reasoning-text,
+.legend-labels,
+.advisory-sub {
+  color: var(--sc-muted-foreground) !important;
+}
+
+.agahi-dash-note,
+.corridor-warn,
+.corridor-list li.fail,
+.corridor-list li.warn,
+.corridor-list li.ok {
+  color: #d4d4d8 !important;
+}
+
+.sim-title,
+#sim-time-current,
+.glance-val,
+.msg-h3,
+.msg-code,
+.settings-title,
+.tactical-ai-btn-sim-badge,
+.res-item-eta,
+.threat-pop-val,
+.ai-triage-title,
+.callout-region,
+.incident-district .ch,
+.sim-tel-val,
+.cell-stat-item .v,
+.agahi-dash-kpi-value,
+.agahi-grid-card-score-num,
+.rescue-stat-box .num,
+.rescue-stat-pill .num,
+.incident-score strong,
+.detail-score-pill strong,
+.detail-status-box .val,
+.llm-reasoning-item .v,
+.demo-cell-pct,
+.status-metric {
+  color: var(--sc-foreground) !important;
+  text-shadow: none;
+}
+
+.agahi-dash-kpi-value,
+.agahi-grid-card-score-num,
+.rescue-stat-box .num,
+.sim-tel-val {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.agahi-dash-kpi,
+.agahi-dash-adv,
+.agahi-grid-advisory,
+.corridor-card,
+.corridor-stats > div,
+.sim-telemetry-box,
+.sim-dialog-telemetry,
+.sim-telemetry-strip,
+.sim-origin-picker-box,
+.sim-toggle-row,
+.pred-pipeline-box,
+.pred-cell-card,
+.cell-advisory-snippet,
+.bilingual-column,
+.advisory-metrics-box,
+.demo-tooltip-item.highlight,
+.rescue-stat-box,
+.rescue-stat-box.critical,
+.rescue-stat-box.warning,
+.rescue-incident-card,
+.rescue-detail-card,
+.detail-status-box,
+.citizen-msg-box,
+.llm-reasoning-box,
+.gemini-chat-container,
+.res-defense-section,
+.rescue-card,
+.detail-header-card,
+.detail-verbatim-box,
+.detail-ai-triage-box {
+  background: rgba(24, 24, 27, 0.6) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius) !important;
+  box-shadow: none !important;
+  color: var(--sc-foreground) !important;
+}
+
+.sim-telemetry-box,
+.sim-dialog-telemetry {
+  color: var(--sc-foreground) !important;
+}
+
+.rescue-incident-card:hover,
+.rescue-card:hover {
+  border-color: var(--sc-border-strong) !important;
+  background: rgba(39, 39, 42, 0.7) !important;
+}
+
+.rescue-incident-card.selected,
+.rescue-card.selected {
+  border-color: var(--sc-foreground) !important;
+  background: rgba(39, 39, 42, 0.85) !important;
+  box-shadow: inset 0 0 0 1px var(--sc-foreground) !important;
+}
+
+.agahi-dash-btn,
+.agahi-copilot-send,
+.corridor-btn.primary,
+.tactical-btn-primary,
+.tactical-ai-send-btn,
+.gemini-send-btn,
+.gmaps-dialog-start-btn,
+.gmaps-status-action-btn,
+.pred-btn-primary,
+.bilingual-btn-primary,
+.sim-btn-primary,
+.sim-trigger-btn,
+.action-btn.dispatch-boat,
+.action-btn.dispatch-pump,
+.action-btn.dispatch-heli,
+.detail-primary-dispatch-btn,
+.callout-cta,
+.origin-picker-cancel-btn {
+  background: var(--sc-primary) !important;
+  color: var(--sc-primary-foreground) !important;
+  border: 1px solid var(--sc-primary) !important;
+  border-radius: var(--sc-radius-sm) !important;
+  box-shadow: none !important;
+  font-family: var(--sc-font);
+  font-weight: 600;
+  text-shadow: none;
+  transform: none !important;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.agahi-dash-btn:hover,
+.agahi-copilot-send:hover,
+.corridor-btn.primary:hover,
+.tactical-btn-primary:hover,
+.tactical-ai-send-btn:hover,
+.gemini-send-btn:hover,
+.gmaps-dialog-start-btn:hover,
+.gmaps-status-action-btn:hover,
+.pred-btn-primary:hover,
+.bilingual-btn-primary:hover,
+.sim-btn-primary:hover,
+.sim-trigger-btn:hover,
+.action-btn.dispatch-boat:hover,
+.action-btn.dispatch-pump:hover,
+.action-btn.dispatch-heli:hover,
+.detail-primary-dispatch-btn:hover,
+.callout-cta:hover,
+.origin-picker-cancel-btn:hover {
+  background: var(--sc-primary-hover) !important;
+  border-color: var(--sc-primary-hover) !important;
+}
+
+.agahi-dash-btn + .agahi-dash-btn,
+.agahi-grid-btn,
+.corridor-btn,
+.tactical-btn-secondary,
+.sim-btn,
+.sim-btn-step,
+.gmaps-dialog-exit-btn,
+.pred-btn-secondary,
+.bilingual-btn-secondary,
+.action-btn.locate-globe,
+.rescue-btn-globe,
+.rescue-return-btn,
+.detail-secondary-dispatch-btn,
+.res-dispatch-btn,
+.res-dispatch-btn.btn-truck,
+.res-dispatch-btn.btn-boat,
+.res-dispatch-btn.btn-crew,
+.msg-action-btn,
+.sim-origin-picker-btn {
+  background: transparent !important;
+  color: var(--sc-foreground) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius-sm) !important;
+  box-shadow: none !important;
+  font-family: var(--sc-font);
+  font-weight: 500;
+  transform: none !important;
+}
+
+.agahi-dash-btn + .agahi-dash-btn:hover,
+.agahi-grid-btn:hover,
+.corridor-btn:hover,
+.tactical-btn-secondary:hover,
+.sim-btn:hover,
+.sim-btn-step:hover,
+.gmaps-dialog-exit-btn:hover,
+.pred-btn-secondary:hover,
+.bilingual-btn-secondary:hover,
+.action-btn.locate-globe:hover,
+.rescue-btn-globe:hover,
+.rescue-return-btn:hover,
+.detail-secondary-dispatch-btn:hover,
+.res-dispatch-btn:hover:not(:disabled),
+.msg-action-btn:hover,
+.sim-origin-picker-btn:hover {
+  background: var(--sc-accent) !important;
+  border-color: var(--sc-border-strong) !important;
+  color: var(--sc-foreground) !important;
+}
+
+.sim-btn-danger {
+  background: transparent !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(248, 113, 113, 0.35) !important;
+  border-radius: var(--sc-radius-sm) !important;
+}
+
+.sim-btn-danger:hover {
+  background: rgba(127, 29, 29, 0.35) !important;
+  color: #fef2f2 !important;
+}
+
+.sim-btn-toggle.active {
+  background: var(--sc-primary) !important;
+  color: var(--sc-primary-foreground) !important;
+  border-color: var(--sc-primary) !important;
+}
+
+.gmaps-close-btn,
+.agahi-dash-close,
+.agahi-copilot-close,
+.agahi-cell-card-close,
+.corridor-panel-close,
+.tactical-ai-icon-btn,
+.pred-icon-close,
+.heatmap-close-btn,
+.bilingual-close-btn,
+.card-minimize-btn,
+.hud-minimize-toggle-btn {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--sc-radius-sm) !important;
+  color: var(--sc-muted-foreground) !important;
+  box-shadow: none !important;
+}
+
+.gmaps-close-btn:hover,
+.agahi-dash-close:hover,
+.agahi-copilot-close:hover,
+.agahi-cell-card-close:hover,
+.corridor-panel-close:hover,
+.tactical-ai-icon-btn:hover,
+.pred-icon-close:hover,
+.heatmap-close-btn:hover,
+.bilingual-close-btn:hover,
+.card-minimize-btn:hover,
+.hud-minimize-toggle-btn:hover {
+  background: var(--sc-accent) !important;
+  color: var(--sc-foreground) !important;
+}
+
+.sim-scale-tabs,
+.sim-speed-group,
+.sim-forecast-scales,
+.sim-mag-selector,
+.heatmap-toggles-row,
+.corridor-panel-tabs {
+  background: var(--sc-muted) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius) !important;
+  padding: 3px !important;
+  gap: 3px !important;
+}
+
+.agahi-dash-chip,
+.agahi-copilot-chip,
+.tactical-chip,
+.gemini-suggestion-chip,
+.rescue-filter-btn,
+.sim-origin-chip,
+#flood-sim-dock .sim-chip-pill,
+.corridor-panel-tabs button,
+.sim-scale-tab,
+#flood-sim-dock .sim-scale-tab,
+.sim-speed-btn,
+.sim-forecast-scale-btn,
+.sim-mag-btn,
+.heatmap-toggle-btn {
+  background: transparent !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius-sm) !important;
+  color: var(--sc-muted-foreground) !important;
+  box-shadow: none !important;
+  font-family: var(--sc-font);
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.corridor-panel-tabs button,
+.sim-scale-tab,
+#flood-sim-dock .sim-scale-tab,
+.sim-speed-btn,
+.sim-forecast-scale-btn,
+.sim-mag-btn,
+.heatmap-toggle-btn {
+  border-color: transparent !important;
+}
+
+.agahi-dash-chip:hover,
+.agahi-copilot-chip:hover,
+.tactical-chip:hover,
+.gemini-suggestion-chip:hover,
+.rescue-filter-btn:hover,
+.sim-origin-chip:hover,
+#flood-sim-dock .sim-chip-pill:hover,
+.corridor-panel-tabs button:hover,
+.sim-scale-tab:hover,
+#flood-sim-dock .sim-scale-tab:hover,
+.sim-speed-btn:hover:not(.active),
+.sim-forecast-scale-btn:hover,
+.sim-mag-btn:hover,
+.heatmap-toggle-btn:hover {
+  background: var(--sc-accent) !important;
+  color: var(--sc-foreground) !important;
+}
+
+.agahi-dash-chip.active,
+.rescue-filter-btn.active,
+.sim-origin-chip.active,
+#flood-sim-dock .sim-chip-pill.active,
+#flood-sim-dock .sim-chip-pill[data-magnitude].active,
+.corridor-panel-tabs button.active,
+.sim-scale-tab.active,
+#flood-sim-dock .sim-scale-tab.active,
+.sim-speed-btn.active,
+.sim-forecast-scale-btn.active,
+.sim-mag-btn.active,
+.heatmap-toggle-btn.active {
+  background: var(--sc-primary) !important;
+  border-color: var(--sc-primary) !important;
+  color: var(--sc-primary-foreground) !important;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+#flood-sim-dock .sim-chip-pill.active .sim-pill-svg {
+  color: var(--sc-primary-foreground) !important;
+}
+
+.agahi-copilot-busy .agahi-copilot-chip {
+  opacity: 0.4;
+}
+
+.sim-scenario-card,
+.pred-module-chip,
+.gmaps-dropdown-item {
+  background: transparent !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius) !important;
+  box-shadow: none !important;
+  color: var(--sc-foreground);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.gmaps-dropdown-item {
+  border-color: transparent !important;
+}
+
+.sim-scenario-card:hover,
+.pred-module-chip:hover,
+.gmaps-dropdown-item:hover,
+.gmaps-dropdown-item:focus-visible {
+  background: rgba(39, 39, 42, 0.6) !important;
+  border-color: var(--sc-border-strong) !important;
+}
+
+.sim-scenario-card.active,
+.pred-module-chip.active {
+  background: rgba(39, 39, 42, 0.85) !important;
+  border-color: var(--sc-foreground) !important;
+  box-shadow: inset 0 0 0 1px var(--sc-foreground) !important;
+}
+
+.sim-scenario-icon,
+.pred-module-chip .mod-icon {
+  background: var(--sc-muted) !important;
+  border: 1px solid var(--sc-border) !important;
+  color: var(--sc-foreground) !important;
+  border-radius: var(--sc-radius-sm) !important;
+}
+
+.sim-scenario-badge,
+.pred-tag,
+.heatmap-badge,
+.bilingual-badge,
+.lang-tag,
+.agahi-dash-badge,
+.agahi-dash-badge-fallback,
+.msg-sim-tag,
+.gemini-chat-badge,
+.detail-score-pill,
+.ai-score-pill,
+.rescue-badge-live,
+.corridor-tag,
+.corridor-tag.warn,
+.callout-badge,
+.pred-step .step-num {
+  background: var(--sc-muted) !important;
+  border: 1px solid var(--sc-border) !important;
+  color: var(--sc-foreground) !important;
+  border-radius: var(--sc-radius-sm) !important;
+  box-shadow: none !important;
+  font-family: var(--sc-font);
+  font-weight: 500;
+}
+
+.pred-step .step-num {
+  border-radius: 9999px !important;
+}
+
+.agahi-dash-band-high,
+.agahi-grid-chip-high,
+.agahi-grid-bar-high,
+.incident-rank-badge.p1-critical,
+.detail-rank-badge.p1-critical,
+.threat-badge.badge-critical,
+.cell-grade.critical,
+.rescue-badge.p1-critical {
+  background: #fafafa !important;
+  color: #09090b !important;
+  border: 1px solid #fafafa !important;
+}
+
+.agahi-dash-band-elevated,
+.agahi-grid-chip-elevated,
+.agahi-grid-bar-elevated,
+.incident-rank-badge.p2-medical,
+.detail-rank-badge.p2-medical,
+.threat-badge.badge-high,
+.cell-grade.high,
+.rescue-badge.p2-medical {
+  background: #d4d4d8 !important;
+  color: #09090b !important;
+  border: 1px solid #d4d4d8 !important;
+}
+
+.agahi-dash-band-moderate,
+.agahi-dash-band-moderate.agahi-dash-pill,
+.agahi-grid-chip-moderate,
+.agahi-grid-bar-moderate,
+.incident-rank-badge.p3-evac,
+.detail-rank-badge.p3-evac,
+.rescue-badge.p3-evac {
+  background: repeating-linear-gradient(135deg, #71717a 0 3px, #52525b 3px 6px) !important;
+  color: #fafafa !important;
+  border: 1px solid #71717a !important;
+}
+
+.agahi-dash-band-low,
+.agahi-grid-chip-low,
+.agahi-grid-bar-low,
+.incident-rank-badge.p4-supply,
+.detail-rank-badge.p4-supply,
+.threat-badge.badge-low,
+.rescue-badge.p4-supply {
+  background: #3f3f46 !important;
+  color: #e4e4e7 !important;
+  border: 1px solid #52525b !important;
+}
+
+.agahi-dash-band-insufficient_data,
+.agahi-grid-chip-nodata,
+.agahi-grid-bar-nodata {
+  background: transparent !important;
+  color: var(--sc-muted-foreground) !important;
+  border: 1px dashed var(--sc-border-strong) !important;
+  opacity: 1;
+}
+
+.agahi-dash-bar-fill,
+.agahi-grid-bar-fill {
+  border: 0 !important;
+}
+
+.agahi-dash-pill,
+.agahi-grid-chip {
+  border-radius: var(--sc-radius-sm) !important;
+  font-weight: 600;
+}
+
+.agahi-dash-bar-track,
+.agahi-grid-bar,
+.res-defense-bar-wrap,
+.threat-bar-container,
+.legend-scale-bar {
+  background: var(--sc-accent) !important;
+  border-radius: 9999px !important;
+}
+
+.res-defense-bar-fill {
+  background: var(--sc-foreground) !important;
+  box-shadow: none !important;
+}
+
+.agahi-dash-table th {
+  color: var(--sc-muted-foreground) !important;
+  border-bottom: 1px solid var(--sc-border) !important;
+  font-weight: 500;
+}
+
+.agahi-dash-table td {
+  border-bottom: 1px solid var(--sc-border) !important;
+  color: var(--sc-foreground);
+}
+
+.agahi-dash-table tbody tr[data-cell]:hover {
+  background: rgba(39, 39, 42, 0.6) !important;
+}
+
+.agahi-dash-select,
+.pred-select,
+.agahi-copilot-input,
+.corridor-field textarea,
+.corridor-field textarea[readonly],
+.settings-group input,
+.tactical-ai-input,
+.rescue-search-input,
+.gemini-input-box,
+.gemini-input-box:focus-within {
+  background: rgba(9, 9, 11, 0.6) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius-sm) !important;
+  color: var(--sc-foreground) !important;
+  box-shadow: none !important;
+  font-family: var(--sc-font);
+}
+
+.agahi-dash-select:focus,
+.pred-select:focus,
+.agahi-copilot-input:focus,
+.corridor-field textarea:focus,
+.settings-group input:focus,
+.tactical-ai-input:focus,
+.rescue-search-input:focus,
+.gemini-input-box:focus-within {
+  outline: none;
+  border-color: var(--sc-border-strong) !important;
+  box-shadow: 0 0 0 3px var(--sc-ring) !important;
+}
+
+.gemini-text-input,
+.gemini-text-input::placeholder,
+.agahi-copilot-input::placeholder,
+.tactical-ai-input::placeholder,
+.rescue-search-input::placeholder {
+  color: var(--sc-subtle) !important;
+}
+
+.gemini-text-input {
+  color: var(--sc-foreground) !important;
+}
+
+.agahi-dash-select option,
+.pred-select option {
+  background: var(--sc-background);
+  color: var(--sc-foreground);
+}
+
+.msg-user,
+.gemini-chat-bubble.user {
+  background: var(--sc-primary) !important;
+  color: var(--sc-primary-foreground) !important;
+  box-shadow: none !important;
+  border-radius: 10px 10px 3px 10px !important;
+}
+
+.msg-assistant,
+.gemini-chat-bubble.assistant {
+  background: var(--sc-muted) !important;
+  border: 1px solid var(--sc-border) !important;
+  color: var(--sc-foreground) !important;
+  border-radius: 10px 10px 10px 3px !important;
+}
+
+.agahi-copilot-warning {
+  background: var(--sc-accent) !important;
+  color: #d4d4d8 !important;
+  border: 1px solid var(--sc-border-strong);
+}
+
+.ai-recommended-action {
+  color: var(--sc-foreground) !important;
+  border-left-color: var(--sc-foreground) !important;
+  background: var(--sc-muted) !important;
+}
+
+.tactical-ai-toggle-btn {
+  background: rgba(9, 9, 11, 0.82) !important;
+  border: 1px solid var(--sc-border) !important;
+  box-shadow: var(--sc-shadow) !important;
+  border-radius: var(--sc-radius) !important;
+  transform: none !important;
+}
+
+.tactical-ai-toggle-btn:hover {
+  border-color: var(--sc-border-strong) !important;
+  background: rgba(24, 24, 27, 0.9) !important;
+}
+
+.tactical-ai-btn-icon,
+.gemini-sparkle-icon {
+  background: var(--sc-primary) !important;
+  color: var(--sc-primary-foreground) !important;
+  box-shadow: none !important;
+  border-radius: var(--sc-radius-sm) !important;
+}
+
+.tactical-ai-unread-badge {
+  border-color: var(--sc-background) !important;
+}
+
+.tactical-typing-dots span,
+.sim-glow {
+  background: var(--sc-foreground) !important;
+  box-shadow: none !important;
+}
+
+.sim-scrubber {
+  background: var(--sc-accent) !important;
+}
+
+.sim-scrubber::-webkit-slider-thumb {
+  background: var(--sc-foreground) !important;
+  border: 2px solid var(--sc-background) !important;
+  box-shadow: 0 0 0 3px var(--sc-ring) !important;
+}
+
+.sim-scrubber::-moz-range-thumb {
+  background: var(--sc-foreground);
+  border: 2px solid var(--sc-background);
+}
+
+.origin-picker-active-banner {
+  background: rgba(9, 9, 11, 0.88) !important;
+  color: var(--sc-foreground) !important;
+  border: 1px solid var(--sc-border-strong) !important;
+  border-radius: var(--sc-radius) !important;
+  box-shadow: var(--sc-shadow) !important;
+}
+
+#toast {
+  background: rgba(9, 9, 11, 0.92) !important;
+  color: var(--sc-foreground) !important;
+  border: 1px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius) !important;
+}
+
+.gmaps-emergency-plane-exit {
+  background: var(--sc-primary) !important;
+  color: var(--sc-primary-foreground) !important;
+  border-radius: var(--sc-radius) !important;
+}
+
+.rescue-dashboard-container,
+.rescue-nav-bar,
+.rescue-top-nav,
+.rescue-main-grid,
+.rescue-detail-column,
+.gemini-input-wrapper {
+  background: var(--sc-background) !important;
+  color: var(--sc-foreground) !important;
+  border-color: var(--sc-border) !important;
+  font-family: var(--sc-font);
+}
+
+.rescue-stream-column,
+.rescue-feed-col,
+.gemini-chat-header {
+  background: #0c0c0e !important;
+  border-color: var(--sc-border) !important;
+}
+
+.rescue-nav-bar,
+.rescue-top-nav {
+  border-bottom: 1px solid var(--sc-border) !important;
+}
+
+.citizen-msg-box,
+.detail-verbatim-text {
+  color: var(--sc-foreground) !important;
+}
+
+.incident-status.pending-dispatch,
+.incident-status.in-progress,
+.incident-status.queued,
+.detail-status-box .val.in-progress,
+.detail-status-box .val.queued {
+  color: var(--sc-foreground) !important;
+}
+
+.agahi-dash-body,
+.agahi-copilot-messages,
+.tactical-ai-messages,
+.rescue-signals-feed,
+.gmaps-dropdown-body {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+
+.agahi-grid-tooltip {
+  background: rgba(9, 9, 11, 0.92) !important;
+  border: 1px solid var(--sc-border);
+  color: var(--sc-foreground) !important;
+  font-family: var(--sc-font);
+}
+
+.agahi-grid-metric {
+  border-bottom-color: var(--sc-border) !important;
+}
+
+.agahi-grid-swatch {
+  border-color: rgba(250, 250, 250, 0.25) !important;
+}
+
+.advisory-text,
+.urdu-col .advisory-text,
+.corridor-stat {
+  color: var(--sc-foreground) !important;
+}
+
+[style*="color:#0f172a"],
+[style*="color:#1a73e8"],
+[style*="color: #1a73e8"] {
+  color: var(--sc-foreground) !important;
+}
+
+[style*="background:#f1f5f9"] {
+  background: var(--sc-accent) !important;
+}
+
+[style*="background: #e8eaed"] {
+  background: var(--sc-border) !important;
+}
+
+[style*="accent-color: #1a73e8"] {
+  accent-color: var(--sc-foreground) !important;
+}

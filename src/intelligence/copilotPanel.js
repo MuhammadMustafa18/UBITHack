@@ -43,6 +43,13 @@ const CHIPS = [
   },
 ];
 
+const ICON_COPILOT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>';
+const ICON_SEND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+const ICON_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>';
+const ROLE_NAMES = { user: 'You', assistant: 'Agahi Copilot' };
+const clockTime = () =>
+  new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
 const typingDelay = () =>
   new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 300));
 
@@ -60,14 +67,18 @@ export class CopilotPanel {
     this.container.className = 'agahi-copilot hidden';
     this.container.innerHTML = `
       <div class="agahi-copilot-header">
-        <span class="agahi-copilot-title">Agahi Copilot</span>
-        <button class="agahi-copilot-close" type="button" aria-label="Close">✕</button>
+        <span class="agahi-copilot-icon">${ICON_COPILOT}</span>
+        <span class="agahi-copilot-heading">
+          <span class="agahi-copilot-title">Agahi Copilot</span>
+          <span class="agahi-copilot-sub">Your AI assistant for flood intelligence</span>
+        </span>
+        <button class="agahi-copilot-close" type="button" aria-label="Close Agahi Copilot">✕</button>
       </div>
       <div class="agahi-copilot-chips"></div>
       <div class="agahi-copilot-messages" aria-live="polite"></div>
       <form class="agahi-copilot-form">
-        <textarea class="agahi-copilot-input" rows="2" maxlength="${MAX_QUESTION_CHARS}" placeholder="e.g. Which cells have the highest heat risk?"></textarea>
-        <button class="agahi-copilot-send" type="submit">Send</button>
+        <textarea class="agahi-copilot-input" rows="1" maxlength="${MAX_QUESTION_CHARS}" aria-label="Ask the copilot" placeholder="Ask anything about floods, weather, or operations…"></textarea>
+        <button class="agahi-copilot-send" type="submit" aria-label="Send">${ICON_SEND}</button>
       </form>
       <div class="agahi-copilot-foot">Answers use only computed grid values</div>
     `;
@@ -88,7 +99,10 @@ export class CopilotPanel {
 
     this.container
       .querySelector('.agahi-copilot-close')
-      .addEventListener('click', () => this.hide());
+      .addEventListener('click', () => {
+        if (this.docked && !this.visible) this.show();
+        else this.hide();
+      });
     this.container
       .querySelector('.agahi-copilot-form')
       .addEventListener('submit', (event) => {
@@ -103,15 +117,22 @@ export class CopilotPanel {
     });
   }
 
-  show() {
+  show({ focus = true } = {}) {
     this.visible = true;
-    this.container.classList.remove('hidden');
-    this.input.focus();
+    this.container.classList.remove('hidden', 'agahi-collapsed');
+    if (focus) this.input.focus();
   }
 
   hide() {
     this.visible = false;
-    this.container.classList.add('hidden');
+    this.container.classList.add(this.docked ? 'agahi-collapsed' : 'hidden');
+  }
+
+  dock(slot) {
+    this.docked = true;
+    this.container.classList.add('agahi-docked');
+    slot.appendChild(this.container);
+    this.show({ focus: false });
   }
 
   toggle() {
@@ -137,6 +158,23 @@ export class CopilotPanel {
   _add(role, text, { dir = null, footer = null, warning = null } = {}) {
     const node = document.createElement('div');
     node.className = `agahi-copilot-msg agahi-copilot-${role}`;
+    const meta = document.createElement('div');
+    meta.className = 'agahi-copilot-meta';
+    const name = document.createElement('span');
+    name.className = 'agahi-copilot-name';
+    name.textContent = ROLE_NAMES[role] || role;
+    meta.appendChild(name);
+    if (footer) {
+      const grounded = document.createElement('span');
+      grounded.className = 'agahi-copilot-grounded';
+      grounded.innerHTML = `${ICON_CHECK}<span>Grounded in tool output</span>`;
+      meta.appendChild(grounded);
+    }
+    const time = document.createElement('time');
+    time.className = 'agahi-copilot-time';
+    time.textContent = clockTime();
+    meta.appendChild(time);
+    node.appendChild(meta);
     const body = document.createElement('div');
     body.className = 'agahi-copilot-text';
     body.textContent = text;

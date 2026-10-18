@@ -2,69 +2,82 @@
   position: fixed;
   right: 12px;
   bottom: 84px;
-  width: min(380px, calc(100vw - 24px));
-  height: min(520px, calc(100vh - 200px));
+  width: min(400px, calc(100vw - 24px));
+  height: min(540px, calc(100vh - 200px));
   display: flex;
   flex-direction: column;
   z-index: 1100;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid #dadce0;
+  background: var(--sc-card, rgba(9, 9, 11, 0.9));
+  border: 1px solid var(--sc-border, #27272a);
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.12);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--sc-font, 'Inter', sans-serif);
   font-size: 12.5px;
-  color: #202124;
+  color: var(--sc-foreground, #fafafa);
 }
 
 .agahi-copilot.hidden {
   display: none;
 }
 
+.agahi-copilot.agahi-docked {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  z-index: auto;
+}
+
+.agahi-copilot.agahi-collapsed {
+  height: auto;
+}
+
+.agahi-copilot.agahi-collapsed > :not(.agahi-copilot-header) {
+  display: none;
+}
+
 .agahi-copilot-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid #e8eaed;
+  gap: 10px;
+  padding: 12px 14px 10px;
+}
+
+.agahi-copilot-heading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .agahi-copilot-title {
+  font-family: 'Space Grotesk', var(--sc-font, sans-serif);
+  font-size: 17px;
   font-weight: 600;
-  font-size: 13.5px;
+  letter-spacing: -0.01em;
 }
 
-.agahi-copilot-close {
-  border: 0;
-  background: transparent;
-  color: #5f6368;
-  font-size: 14px;
-  cursor: pointer;
+.agahi-copilot-sub {
+  font-size: 11.5px;
+  color: var(--sc-muted-foreground, #a1a1aa);
 }
 
 .agahi-copilot-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 8px 12px;
-  border-bottom: 1px solid #e8eaed;
+  padding: 0 14px 10px;
 }
 
 .agahi-copilot-chip {
-  border: 1px solid #dadce0;
-  border-radius: 14px;
-  background: #f8f9fa;
-  color: #1a73e8;
-  padding: 4px 10px;
+  height: 28px;
+  padding: 0 12px;
   font-size: 12px;
   cursor: pointer;
 }
 
-.agahi-copilot-chip:hover {
-  background: #e8f0fe;
-}
-
 .agahi-copilot-busy .agahi-copilot-chip {
-  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -74,26 +87,59 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--sc-border, #27272a);
 }
 
 .agahi-copilot-msg {
-  max-width: 92%;
-  padding: 7px 10px;
-  border-radius: 10px;
-  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 8px;
+  line-height: 1.5;
 }
 
 .agahi-copilot-user {
-  align-self: flex-end;
-  background: #1a73e8;
-  color: #fff;
+  background: var(--sc-muted, #18181b);
+  border: 1px solid var(--sc-border, #27272a);
 }
 
 .agahi-copilot-assistant {
-  align-self: flex-start;
-  background: #f1f3f4;
+  padding-inline: 2px;
+}
+
+.agahi-copilot-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.agahi-copilot-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.agahi-copilot-grounded {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--sc-border-strong, #3f3f46);
+  border-radius: 4px;
+  font-size: 10.5px;
+  color: var(--sc-foreground, #fafafa);
+}
+
+.agahi-copilot-grounded svg {
+  width: 11px;
+  height: 11px;
+}
+
+.agahi-copilot-time {
+  margin-inline-start: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--sc-muted-foreground, #a1a1aa);
 }
 
 .agahi-copilot-text {
@@ -102,7 +148,7 @@
 }
 
 .agahi-copilot-text[dir="rtl"] {
-  font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
   line-height: 1.9;
   text-align: right;
 }
@@ -111,43 +157,48 @@
   margin-top: 6px;
   padding: 3px 6px;
   border-radius: 6px;
-  background: #fef7e0;
-  color: #b06000;
   font-size: 11.5px;
 }
 
 .agahi-copilot-computed {
   margin-top: 6px;
-  color: #5f6368;
-  font-family: ui-monospace, Consolas, monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10.5px;
   overflow-wrap: anywhere;
 }
 
 .agahi-copilot-form {
   display: flex;
-  gap: 6px;
-  padding: 8px 12px;
-  border-top: 1px solid #e8eaed;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--sc-border, #27272a);
 }
 
 .agahi-copilot-input {
   flex: 1;
+  min-height: 38px;
+  max-height: 120px;
   resize: none;
-  border: 1px solid #dadce0;
-  border-radius: 8px;
-  padding: 6px 8px;
+  padding: 9px 12px;
   font: inherit;
+  line-height: 1.4;
 }
 
 .agahi-copilot-send {
-  border: 0;
-  border-radius: 8px;
-  background: #1a73e8;
-  color: #fff;
-  padding: 0 14px;
-  font: inherit;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   cursor: pointer;
+}
+
+.agahi-copilot-send svg {
+  width: 18px;
+  height: 18px;
 }
 
 .agahi-copilot-send:disabled {
@@ -156,7 +207,6 @@
 }
 
 .agahi-copilot-foot {
-  padding: 4px 12px 8px;
-  color: #80868b;
+  padding: 0 14px 10px;
   font-size: 11px;
 }
