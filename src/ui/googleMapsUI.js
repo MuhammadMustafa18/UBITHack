@@ -13,13 +13,12 @@ import * as Cesium from 'cesium';
 import { PakistanLayersManager } from '../layers/pakistanLayers.js';
 import { PredictiveHeatmaps } from '../simulation/predictiveHeatmaps.js';
 import { CountryThreatPolygons } from '../simulation/countryThreatPolygons.js';
+import { CorridorResponsePanel } from '../simulation/responsePanel.js';
 import {
   FLOOD_SCENARIOS,
   FLOOD_MAGNITUDES,
   TIME_SCALES,
 } from '../simulation/flowData.js';
-
-
 
 export const ICONS = {
   simulate: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>`,
@@ -277,7 +276,14 @@ export const PAKISTAN_LOCATIONS = {
 };
 
 export class GoogleMapsUI {
-  constructor({ viewer, navigation, simulationBarUI, floodEngine, styleManager, catalog }) {
+  constructor({
+    viewer,
+    navigation,
+    simulationBarUI,
+    floodEngine,
+    styleManager,
+    catalog,
+  }) {
     this.viewer = viewer;
     this.navigation = navigation;
     this.simulationBarUI = simulationBarUI;
@@ -298,10 +304,21 @@ export class GoogleMapsUI {
     this.pakistanLayers = new PakistanLayersManager(this.viewer);
 
     // Predictive affected-area polygon heatmaps ahead of flood wave
-    this.predictiveHeatmaps = new PredictiveHeatmaps(this.viewer, this.floodEngine);
+    this.predictiveHeatmaps = new PredictiveHeatmaps(
+      this.viewer,
+      this.floodEngine,
+    );
 
     // Country Threat Polygons dividing the entire country during flood simulation
-    this.countryThreatPolygons = new CountryThreatPolygons(this.viewer, this.floodEngine);
+    this.countryThreatPolygons = new CountryThreatPolygons(
+      this.viewer,
+      this.floodEngine,
+    );
+
+    this.responsePanel = new CorridorResponsePanel(
+      this.viewer,
+      this.floodEngine,
+    );
 
     this._init();
   }
@@ -324,8 +341,12 @@ export class GoogleMapsUI {
 
       const dataManager = this.styleManager?.dataManager;
       if (dataManager) {
-        dataManager.setEnabled?.('flights', false, { origin: 'user' })?.catch?.(() => {});
-        dataManager.setEnabled?.('military', false, { origin: 'user' })?.catch?.(() => {});
+        dataManager
+          .setEnabled?.('flights', false, { origin: 'user' })
+          ?.catch?.(() => {});
+        dataManager
+          .setEnabled?.('military', false, { origin: 'user' })
+          ?.catch?.(() => {});
       }
 
       const stored = localStorage.getItem('gev:layer-state:v2');
@@ -358,7 +379,8 @@ export class GoogleMapsUI {
     emergencyBtn.id = 'gmaps-emergency-plane-exit';
     emergencyBtn.className = 'gmaps-emergency-plane-exit hidden';
     emergencyBtn.type = 'button';
-    emergencyBtn.title = 'Click or press Escape to cancel airplane tracking and exit';
+    emergencyBtn.title =
+      'Click or press Escape to cancel airplane tracking and exit';
     emergencyBtn.innerHTML = `
       <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       <span>EXIT AIRPLANE MODE ✕</span>
@@ -416,6 +438,10 @@ export class GoogleMapsUI {
         <button id="gmaps-pill-fleet" class="gmaps-pill" type="button" title="Rescue 1122 &amp; Military Fleet">
           <span class="gmaps-pill-icon">${ICONS.fleet}</span>
           <span>Relief Fleet</span>
+        </button>
+        <button id="gmaps-pill-response" class="gmaps-pill" type="button" title="Staging, alert drafts and 2022 check (Swat–Kabul exercise)">
+          <span class="gmaps-pill-icon">${ICONS.hotspot}</span>
+          <span>Response</span>
         </button>
         <button id="gmaps-pill-weather" class="gmaps-pill" type="button" title="Live Precipitation &amp; Weather Radar">
           <span class="gmaps-pill-icon">${ICONS.weather}</span>
@@ -597,32 +623,38 @@ export class GoogleMapsUI {
 
   _bindEvents() {
     // 1. Simulation triggers
-    document.getElementById('gmaps-pill-simulate')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (this.activeCategory === 'simulate') {
-        this._closeDropdown();
-      } else {
-        this._showSimulationScenarioCard();
-      }
-    });
+    document
+      .getElementById('gmaps-pill-simulate')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.activeCategory === 'simulate') {
+          this._closeDropdown();
+        } else {
+          this._showSimulationScenarioCard();
+        }
+      });
 
-    document.getElementById('gmaps-directions-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (this.activeCategory === 'simulate') {
-        this._closeDropdown();
-      } else {
-        this._showSimulationScenarioCard();
-      }
-    });
+    document
+      .getElementById('gmaps-directions-btn')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.activeCategory === 'simulate') {
+          this._closeDropdown();
+        } else {
+          this._showSimulationScenarioCard();
+        }
+      });
 
-    document.getElementById('gmaps-status-sim-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (this.activeCategory === 'simulate') {
-        this._closeDropdown();
-      } else {
-        this._showSimulationScenarioCard();
-      }
-    });
+    document
+      .getElementById('gmaps-status-sim-btn')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.activeCategory === 'simulate') {
+          this._closeDropdown();
+        } else {
+          this._showSimulationScenarioCard();
+        }
+      });
 
     // 2. Category Pills (Glaciers, Dams, Hotspots)
     const pills = document.querySelectorAll('.gmaps-pill[data-category]');
@@ -665,36 +697,57 @@ export class GoogleMapsUI {
     searchSubmit?.addEventListener('click', handleSearch);
 
     // 4. CCTV and Fleet buttons
-    document.getElementById('gmaps-pill-cctv')?.addEventListener('click', () => {
-      const cctvPanel = document.getElementById('cctv-panel');
-      if (cctvPanel) {
-        cctvPanel.classList.toggle('collapsed');
-      }
-      this._showToast('River CCTV Feeds toggled');
-    });
+    document
+      .getElementById('gmaps-pill-cctv')
+      ?.addEventListener('click', () => {
+        const cctvPanel = document.getElementById('cctv-panel');
+        if (cctvPanel) {
+          cctvPanel.classList.toggle('collapsed');
+        }
+        this._showToast('River CCTV Feeds toggled');
+      });
 
-    document.getElementById('gmaps-pill-fleet')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const checkResources = document.getElementById('gmaps-check-resources');
-      const newState = checkResources ? !checkResources.checked : !this.pakistanLayers.resourcesVisible;
-      if (checkResources) checkResources.checked = newState;
-      this.pakistanLayers.setResourcesVisible(newState);
-      this._showToast(newState ? 'Relief fleet & military bases overlay: ACTIVE' : 'Relief fleet overlay hidden');
-    });
+    document
+      .getElementById('gmaps-pill-fleet')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const checkResources = document.getElementById('gmaps-check-resources');
+        const newState = checkResources
+          ? !checkResources.checked
+          : !this.pakistanLayers.resourcesVisible;
+        if (checkResources) checkResources.checked = newState;
+        this.pakistanLayers.setResourcesVisible(newState);
+        this._showToast(
+          newState
+            ? 'Relief fleet & military bases overlay: ACTIVE'
+            : 'Relief fleet overlay hidden',
+        );
+      });
 
-    document.getElementById('gmaps-pill-weather')?.addEventListener('click', () => {
-      this._showToast('Monsoon cloud & precipitation layer updated');
-    });
+    document
+      .getElementById('gmaps-pill-response')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.responsePanel.toggle();
+      });
+
+    document
+      .getElementById('gmaps-pill-weather')
+      ?.addEventListener('click', () => {
+        this._showToast('Monsoon cloud & precipitation layer updated');
+      });
 
     // 5. Share Button
-    document.getElementById('gmaps-share-btn')?.addEventListener('click', () => {
-      const shareBtn = document.getElementById('share-btn');
-      if (shareBtn) shareBtn.click();
-      else {
-        navigator.clipboard?.writeText(window.location.href);
-        this._showToast('Link copied to clipboard');
-      }
-    });
+    document
+      .getElementById('gmaps-share-btn')
+      ?.addEventListener('click', () => {
+        const shareBtn = document.getElementById('share-btn');
+        if (shareBtn) shareBtn.click();
+        else {
+          navigator.clipboard?.writeText(window.location.href);
+          this._showToast('Link copied to clipboard');
+        }
+      });
 
     // 6. Navigation Controls
     const zoomAmount = () => {
@@ -702,25 +755,31 @@ export class GoogleMapsUI {
       return Math.max(h * 0.45, 100);
     };
 
-    document.getElementById('gmaps-btn-zoom-in')?.addEventListener('click', () => {
-      this.viewer?.camera?.zoomIn(zoomAmount());
-    });
-
-    document.getElementById('gmaps-btn-zoom-out')?.addEventListener('click', () => {
-      this.viewer?.camera?.zoomOut(zoomAmount());
-    });
-
-    document.getElementById('gmaps-btn-locate')?.addEventListener('click', () => {
-      // Fly to central Pakistan Indus Basin overview
-      this.flyToLocation({
-        name: 'Pakistan (Indus River Basin)',
-        lat: 30.3753,
-        lon: 69.3451,
-        height: 1450000,
-        pitch: -88,
-        heading: 0,
+    document
+      .getElementById('gmaps-btn-zoom-in')
+      ?.addEventListener('click', () => {
+        this.viewer?.camera?.zoomIn(zoomAmount());
       });
-    });
+
+    document
+      .getElementById('gmaps-btn-zoom-out')
+      ?.addEventListener('click', () => {
+        this.viewer?.camera?.zoomOut(zoomAmount());
+      });
+
+    document
+      .getElementById('gmaps-btn-locate')
+      ?.addEventListener('click', () => {
+        // Fly to central Pakistan Indus Basin overview
+        this.flyToLocation({
+          name: 'Pakistan (Indus River Basin)',
+          lat: 30.3753,
+          lon: 69.3451,
+          height: 1450000,
+          pitch: -88,
+          heading: 0,
+        });
+      });
 
     document.getElementById('gmaps-btn-tilt')?.addEventListener('click', () => {
       const tiltBtn = document.getElementById('tilt-map-view');
@@ -741,21 +800,23 @@ export class GoogleMapsUI {
       }
     });
 
-    document.getElementById('gmaps-btn-compass')?.addEventListener('click', () => {
-      const northBtn = document.getElementById('north-up-view');
-      if (northBtn) northBtn.click();
-      else {
-        this.viewer.camera.flyTo({
-          destination: this.viewer.camera.position,
-          orientation: {
-            heading: 0,
-            pitch: this.viewer.camera.pitch,
-            roll: 0,
-          },
-          duration: 0.8,
-        });
-      }
-    });
+    document
+      .getElementById('gmaps-btn-compass')
+      ?.addEventListener('click', () => {
+        const northBtn = document.getElementById('north-up-view');
+        if (northBtn) northBtn.click();
+        else {
+          this.viewer.camera.flyTo({
+            destination: this.viewer.camera.position,
+            orientation: {
+              heading: 0,
+              pitch: this.viewer.camera.pitch,
+              roll: 0,
+            },
+            duration: 0.8,
+          });
+        }
+      });
 
     // 7. Layers Widget & Menu
     const layersCard = document.getElementById('gmaps-layers-card');
@@ -773,7 +834,10 @@ export class GoogleMapsUI {
         if (planeCheck && dataManager) {
           const entry = dataManager.layers?.get?.('flights');
           planeCheck.checked = Boolean(entry?.enabled);
-          document.body.classList.toggle('plane-mode-active', Boolean(entry?.enabled));
+          document.body.classList.toggle(
+            'plane-mode-active',
+            Boolean(entry?.enabled),
+          );
         }
       }
     });
@@ -791,64 +855,92 @@ export class GoogleMapsUI {
         typeBtns.forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         const mapType = btn.dataset.mapType;
-        this._showToast(`Switched map base to ${btn.querySelector('span').textContent}`);
+        this._showToast(
+          `Switched map base to ${btn.querySelector('span').textContent}`,
+        );
       });
     });
 
     // Layer details checkboxes
-    document.getElementById('gmaps-check-predictive')?.addEventListener('change', (e) => {
-      this.predictiveHeatmaps?.setVisible(e.target.checked);
-    });
-    document.getElementById('gmaps-check-country-threat')?.addEventListener('change', (e) => {
-      if (e.target.checked) this.countryThreatPolygons?.enable();
-      else this.countryThreatPolygons?.disable();
-    });
-    document.getElementById('gmaps-check-pop')?.addEventListener('change', (e) => {
-      this.pakistanLayers?.setPopulationVisible(e.target.checked);
-    });
-    document.getElementById('gmaps-check-resources')?.addEventListener('change', (e) => {
-      this.pakistanLayers?.setResourcesVisible(e.target.checked);
-    });
-    document.getElementById('gmaps-check-labels')?.addEventListener('change', (e) => {
-      this.pakistanLayers?.setLabelsVisible(e.target.checked);
-    });
-    document.getElementById('gmaps-check-plane')?.addEventListener('change', (e) => {
-      this.setFlightsLayerEnabled(e.target.checked);
-    });
-    document.getElementById('gmaps-pill-planes')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const currentActive = document.body.classList.contains('plane-mode-active');
-      this.setFlightsLayerEnabled(!currentActive);
-    });
-    document.getElementById('gmaps-plane-banner-exit')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.exitAirplaneMode();
-    });
+    document
+      .getElementById('gmaps-check-predictive')
+      ?.addEventListener('change', (e) => {
+        this.predictiveHeatmaps?.setVisible(e.target.checked);
+      });
+    document
+      .getElementById('gmaps-check-country-threat')
+      ?.addEventListener('change', (e) => {
+        if (e.target.checked) this.countryThreatPolygons?.enable();
+        else this.countryThreatPolygons?.disable();
+      });
+    document
+      .getElementById('gmaps-check-pop')
+      ?.addEventListener('change', (e) => {
+        this.pakistanLayers?.setPopulationVisible(e.target.checked);
+      });
+    document
+      .getElementById('gmaps-check-resources')
+      ?.addEventListener('change', (e) => {
+        this.pakistanLayers?.setResourcesVisible(e.target.checked);
+      });
+    document
+      .getElementById('gmaps-check-labels')
+      ?.addEventListener('change', (e) => {
+        this.pakistanLayers?.setLabelsVisible(e.target.checked);
+      });
+    document
+      .getElementById('gmaps-check-plane')
+      ?.addEventListener('change', (e) => {
+        this.setFlightsLayerEnabled(e.target.checked);
+      });
+    document
+      .getElementById('gmaps-pill-planes')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentActive =
+          document.body.classList.contains('plane-mode-active');
+        this.setFlightsLayerEnabled(!currentActive);
+      });
+    document
+      .getElementById('gmaps-plane-banner-exit')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.exitAirplaneMode();
+      });
 
-    document.getElementById('gmaps-emergency-plane-exit')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.exitAirplaneMode();
-    });
+    document
+      .getElementById('gmaps-emergency-plane-exit')
+      ?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.exitAirplaneMode();
+      });
 
     // Listen for trackedEntity changes (e.g. if an airplane was clicked)
     if (this.viewer) {
       this.viewer.trackedEntityChanged.addEventListener(() => {
         const hasTracked = Boolean(this.viewer.trackedEntity);
-        const emergencyBtn = document.getElementById('gmaps-emergency-plane-exit');
+        const emergencyBtn = document.getElementById(
+          'gmaps-emergency-plane-exit',
+        );
         if (emergencyBtn) {
           emergencyBtn.classList.toggle('hidden', !hasTracked);
         }
       });
       // Initial check in case viewer woke up with tracked entity
       if (this.viewer.trackedEntity) {
-        document.getElementById('gmaps-emergency-plane-exit')?.classList.remove('hidden');
+        document
+          .getElementById('gmaps-emergency-plane-exit')
+          ?.classList.remove('hidden');
       }
     }
 
     // Press Escape to immediately exit Airplane Mode and unlock camera
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        if (this.viewer?.trackedEntity || document.body.classList.contains('plane-mode-active')) {
+        if (
+          this.viewer?.trackedEntity ||
+          document.body.classList.contains('plane-mode-active')
+        ) {
           this.exitAirplaneMode();
         }
       }
@@ -878,7 +970,9 @@ export class GoogleMapsUI {
 
   _showSimulationScenarioCard() {
     this.activeCategory = 'simulate';
-    document.querySelectorAll('.gmaps-pill').forEach((p) => p.classList.remove('active'));
+    document
+      .querySelectorAll('.gmaps-pill')
+      .forEach((p) => p.classList.remove('active'));
     document.getElementById('gmaps-pill-simulate')?.classList.add('active');
 
     const card = document.getElementById('gmaps-dropdown-card');
@@ -891,22 +985,66 @@ export class GoogleMapsUI {
   }
 
   _renderForecastDialog(card) {
-    const sc = FLOOD_SCENARIOS[this.selectedScenarioKey] || FLOOD_SCENARIOS.glacier;
-    const mag = FLOOD_MAGNITUDES[this.selectedMagnitudeKey] || FLOOD_MAGNITUDES.high;
+    const sc =
+      FLOOD_SCENARIOS[this.selectedScenarioKey] || FLOOD_SCENARIOS.glacier;
+    const mag =
+      FLOOD_MAGNITUDES[this.selectedMagnitudeKey] || FLOOD_MAGNITUDES.high;
     const firstWp = sc.waypoints?.[0] || {};
     const mult = mag.multiplier || 1.0;
     const estDischarge = Math.round((firstWp.dischargeCusecs || 350000) * mult);
-    const estStageRise = (Number(firstWp.stageRiseM || 6.0) * Math.sqrt(mult)).toFixed(1);
+    const estStageRise = (
+      Number(firstWp.stageRiseM || 6.0) * Math.sqrt(mult)
+    ).toFixed(1);
+    const real = sc.dataBasis === 'real';
+    const dischargeText = real
+      ? 'No gauge data'
+      : `${estDischarge.toLocaleString()} Cusecs`;
+    const stageText = real ? 'No gauge data' : `+${estStageRise} m`;
     const originRegion = sc.origin?.region || sc.region;
     const stageStatus = firstWp.status || 'FORECAST STAGE';
     const crestLoc = firstWp.name || sc.origin?.name || 'Head Basin Entry';
 
     const scenariosList = [
-      { key: 'glacier', title: 'Glacier GLOF', desc: 'Hunza / Passu Moraine Ice Dam Breach', badge: 'High Altitude', icon: ICONS.glacier, cls: 'badge-danger' },
-      { key: 'dam_breach', title: 'Indian Dam Release', desc: 'Baglihar / Salal Transboundary Surge', badge: 'Border Release', icon: ICONS.dam, cls: 'badge-warning' },
-      { key: 'rain', title: 'Hill Torrents &amp; Rain', desc: 'Koh-e-Suleman Rod-Kohi Flash Flood', badge: 'Flash Torrents', icon: ICONS.weather, cls: 'badge-primary' },
-      { key: 'riverine', title: 'Riverine Super Flood', desc: 'Kabul &amp; Indus Levee Ruptures', badge: 'National Cataclysm', icon: ICONS.dam, cls: 'badge-danger' },
-      { key: 'cyclone', title: 'Arabian Sea Cyclone', desc: 'Thatta &amp; Karachi Delta Storm Surge', badge: 'Coastal Surge', icon: ICONS.cyclone, cls: 'badge-info' },
+      {
+        key: 'glacier',
+        title: 'Glacier GLOF',
+        desc: 'Hunza / Passu Moraine Ice Dam Breach',
+        badge: 'High Altitude',
+        icon: ICONS.glacier,
+        cls: 'badge-danger',
+      },
+      {
+        key: 'dam_breach',
+        title: 'Indian Dam Release',
+        desc: 'Baglihar / Salal Transboundary Surge',
+        badge: 'Border Release',
+        icon: ICONS.dam,
+        cls: 'badge-warning',
+      },
+      {
+        key: 'rain',
+        title: 'Hill Torrents &amp; Rain',
+        desc: 'Koh-e-Suleman Rod-Kohi Flash Flood',
+        badge: 'Flash Torrents',
+        icon: ICONS.weather,
+        cls: 'badge-primary',
+      },
+      {
+        key: 'riverine',
+        title: 'Swat–Kabul Riverine',
+        desc: 'Kalam trigger down the real river network',
+        badge: 'Real Data',
+        icon: ICONS.dam,
+        cls: 'badge-primary',
+      },
+      {
+        key: 'cyclone',
+        title: 'Arabian Sea Cyclone',
+        desc: 'Thatta &amp; Karachi Delta Storm Surge',
+        badge: 'Coastal Surge',
+        icon: ICONS.cyclone,
+        cls: 'badge-info',
+      },
     ];
 
     const magnitudesList = [
@@ -936,18 +1074,23 @@ export class GoogleMapsUI {
         <div>
           <div class="sim-section-header">Flood Type &amp; Origin:</div>
           <div class="sim-scenarios-grid">
-            ${scenariosList.map((item) => `
+            ${scenariosList
+              .map(
+                (item) => `
               <div class="sim-scenario-card ${this.selectedScenarioKey === item.key ? 'active' : ''}" data-scenario="${item.key}" role="button" tabindex="0">
                 <div class="sim-scenario-left">
                   <div class="sim-scenario-icon">${item.icon}</div>
                   <div>
                     <div class="sim-scenario-title">${item.title}</div>
                     <div style="font-size: 11px; color: #5f6368;">${item.desc}</div>
+                    <div style="font-size: 10px; color: #80868b;">${FLOOD_SCENARIOS[item.key]?.dataBasis === 'real' ? 'HydroRIVERS · WorldPop · OSM · UNOSAT 2022' : 'Illustrative · figures not sourced'}</div>
                   </div>
                 </div>
                 <span class="sim-scenario-badge ${item.cls}">${item.badge}</span>
               </div>
-            `).join('')}
+            `,
+              )
+              .join('')}
           </div>
         </div>
 
@@ -955,12 +1098,16 @@ export class GoogleMapsUI {
         <div>
           <div class="sim-section-header">Magnitude (Severity):</div>
           <div class="sim-mag-row">
-            ${magnitudesList.map((m) => `
+            ${magnitudesList
+              .map(
+                (m) => `
               <div class="sim-mag-btn ${this.selectedMagnitudeKey === m.key ? 'active' : ''}" data-mag="${m.key}" role="button" tabindex="0">
                 <span class="sim-mag-title">${m.label}</span>
                 <span class="sim-mag-mult">(${m.mult})</span>
               </div>
-            `).join('')}
+            `,
+              )
+              .join('')}
           </div>
         </div>
 
@@ -981,11 +1128,11 @@ export class GoogleMapsUI {
             </div>
             <div class="sim-tel-cell">
               <span class="sim-tel-label">Est. Discharge</span>
-              <span class="sim-tel-val" id="dialog-tel-discharge" style="color: #1a73e8; font-family: monospace;">${estDischarge.toLocaleString()} Cusecs</span>
+              <span class="sim-tel-val" id="dialog-tel-discharge" style="color: #1a73e8; font-family: monospace;">${dischargeText}</span>
             </div>
             <div class="sim-tel-cell">
               <span class="sim-tel-label">Stage Rise</span>
-              <span class="sim-tel-val" id="dialog-tel-stage" style="color: #ea4335; font-family: monospace;">+${estStageRise} m</span>
+              <span class="sim-tel-val" id="dialog-tel-stage" style="color: #ea4335; font-family: monospace;">${stageText}</span>
             </div>
           </div>
         </div>
@@ -1011,7 +1158,7 @@ export class GoogleMapsUI {
           <label class="sim-toggle-row">
             <div class="sim-toggle-info">
               <span class="sim-toggle-name">Country Threat Polygons &amp; Demographics</span>
-              <span class="sim-toggle-sub">Provincial threat levels, age breakdown &amp; resources on hover</span>
+              <span class="sim-toggle-sub">Illustrative provinces; real communities to watch on the Swat–Kabul corridor</span>
             </div>
             <input type="checkbox" id="dialog-country-threat-toggle" ${this.countryThreatPolygons?.active ? 'checked' : 'checked'} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
           </label>
@@ -1019,7 +1166,7 @@ export class GoogleMapsUI {
           <label class="sim-toggle-row">
             <div class="sim-toggle-info">
               <span class="sim-toggle-name">Population Density Heatmap</span>
-              <span class="sim-toggle-sub">Indus Basin exposed population density gradient</span>
+              <span class="sim-toggle-sub">Illustrative · figures not sourced</span>
             </div>
             <input type="checkbox" id="dialog-pop-toggle" ${this.pakistanLayers?.populationVisible ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
           </label>
@@ -1027,7 +1174,7 @@ export class GoogleMapsUI {
           <label class="sim-toggle-row">
             <div class="sim-toggle-info">
               <span class="sim-toggle-name">Relief Resources &amp; Fleet Overlay</span>
-              <span class="sim-toggle-sub">Army Aviation heliports, depots &amp; rescue flotillas</span>
+              <span class="sim-toggle-sub">Illustrative · not a live inventory</span>
             </div>
             <input type="checkbox" id="dialog-relief-toggle" ${this.pakistanLayers?.resourcesVisible ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
           </label>
@@ -1038,11 +1185,15 @@ export class GoogleMapsUI {
           <button id="dialog-start-btn" class="gmaps-dialog-start-btn" type="button">
             ▶ START SIMULATION
           </button>
-          ${this.floodEngine?.active ? `
+          ${
+            this.floodEngine?.active
+              ? `
             <button id="dialog-exit-btn" class="gmaps-dialog-exit-btn" type="button">
               ✕ EXIT
             </button>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
       </div>
     `;
@@ -1052,7 +1203,9 @@ export class GoogleMapsUI {
       elem.addEventListener('click', () => {
         const key = elem.dataset.scenario;
         this.selectedScenarioKey = key;
-        card.querySelectorAll('.sim-scenario-card').forEach((c) => c.classList.remove('active'));
+        card
+          .querySelectorAll('.sim-scenario-card')
+          .forEach((c) => c.classList.remove('active'));
         elem.classList.add('active');
         this._updateDialogTelemetry(card);
       });
@@ -1063,7 +1216,9 @@ export class GoogleMapsUI {
       elem.addEventListener('click', () => {
         const key = elem.dataset.mag;
         this.selectedMagnitudeKey = key;
-        card.querySelectorAll('.sim-mag-btn').forEach((b) => b.classList.remove('active'));
+        card
+          .querySelectorAll('.sim-mag-btn')
+          .forEach((b) => b.classList.remove('active'));
         elem.classList.add('active');
         this._updateDialogTelemetry(card);
       });
@@ -1074,57 +1229,86 @@ export class GoogleMapsUI {
       elem.addEventListener('click', () => {
         const scale = elem.dataset.scale;
         this.selectedTimeScale = scale;
-        card.querySelectorAll('.sim-forecast-scale-btn').forEach((b) => b.classList.remove('active'));
+        card
+          .querySelectorAll('.sim-forecast-scale-btn')
+          .forEach((b) => b.classList.remove('active'));
         elem.classList.add('active');
       });
     });
 
     // 4. Feature toggles
-    card.querySelector('#dialog-resource-toggle')?.addEventListener('change', (e) => {
-      this.resourceManagementEnabled = e.target.checked;
-      const statusEl = card.querySelector('#dialog-resource-status');
-      if (statusEl) {
-        statusEl.textContent = this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY' : 'STANDBY (NON-FUNCTIONAL)';
-      }
-      this._showToast(this.resourceManagementEnabled ? 'Resource management allocation enabled' : 'Resource management standby');
-    });
+    card
+      .querySelector('#dialog-resource-toggle')
+      ?.addEventListener('change', (e) => {
+        this.resourceManagementEnabled = e.target.checked;
+        const statusEl = card.querySelector('#dialog-resource-status');
+        if (statusEl) {
+          statusEl.textContent = this.resourceManagementEnabled
+            ? 'ACTIVE / DISPATCH READY'
+            : 'STANDBY (NON-FUNCTIONAL)';
+        }
+        this._showToast(
+          this.resourceManagementEnabled
+            ? 'Resource management allocation enabled'
+            : 'Resource management standby',
+        );
+      });
 
-    card.querySelector('#dialog-predictive-toggle')?.addEventListener('change', (e) => {
-      this.predictiveHeatmaps?.setVisible(e.target.checked);
-      const mainCheck = document.getElementById('gmaps-check-predictive');
-      if (mainCheck) mainCheck.checked = e.target.checked;
-    });
+    card
+      .querySelector('#dialog-predictive-toggle')
+      ?.addEventListener('change', (e) => {
+        this.predictiveHeatmaps?.setVisible(e.target.checked);
+        const mainCheck = document.getElementById('gmaps-check-predictive');
+        if (mainCheck) mainCheck.checked = e.target.checked;
+      });
 
-    card.querySelector('#dialog-country-threat-toggle')?.addEventListener('change', (e) => {
-      if (e.target.checked) this.countryThreatPolygons?.enable();
-      else this.countryThreatPolygons?.disable();
-      const mainCheck = document.getElementById('gmaps-check-country-threat');
-      if (mainCheck) mainCheck.checked = e.target.checked;
-    });
+    card
+      .querySelector('#dialog-country-threat-toggle')
+      ?.addEventListener('change', (e) => {
+        if (e.target.checked) this.countryThreatPolygons?.enable();
+        else this.countryThreatPolygons?.disable();
+        const mainCheck = document.getElementById('gmaps-check-country-threat');
+        if (mainCheck) mainCheck.checked = e.target.checked;
+      });
 
-    card.querySelector('#dialog-pop-toggle')?.addEventListener('change', (e) => {
-      this.pakistanLayers?.setPopulationVisible(e.target.checked);
-      const mainCheck = document.getElementById('gmaps-check-pop');
-      if (mainCheck) mainCheck.checked = e.target.checked;
-    });
+    card
+      .querySelector('#dialog-pop-toggle')
+      ?.addEventListener('change', (e) => {
+        this.pakistanLayers?.setPopulationVisible(e.target.checked);
+        const mainCheck = document.getElementById('gmaps-check-pop');
+        if (mainCheck) mainCheck.checked = e.target.checked;
+      });
 
-    card.querySelector('#dialog-relief-toggle')?.addEventListener('change', (e) => {
-      this.pakistanLayers?.setResourcesVisible(e.target.checked);
-      const mainCheck = document.getElementById('gmaps-check-resources');
-      if (mainCheck) mainCheck.checked = e.target.checked;
-    });
+    card
+      .querySelector('#dialog-relief-toggle')
+      ?.addEventListener('change', (e) => {
+        this.pakistanLayers?.setResourcesVisible(e.target.checked);
+        const mainCheck = document.getElementById('gmaps-check-resources');
+        if (mainCheck) mainCheck.checked = e.target.checked;
+      });
 
     // 5. Start button (Explicit user launch)
-    card.querySelector('#dialog-start-btn')?.addEventListener('click', () => {
-      this.floodEngine?.setScenario(this.selectedScenarioKey);
-      this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
-      this.floodEngine?.setTimeScale(this.selectedTimeScale);
-      this.simulationBarUI?.show();
-      this.floodEngine?.start();
-      this._closeDropdown();
-      const activeSc = FLOOD_SCENARIOS[this.selectedScenarioKey];
-      this._showToast(`Simulation started: ${activeSc?.name || 'Flood Forecast'}`);
-    });
+    card
+      .querySelector('#dialog-start-btn')
+      ?.addEventListener('click', async () => {
+        await this.floodEngine?.setScenario(this.selectedScenarioKey);
+        if (
+          this.floodEngine &&
+          this.floodEngine.scenarioKey !== this.selectedScenarioKey
+        ) {
+          this._showToast('Corridor data unavailable; simulation not started');
+          return;
+        }
+        this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
+        this.floodEngine?.setTimeScale(this.selectedTimeScale);
+        this.simulationBarUI?.show();
+        this.floodEngine?.start();
+        this._closeDropdown();
+        const activeSc = FLOOD_SCENARIOS[this.selectedScenarioKey];
+        this._showToast(
+          `Simulation started: ${activeSc?.name || 'Flood Forecast'}`,
+        );
+      });
 
     // 6. Exit button
     card.querySelector('#dialog-exit-btn')?.addEventListener('click', () => {
@@ -1141,12 +1325,16 @@ export class GoogleMapsUI {
   }
 
   _updateDialogTelemetry(card) {
-    const sc = FLOOD_SCENARIOS[this.selectedScenarioKey] || FLOOD_SCENARIOS.glacier;
-    const mag = FLOOD_MAGNITUDES[this.selectedMagnitudeKey] || FLOOD_MAGNITUDES.high;
+    const sc =
+      FLOOD_SCENARIOS[this.selectedScenarioKey] || FLOOD_SCENARIOS.glacier;
+    const mag =
+      FLOOD_MAGNITUDES[this.selectedMagnitudeKey] || FLOOD_MAGNITUDES.high;
     const firstWp = sc.waypoints?.[0] || {};
     const mult = mag.multiplier || 1.0;
     const estDischarge = Math.round((firstWp.dischargeCusecs || 350000) * mult);
-    const estStageRise = (Number(firstWp.stageRiseM || 6.0) * Math.sqrt(mult)).toFixed(1);
+    const estStageRise = (
+      Number(firstWp.stageRiseM || 6.0) * Math.sqrt(mult)
+    ).toFixed(1);
 
     const elRegion = card.querySelector('#dialog-tel-region');
     const elStatus = card.querySelector('#dialog-tel-status');
@@ -1156,9 +1344,16 @@ export class GoogleMapsUI {
 
     if (elRegion) elRegion.textContent = sc.origin?.region || sc.region;
     if (elStatus) elStatus.textContent = firstWp.status || 'FORECAST STAGE';
-    if (elCrest) elCrest.textContent = firstWp.name || sc.origin?.name || 'Head Basin Entry';
-    if (elDischarge) elDischarge.textContent = `${estDischarge.toLocaleString()} Cusecs`;
-    if (elStage) elStage.textContent = `+${estStageRise} m`;
+    if (elCrest)
+      elCrest.textContent =
+        firstWp.name || sc.origin?.name || 'Head Basin Entry';
+    const real = sc.dataBasis === 'real';
+    if (elDischarge)
+      elDischarge.textContent = real
+        ? 'No gauge data'
+        : `${estDischarge.toLocaleString()} Cusecs`;
+    if (elStage)
+      elStage.textContent = real ? 'No gauge data' : `+${estStageRise} m`;
   }
 
   _showCategoryDropdown(categoryKey) {
@@ -1220,17 +1415,28 @@ export class GoogleMapsUI {
       });
     });
 
-    card.querySelector('#gmaps-dropdown-close')?.addEventListener('click', () => {
-      this._closeDropdown();
-    });
+    card
+      .querySelector('#gmaps-dropdown-close')
+      ?.addEventListener('click', () => {
+        this._closeDropdown();
+      });
   }
 
   _performSearch(query, triggerDirect = true) {
     const q = query.toLowerCase();
     const allItems = [
-      ...PAKISTAN_LOCATIONS.glaciers.items.map((i) => ({ ...i, category: 'Glacier' })),
-      ...PAKISTAN_LOCATIONS.dams.items.map((i) => ({ ...i, category: 'Dam / Barrage' })),
-      ...PAKISTAN_LOCATIONS.hotspots.items.map((i) => ({ ...i, category: 'Flood Hotspot' })),
+      ...PAKISTAN_LOCATIONS.glaciers.items.map((i) => ({
+        ...i,
+        category: 'Glacier',
+      })),
+      ...PAKISTAN_LOCATIONS.dams.items.map((i) => ({
+        ...i,
+        category: 'Dam / Barrage',
+      })),
+      ...PAKISTAN_LOCATIONS.hotspots.items.map((i) => ({
+        ...i,
+        category: 'Flood Hotspot',
+      })),
     ];
 
     const matches = allItems.filter(
@@ -1293,9 +1499,11 @@ export class GoogleMapsUI {
         });
       });
 
-      card.querySelector('#gmaps-dropdown-close')?.addEventListener('click', () => {
-        this._closeDropdown();
-      });
+      card
+        .querySelector('#gmaps-dropdown-close')
+        ?.addEventListener('click', () => {
+          this._closeDropdown();
+        });
     } else if (triggerDirect) {
       // Fallback to geocoding or toast
       this.navigation?.lookupLocation?.(query);
@@ -1388,7 +1596,9 @@ export class GoogleMapsUI {
       if (this.viewer) {
         this.viewer.trackedEntity = undefined;
       }
-      const emergencyBtn = document.getElementById('gmaps-emergency-plane-exit');
+      const emergencyBtn = document.getElementById(
+        'gmaps-emergency-plane-exit',
+      );
       if (emergencyBtn) emergencyBtn.classList.add('hidden');
 
       this.flightsLayer?.disable?.(this.viewer);
@@ -1436,6 +1646,6 @@ export class GoogleMapsUI {
     this.pakistanLayers?.destroy();
     this.predictiveHeatmaps?.destroy();
     this.countryThreatPolygons?.destroy();
+    this.responsePanel?.destroy();
   }
 }
-
