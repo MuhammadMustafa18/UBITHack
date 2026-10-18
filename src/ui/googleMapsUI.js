@@ -31,6 +31,7 @@ export const ICONS = {
   weather: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>`,
   cyclone: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   pin: `<svg viewBox="0 0 24 24" class="gmaps-item-svg"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
+  plane: `<svg viewBox="0 0 24 24" class="gmaps-pill-svg"><path fill="currentColor" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`,
 };
 
 export const PAKISTAN_LOCATIONS = {
@@ -374,6 +375,16 @@ export class GoogleMapsUI {
           <span class="gmaps-pill-icon">${ICONS.weather}</span>
           <span>Weather &amp; Radar</span>
         </button>
+        <button id="gmaps-pill-planes" class="gmaps-pill gmaps-pill-planes" type="button" title="Toggle Live Air Traffic / Commercial Flights">
+          <span class="gmaps-pill-icon">${ICONS.plane}</span>
+          <span id="gmaps-pill-planes-label">Plane Mode</span>
+        </button>
+      </div>
+
+      <!-- Floating Exit Plane Mode Banner (prominently visible whenever plane mode is ON) -->
+      <div id="gmaps-plane-banner" class="gmaps-plane-banner hidden">
+        <span>✈️ Live Air Traffic Active</span>
+        <button id="gmaps-plane-banner-exit" class="gmaps-plane-banner-btn" type="button">EXIT PLANE MODE ✕</button>
       </div>
 
       <!-- Top Right Quick Actions -->
@@ -757,6 +768,15 @@ export class GoogleMapsUI {
     });
     document.getElementById('gmaps-check-plane')?.addEventListener('change', (e) => {
       this.setFlightsLayerEnabled(e.target.checked);
+    });
+    document.getElementById('gmaps-pill-planes')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const currentActive = document.body.classList.contains('plane-mode-active');
+      this.setFlightsLayerEnabled(!currentActive);
+    });
+    document.getElementById('gmaps-plane-banner-exit')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.setFlightsLayerEnabled(false);
     });
 
     // Close dropdown on outside click
@@ -1259,20 +1279,61 @@ export class GoogleMapsUI {
    */
   setFlightsLayerEnabled(enabled) {
     const dataManager = this.styleManager?.dataManager;
-    if (!this.flightsLayer || !dataManager) {
-      this._showToast('Air traffic layer unavailable in this build');
-      document.getElementById('gmaps-check-plane').checked = false;
-      return;
+    const planeCheck = document.getElementById('gmaps-check-plane');
+    const pill = document.getElementById('gmaps-pill-planes');
+    const pillLabel = document.getElementById('gmaps-pill-planes-label');
+    const banner = document.getElementById('gmaps-plane-banner');
+
+    if (enabled) {
+      if (dataManager) {
+        dataManager
+          .setEnabled('flights', true, { origin: 'user' })
+          .catch((error) =>
+            console.warn('[GoogleMapsUI] flights enable failed:', error),
+          );
+      }
+      this.flightsLayer?.enable?.(this.viewer);
+      document.body.classList.add('plane-mode-active');
+      if (planeCheck) planeCheck.checked = true;
+      if (pill) pill.classList.add('active');
+      if (pillLabel) pillLabel.textContent = 'Exit Plane Mode ✕';
+      if (banner) banner.classList.remove('hidden');
+      this._showToast('Plane mode ON — live air traffic enabled');
+    } else {
+      if (dataManager) {
+        dataManager
+          .setEnabled('flights', false, { origin: 'user' })
+          .catch((error) =>
+            console.warn('[GoogleMapsUI] flights disable failed:', error),
+          );
+        dataManager
+          .setEnabled('military', false, { origin: 'user' })
+          .catch(() => {});
+      }
+      this.flightsLayer?.disable?.(this.viewer);
+      this.catalog?.get?.('military')?.disable?.(this.viewer);
+      document.body.classList.remove('plane-mode-active');
+      if (planeCheck) planeCheck.checked = false;
+      if (pill) pill.classList.remove('active');
+      if (pillLabel) pillLabel.textContent = 'Plane Mode';
+      if (banner) banner.classList.add('hidden');
+
+      // Clean local storage so it stays off
+      try {
+        const stored = localStorage.getItem('gev:layer-state:v2');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed.enabledLayerIds)) {
+            parsed.enabledLayerIds = parsed.enabledLayerIds.filter(
+              (id) => id !== 'flights' && id !== 'military',
+            );
+            localStorage.setItem('gev:layer-state:v2', JSON.stringify(parsed));
+          }
+        }
+      } catch {}
+
+      this._showToast('Plane mode EXITED — air traffic hidden');
     }
-    dataManager
-      .setEnabled('flights', enabled, { origin: 'user' })
-      .catch((error) =>
-        console.warn('[GoogleMapsUI] flights toggle failed:', error),
-      );
-    document.body.classList.toggle('plane-mode-active', enabled);
-    this._showToast(
-      enabled ? 'Plane mode ON — live air traffic' : 'Plane mode OFF — map clean',
-    );
   }
 
   _showToast(msg) {
