@@ -3793,7 +3793,12 @@
       "src/view/index.js",
       "src/tools/views.js",
       "src/tools/globePanel.js",
-      "src/tools/queries/panelRequest.js"
+      "src/tools/queries/panelRequest.js",
+      "src/tools/queries/climate.js",
+      "src/intelligence/scoring.js",
+      "src/intelligence/gridStore.js",
+      "src/intelligence/queries.js",
+      "src/intelligence/advisory.js"
     ],
     "external": ["satellite.js"]
   },

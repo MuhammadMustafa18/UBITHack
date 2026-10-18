@@ -39,6 +39,7 @@ import {
   getTrafficFlow,
   getTransitVehicles,
 } from './queries/mobility.js';
+import { CLIMATE_TOOLS } from './queries/climate.js';
 import { placesNearby, planRoute, searchPlaces } from './queries/places.js';
 import { panelRequest } from './queries/panelRequest.js';
 import { showInGodsEyeView } from './queries/share.js';
@@ -124,4 +125,5 @@ export const coreTools = Object.freeze([
   getHudCaption,
   showInGodsEyeView,
   panelRequest,
+  ...CLIMATE_TOOLS,
 ]);
