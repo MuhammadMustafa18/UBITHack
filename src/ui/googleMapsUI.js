@@ -26,7 +26,10 @@ import {
   FLOOD_SCENARIOS,
   FLOOD_MAGNITUDES,
   TIME_SCALES,
+  ELIGIBLE_ORIGINATION_POINTS,
 } from '../simulation/flowData.js';
+import { ResourceDefenseGame } from '../simulation/resourceDefenseGame.js';
+import { RescueDashboardUI } from './rescueDashboard.js';
 
 
 
@@ -320,6 +323,22 @@ export class GoogleMapsUI {
     // Dynamic Demographic & Risk Heatmap Engine (Population, Age, Resources, Risk)
     this.demographicHeatmapEngine = new DemographicHeatmapEngine(this.viewer);
 
+    // Interactive Resource Defense Simulation Game Engine (Uber-like vehicle routes & safeguard currency)
+    this.resourceDefenseGame = new ResourceDefenseGame(this.viewer, this.floodEngine);
+    this.simulationBarUI?.setResourceDefenseGame(this.resourceDefenseGame);
+
+    // Dedicated /rescue Route Dashboard (Live distress stream & LLM triage)
+    this.rescueDashboard = new RescueDashboardUI({
+      onReturnToGlobe: () => this._showGlobeView(),
+      onLocateOnGlobe: (sos) => this._locateSosOnGlobe(sos),
+    });
+
+    // Origin Picker State
+    this.selectedOriginPoint = null;
+    this._originPickerActive = false;
+    this._originPickerHandler = null;
+    this._originPickerEntities = [];
+
     this._init();
   }
 
@@ -329,6 +348,7 @@ export class GoogleMapsUI {
     this._renderDOM();
     this._bindEvents();
     this._syncCompass();
+    this._initRouting();
   }
 
   _purgeAirplaneMode() {
@@ -413,6 +433,10 @@ export class GoogleMapsUI {
         <button id="gmaps-pill-simulate" class="gmaps-pill gmaps-pill-featured" type="button" title="Simulate Glacial Lake Outburst & Downstream Flooding">
           <span class="gmaps-pill-icon">${ICONS.simulate}</span>
           <span>Simulate Flood</span>
+        </button>
+        <button id="gmaps-pill-rescue" class="gmaps-pill gmaps-pill-rescue" type="button" title="Live Citizen Distress Signals &amp; LLM Urgency Triage (/rescue)">
+          <span class="gmaps-pill-icon"><svg viewBox="0 0 24 24" class="gmaps-pill-svg" style="color:#ef4444;"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></span>
+          <span>Rescue Triage (/rescue)</span>
         </button>
         <button id="gmaps-pill-prediction" class="gmaps-pill gmaps-pill-prediction" type="button" title="Live AI Risk Prediction &amp; Earth Observation Pipeline">
           <span class="gmaps-pill-icon">${ICONS.prediction}</span>
@@ -649,7 +673,10 @@ export class GoogleMapsUI {
           <div class="pred-tag">LIVE EARTH OBSERVATION &amp; GEE PIPELINE</div>
           <h3 class="pred-title">AI Risk Prediction Engine</h3>
         </div>
-        <button id="pred-close-btn" class="pred-icon-close" type="button" title="Close Prediction Panel">✕</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="pred-min-btn" class="hud-minimize-toggle-btn" type="button" title="Minimize / Expand Panel">—</button>
+          <button id="pred-close-btn" class="pred-icon-close" type="button" title="Close Prediction Panel">✕</button>
+        </div>
       </div>
 
       <!-- 4-Step Pipeline -->
@@ -730,7 +757,10 @@ export class GoogleMapsUI {
           <span class="heatmap-badge">THEMATIC HEATMAPS</span>
           <span class="heatmap-title">Pakistan Demographics &amp; Hazard Overlay</span>
         </div>
-        <button id="heatmap-close-btn" class="heatmap-close-btn" type="button" title="Close Heatmaps">✕</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="heatmap-min-btn" class="hud-minimize-toggle-btn" type="button" title="Minimize / Expand Capsule">—</button>
+          <button id="heatmap-close-btn" class="heatmap-close-btn" type="button" title="Close Heatmaps">✕</button>
+        </div>
       </div>
 
       <div class="heatmap-toggles-row">
@@ -983,10 +1013,23 @@ export class GoogleMapsUI {
       }
     });
 
-    // 1b. Live Prediction Trigger
+    // 1b. Rescue Triage Trigger
+    document.getElementById('gmaps-pill-rescue')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this._showRescueDashboard(true);
+    });
+
+    // 1c. Live Prediction Trigger & Minimize
     document.getElementById('gmaps-pill-prediction')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.toggleLivePrediction();
+    });
+
+    document.getElementById('pred-min-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const p = document.getElementById('gmaps-prediction-panel');
+      const isMin = p?.classList.toggle('pred-minimized');
+      e.currentTarget.textContent = isMin ? '+' : '—';
     });
 
     document.getElementById('pred-close-btn')?.addEventListener('click', (e) => {
@@ -994,10 +1037,17 @@ export class GoogleMapsUI {
       this.toggleLivePrediction(false);
     });
 
-    // 1c. Heatmaps Trigger
+    // 1d. Heatmaps Trigger & Minimize
     document.getElementById('gmaps-pill-heatmap')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.toggleHeatmaps();
+    });
+
+    document.getElementById('heatmap-min-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cap = document.getElementById('gmaps-heatmap-capsule');
+      const isMin = cap?.classList.toggle('heatmap-minimized');
+      e.currentTarget.textContent = isMin ? '+' : '—';
     });
 
     document.getElementById('heatmap-close-btn')?.addEventListener('click', (e) => {
@@ -1387,14 +1437,36 @@ export class GoogleMapsUI {
           <button class="sim-forecast-scale-btn ${this.selectedTimeScale === 'daily' ? 'active' : ''}" data-scale="daily" type="button">DAILY</button>
           <button class="sim-forecast-scale-btn ${this.selectedTimeScale === 'weekly' ? 'active' : ''}" data-scale="weekly" type="button">WEEKLY</button>
         </div>
-        <button id="sim-dialog-close" class="gmaps-close-btn" type="button" aria-label="Close">✕</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="sim-dialog-minimize" class="card-minimize-btn" type="button" title="Minimize / Expand Dialog">—</button>
+          <button id="sim-dialog-close" class="gmaps-close-btn" type="button" aria-label="Close">✕</button>
+        </div>
       </div>
 
       <div class="sim-forecast-body">
-        <!-- Flood Type & Origin -->
+        <!-- Flood Type & Origin with 3D Map Origin Picker -->
         <div>
-          <div class="sim-section-header">Flood Type &amp; Origin:</div>
-          <div class="sim-scenarios-grid">
+          <div class="sim-section-header">
+            <span>Flood Type &amp; Origin:</span>
+            <span style="font-weight: 500; text-transform: none; color: #1a73e8; font-size: 11px;">10 Gateways Available</span>
+          </div>
+
+          <!-- 3D Map Origin Picker Trigger & Eligible Chips -->
+          <div class="sim-origin-picker-box">
+            <button id="sim-origin-picker-trigger" class="sim-origin-picker-btn" type="button" title="Select starting flood surge pin interactively on the 3D globe">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <span>🧭 Pick Origin on 3D Map</span>
+            </button>
+            <div class="sim-origin-chips-scroll" id="sim-origin-chips-container">
+              ${ELIGIBLE_ORIGINATION_POINTS.map((pt) => `
+                <button class="sim-origin-chip ${this.selectedOriginPoint?.id === pt.id ? 'active' : ''}" data-origin-id="${pt.id}" type="button" title="${pt.name} (${pt.region})">
+                  ${pt.name}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="sim-scenarios-grid" style="margin-top: 8px;">
             ${scenariosList.map((item) => `
               <div class="sim-scenario-card ${this.selectedScenarioKey === item.key ? 'active' : ''}" data-scenario="${item.key}" role="button" tabindex="0">
                 <div class="sim-scenario-left">
@@ -1428,23 +1500,23 @@ export class GoogleMapsUI {
           <div class="sim-telemetry-grid">
             <div class="sim-tel-cell sim-tel-cell-full">
               <span class="sim-tel-label">Origin / Region</span>
-              <span class="sim-tel-val" id="dialog-tel-region">${originRegion}</span>
+              <span class="sim-tel-val" id="dialog-tel-region">${this.selectedOriginPoint ? `${this.selectedOriginPoint.name} (${this.selectedOriginPoint.region})` : originRegion}</span>
             </div>
             <div class="sim-tel-cell sim-tel-cell-full">
               <span class="sim-tel-label">Stage / Status</span>
-              <span class="sim-tel-val" id="dialog-tel-status" style="color: #d93025;">${stageStatus}</span>
+              <span class="sim-tel-val" id="dialog-tel-status" style="color: #d93025;">${this.selectedOriginPoint ? `${this.selectedOriginPoint.badge} • FORECAST` : stageStatus}</span>
             </div>
             <div class="sim-tel-cell sim-tel-cell-full">
               <span class="sim-tel-label">Crest Location</span>
-              <span class="sim-tel-val" id="dialog-tel-crest">${crestLoc}</span>
+              <span class="sim-tel-val" id="dialog-tel-crest">${this.selectedOriginPoint ? this.selectedOriginPoint.name : crestLoc}</span>
             </div>
             <div class="sim-tel-cell">
               <span class="sim-tel-label">Est. Discharge</span>
-              <span class="sim-tel-val" id="dialog-tel-discharge" style="color: #1a73e8; font-family: monospace;">${estDischarge.toLocaleString()} Cusecs</span>
+              <span class="sim-tel-val" id="dialog-tel-discharge" style="color: #38bdf8; font-family: monospace;">${estDischarge.toLocaleString()} Cusecs</span>
             </div>
             <div class="sim-tel-cell">
               <span class="sim-tel-label">Stage Rise</span>
-              <span class="sim-tel-val" id="dialog-tel-stage" style="color: #ea4335; font-family: monospace;">+${estStageRise} m</span>
+              <span class="sim-tel-val" id="dialog-tel-stage" style="color: #f87171; font-family: monospace;">+${estStageRise} m</span>
             </div>
           </div>
         </div>
@@ -1453,8 +1525,8 @@ export class GoogleMapsUI {
         <div class="sim-toggles-container">
           <label class="sim-toggle-row">
             <div class="sim-toggle-info">
-              <span class="sim-toggle-name">Resource Management &amp; Relief Dispatch</span>
-              <span class="sim-toggle-sub" id="dialog-resource-status">${this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY' : 'STANDBY (NON-FUNCTIONAL)'}</span>
+              <span class="sim-toggle-name">Resource Management &amp; Relief Dispatch (Simulation Game)</span>
+              <span class="sim-toggle-sub" id="dialog-resource-status">${this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY (FIRETRUCKS, BOATS, CREWS)' : 'STANDBY'}</span>
             </div>
             <input type="checkbox" id="dialog-resource-toggle" ${this.resourceManagementEnabled ? 'checked' : ''} style="accent-color: #1a73e8; width: 18px; height: 18px; cursor: pointer;" />
           </label>
@@ -1506,11 +1578,34 @@ export class GoogleMapsUI {
       </div>
     `;
 
+    // 0. Minimize Dialog button
+    card.querySelector('#sim-dialog-minimize')?.addEventListener('click', (e) => {
+      const isMin = card.classList.toggle('card-minimized');
+      e.currentTarget.textContent = isMin ? '+' : '—';
+    });
+
+    // 0b. Origin picker trigger & chips
+    card.querySelector('#sim-origin-picker-trigger')?.addEventListener('click', () => {
+      this._enterOriginPickerMode();
+    });
+
+    card.querySelectorAll('.sim-origin-chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const originId = btn.getAttribute('data-origin-id');
+        const pt = ELIGIBLE_ORIGINATION_POINTS.find((p) => p.id === originId);
+        if (pt) {
+          this._selectOriginPoint(pt);
+        }
+      });
+    });
+
     // 1. Scenario selection (DO NOT AUTO START!)
     card.querySelectorAll('.sim-scenario-card').forEach((elem) => {
       elem.addEventListener('click', () => {
         const key = elem.dataset.scenario;
         this.selectedScenarioKey = key;
+        this.selectedOriginPoint = null;
+        card.querySelectorAll('.sim-origin-chip').forEach((c) => c.classList.remove('active'));
         card.querySelectorAll('.sim-scenario-card').forEach((c) => c.classList.remove('active'));
         elem.classList.add('active');
         this._updateDialogTelemetry(card);
@@ -1543,9 +1638,9 @@ export class GoogleMapsUI {
       this.resourceManagementEnabled = e.target.checked;
       const statusEl = card.querySelector('#dialog-resource-status');
       if (statusEl) {
-        statusEl.textContent = this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY' : 'STANDBY (NON-FUNCTIONAL)';
+        statusEl.textContent = this.resourceManagementEnabled ? 'ACTIVE / DISPATCH READY (FIRETRUCKS, BOATS, CREWS)' : 'STANDBY';
       }
-      this._showToast(this.resourceManagementEnabled ? 'Resource management allocation enabled' : 'Resource management standby');
+      this._showToast(this.resourceManagementEnabled ? 'Resource defense game enabled (Firetrucks, Boats, Manpower)' : 'Resource defense standby');
     });
 
     card.querySelector('#dialog-predictive-toggle')?.addEventListener('change', (e) => {
@@ -1579,14 +1674,23 @@ export class GoogleMapsUI {
       this.floodEngine?.setMagnitude(this.selectedMagnitudeKey);
       this.floodEngine?.setTimeScale(this.selectedTimeScale);
       this.simulationBarUI?.show();
+
+      // Launch Resource Defense Game if enabled
+      if (this.resourceManagementEnabled) {
+        this.resourceDefenseGame?.start();
+      } else {
+        this.resourceDefenseGame?.stop();
+      }
+
       this.floodEngine?.start();
       this._closeDropdown();
       const activeSc = FLOOD_SCENARIOS[this.selectedScenarioKey];
-      this._showToast(`Simulation started: ${activeSc?.name || 'Flood Forecast'}`);
+      this._showToast(`Simulation started: ${this.selectedOriginPoint ? this.selectedOriginPoint.name : (activeSc?.name || 'Flood Forecast')}`);
     });
 
     // 6. Exit button
     card.querySelector('#dialog-exit-btn')?.addEventListener('click', () => {
+      this.resourceDefenseGame?.stop();
       this.floodEngine?.exit();
       this.simulationBarUI?.hide();
       this._closeDropdown();
@@ -1873,6 +1977,220 @@ export class GoogleMapsUI {
     }
   }
 
+  _initRouting() {
+    // Check initial route
+    if (window.location.pathname === '/rescue') {
+      this._showRescueDashboard(false);
+    }
+
+    // Handle back / forward browser navigation
+    window.addEventListener('popstate', () => {
+      if (window.location.pathname === '/rescue') {
+        this._showRescueDashboard(false);
+      } else {
+        this._showGlobeView(false);
+      }
+    });
+  }
+
+  _showRescueDashboard(pushHistory = true) {
+    if (pushHistory && window.location.pathname !== '/rescue') {
+      window.history.pushState(null, '', '/rescue');
+    }
+    this._exitOriginPickerMode();
+    this._closeDropdown();
+    this.rescueDashboard?.mount();
+    document.getElementById('gmaps-pill-rescue')?.classList.add('active');
+  }
+
+  _showGlobeView(pushHistory = true) {
+    if (pushHistory && window.location.pathname === '/rescue') {
+      window.history.pushState(null, '', '/');
+    }
+    this.rescueDashboard?.unmount();
+    document.getElementById('gmaps-pill-rescue')?.classList.remove('active');
+  }
+
+  _locateSosOnGlobe(sos) {
+    this._showGlobeView(true);
+    if (!this.viewer || !sos.coords) return;
+
+    const [lon, lat] = sos.coords;
+    this.viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(lon, lat, 4500),
+      orientation: {
+        heading: Cesium.Math.toRadians(0),
+        pitch: Cesium.Math.toRadians(-40),
+        roll: 0,
+      },
+      duration: 2.2,
+    });
+
+    // Drop emergency rescue pin beacon
+    const sosBeacon = this.viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(lon, lat, 100),
+      point: {
+        pixelSize: 18,
+        color: Cesium.Color.RED,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 3,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      },
+      label: {
+        text: `🚨 SOS: ${sos.sender}\n${sos.district}\n[${sos.llmRank}]`,
+        font: 'bold 13px Inter, sans-serif',
+        fillColor: Cesium.Color.WHITE,
+        backgroundColor: Cesium.Color.fromCssColorString('#0f172a'),
+        showBackground: true,
+        backgroundPadding: new Cesium.Cartesian2(8, 5),
+        pixelOffset: new Cesium.Cartesian2(0, -45),
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      },
+    });
+
+    setTimeout(() => {
+      if (this.viewer && this.viewer.entities) {
+        this.viewer.entities.remove(sosBeacon);
+      }
+    }, 18000);
+
+    this._showToast(`Located SOS signal from ${sos.sender} in ${sos.district}`);
+  }
+
+  _enterOriginPickerMode() {
+    if (this._originPickerActive) return;
+    this._originPickerActive = true;
+
+    // Minimize dialog so user can see globe
+    const card = document.getElementById('gmaps-dropdown-card');
+    card?.classList.add('card-minimized');
+    const minBtn = card?.querySelector('#sim-dialog-minimize');
+    if (minBtn) minBtn.textContent = '+';
+
+    // Show floating instruction banner on globe
+    const banner = document.createElement('div');
+    banner.id = 'origin-picker-banner';
+    banner.className = 'origin-picker-active-banner';
+    banner.innerHTML = `
+      <span>🎯 CLICK ANY HIGHLIGHTED GATEWAY PIN ON 3D MAP TO SET ORIGIN</span>
+      <button id="origin-picker-cancel" class="origin-picker-cancel-btn" type="button">✕ Cancel</button>
+    `;
+    document.body.appendChild(banner);
+
+    banner.querySelector('#origin-picker-cancel')?.addEventListener('click', () => {
+      this._exitOriginPickerMode();
+      card?.classList.remove('card-minimized');
+      if (minBtn) minBtn.textContent = '—';
+    });
+
+    // Render Cesium markers for each eligible origination point
+    this._originPickerEntities = [];
+    for (const pt of ELIGIBLE_ORIGINATION_POINTS) {
+      const ent = this.viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(pt.lon, pt.lat, pt.alt || 500),
+        point: {
+          pixelSize: 16,
+          color: Cesium.Color.fromCssColorString('#1863dc'),
+          outlineColor: Cesium.Color.WHITE,
+          outlineWidth: 3,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+        label: {
+          text: `📍 ${pt.name}\n[${pt.badge}]`,
+          font: 'bold 12px "Space Grotesk", sans-serif',
+          fillColor: Cesium.Color.WHITE,
+          backgroundColor: Cesium.Color.fromCssColorString('#071829').withAlpha(0.85),
+          showBackground: true,
+          backgroundPadding: new Cesium.Cartesian2(7, 4),
+          pixelOffset: new Cesium.Cartesian2(0, -38),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+      });
+      ent._originData = pt;
+      this._originPickerEntities.push(ent);
+    }
+
+    // Fly camera to Pakistan national overview
+    this.viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(71.5, 30.8, 1400000),
+      orientation: {
+        heading: Cesium.Math.toRadians(0),
+        pitch: Cesium.Math.toRadians(-55),
+        roll: 0,
+      },
+      duration: 1.8,
+    });
+
+    // Screen click handler for Cesium picking
+    this._originPickerHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+    this._originPickerHandler.setInputAction((click) => {
+      const picked = this.viewer.scene.pick(click.position);
+      if (Cesium.defined(picked) && picked.id && picked.id._originData) {
+        const pt = picked.id._originData;
+        this._selectOriginPoint(pt);
+        this._exitOriginPickerMode();
+        card?.classList.remove('card-minimized');
+        if (minBtn) minBtn.textContent = '—';
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    this._showToast('Origin picker active — click any gateway pin on 3D globe');
+  }
+
+  _exitOriginPickerMode() {
+    this._originPickerActive = false;
+    document.getElementById('origin-picker-banner')?.remove();
+
+    if (this._originPickerHandler) {
+      this._originPickerHandler.destroy();
+      this._originPickerHandler = null;
+    }
+
+    if (this.viewer && this.viewer.entities) {
+      for (const ent of this._originPickerEntities) {
+        this.viewer.entities.remove(ent);
+      }
+    }
+    this._originPickerEntities = [];
+  }
+
+  _selectOriginPoint(pt) {
+    this.selectedOriginPoint = pt;
+    this.selectedScenarioKey = pt.scenarioKey;
+
+    // Update active state on chips and scenario cards
+    const card = document.getElementById('gmaps-dropdown-card');
+    if (card) {
+      card.querySelectorAll('.sim-origin-chip').forEach((c) => {
+        c.classList.toggle('active', c.getAttribute('data-origin-id') === pt.id);
+      });
+      card.querySelectorAll('.sim-scenario-card').forEach((c) => {
+        c.classList.toggle('active', c.dataset.scenario === pt.scenarioKey);
+      });
+
+      // Update telemetry box
+      const reg = card.querySelector('#dialog-tel-region');
+      if (reg) reg.textContent = `${pt.name} (${pt.region})`;
+      const stat = card.querySelector('#dialog-tel-status');
+      if (stat) stat.textContent = `${pt.badge} • READY`;
+      const crest = card.querySelector('#dialog-tel-crest');
+      if (crest) crest.textContent = pt.name;
+    }
+
+    // Smoothly fly camera to selected origin gateway
+    this.viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(pt.lon, pt.lat, 6500),
+      orientation: {
+        heading: Cesium.Math.toRadians(0),
+        pitch: Cesium.Math.toRadians(-32),
+        roll: 0,
+      },
+      duration: 2.0,
+    });
+
+    this._showToast(`Selected origin: ${pt.name} (${pt.region})`);
+  }
+
   exitAirplaneMode() {
     this.setFlightsLayerEnabled(false);
   }
@@ -1889,6 +2207,9 @@ export class GoogleMapsUI {
   }
 
   destroy() {
+    this._exitOriginPickerMode();
+    this.rescueDashboard?.destroy();
+    this.resourceDefenseGame?.destroy();
     this.pakistanLayers?.destroy();
     this.predictiveHeatmaps?.destroy();
     this.countryThreatPolygons?.destroy();
