@@ -2,6 +2,12 @@
 
 Open **Rescue** on the map, or visit `/rescue` while the Vite server is running.
 The dashboard and map dispatch controls use the same `ResourceDefenseGame` pool.
+The latest upstream tactical commander and white dashboard theme are preserved.
+Its incident context comes from the current ranked reports. The embedded
+scenario copilot is advisory; it does not dispatch incident resources. The map
+commander's direct dispatch accepts explicit commands such as `Deploy Boat`,
+not questions or negated instructions. It uses the team's existing provider
+configuration, separately from the optional OpenAI report extractor below.
 
 ## Working flow
 
@@ -69,6 +75,7 @@ seconds on a straight line regardless of the illustrative distance estimate.
 
 ```sh
 node --test src/simulation/rescueAllocation.test.mjs src/simulation/resourceDefenseGame.test.mjs server/providers/openai/rescue-triage.test.mjs
+node --test src/simulation/tacticalAiCommander.test.mjs
 npm run check:boundaries
 npm run build
 ```
