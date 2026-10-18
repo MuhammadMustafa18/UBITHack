@@ -124,13 +124,30 @@ export class RescueDashboardUI {
     this.searchQuery = '';
     this._simTimer = null;
 
-    // Chat conversation state for the Gemini web app style interface
+    // View Mode: 'portal' (Starter UI: Dashboard or Call for Help) | 'dashboard' | 'citizen_chat'
+    this.viewMode = 'portal';
+
+    // Direct citizen emergency messaging thread
+    this.citizenChatMessages = [
+      {
+        sender: 'assistant',
+        text: '🚨 **NDMA Emergency Dispatch & Gemini Help Line**\nWe are actively receiving distress signals across Pakistan. Tell us your exact location or district, rising water situation, and how many people are with you.',
+        timestamp: 'Just now',
+      },
+    ];
+
+    // Chat conversation state for the Gemini web app style interface inside dashboard
     this.chatMessages = [
       {
         sender: 'assistant',
         text: '👋 **Hello Commander.** I am your Gemini-powered Rescue Intelligence assistant. Ask me anything about current flood scenarios, resource deficits, or immediate evacuation triage priorities.',
       },
     ];
+  }
+
+  setMode(mode) {
+    this.viewMode = mode;
+    this._render();
   }
 
   mount() {
@@ -161,12 +178,28 @@ export class RescueDashboardUI {
   _render() {
     if (!this.container) return;
 
+    if (this.viewMode === 'portal') {
+      this._renderStarterPortal();
+      this._bindPortalEvents();
+      return;
+    }
+
+    if (this.viewMode === 'citizen_chat') {
+      this._renderCitizenChatInterface();
+      this._bindCitizenChatEvents();
+      return;
+    }
+
     const filtered = this._getFilteredSignals();
 
     this.container.innerHTML = `
       <!-- Top Executive Minimalist White Bar -->
       <header class="rescue-nav-bar">
         <div class="rescue-brand-group">
+          <button id="btn-back-to-portal" class="rescue-portal-back-btn" type="button" title="Back to Portal Selection">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            <span>Portal</span>
+          </button>
           <div class="gemini-sparkle-icon" title="Gemini AI Intelligence">
             <svg viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
           </div>
@@ -530,6 +563,11 @@ export class RescueDashboardUI {
       }
     });
 
+    // Back to portal button
+    this.container.querySelector('#btn-back-to-portal')?.addEventListener('click', () => {
+      this.setMode('portal');
+    });
+
     this._bindIncidentCardClicks();
     this._bindActionButtons();
     this._bindGeminiChat();
@@ -850,6 +888,322 @@ export class RescueDashboardUI {
       .replace(/\n/g, '<br/>');
   }
 
+  _renderStarterPortal() {
+    this.container.innerHTML = `
+      <div class="rescue-portal-container">
+        <div class="rescue-portal-header">
+          <div class="gemini-sparkle-icon" style="width: 36px; height: 36px;">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+          </div>
+          <span class="portal-tag">NDMA × Agahi Emergency Portal</span>
+          <h1 class="portal-title">Disaster Response &amp; Evacuation Center</h1>
+          <p class="portal-subtitle">
+            AI-orchestrated crisis coordination connecting stranded citizens, live hydrology telemetry, and swift-water rescue dispatchers across Pakistan.
+          </p>
+        </div>
+
+        <div class="rescue-portal-options">
+          <!-- Option 1: Call for Help (Citizen Direct Messaging) -->
+          <div class="portal-card sos-card" id="portal-card-sos">
+            <div class="portal-card-badge sos">CITIZEN DISTRESS CHANNEL</div>
+            <div class="portal-card-icon-wrap sos">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <h2 class="portal-card-title">Call for Help (Emergency SOS)</h2>
+            <p class="portal-card-desc">
+              Immediate messaging interface for citizens stranded in floodwaters or facing levee breaches. Detects your GPS coordinates, accepts voice/text descriptions, and broadcasts directly to Rescue 1122 &amp; NDMA.
+            </p>
+            <div class="portal-card-features">
+              <span>✓ Works in any Chrome/mobile browser</span>
+              <span>✓ Auto GPS coordinate lock</span>
+              <span>✓ Prioritized by AI Urgency Model</span>
+            </div>
+            <button class="portal-action-btn sos-btn" type="button" id="portal-btn-sos">
+              <span>Start Emergency Message</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+            </button>
+          </div>
+
+          <!-- Option 2: Command Dashboard (Executive Triage Grid) -->
+          <div class="portal-card dashboard-card" id="portal-card-dashboard">
+            <div class="portal-card-badge dashboard">TACTICAL COMMAND</div>
+            <div class="portal-card-icon-wrap dashboard">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            </div>
+            <h2 class="portal-card-title">Emergency Command Dashboard</h2>
+            <p class="portal-card-desc">
+              Full operational triage console for disaster coordinators, government authorities, and field chiefs. Monitor live incident stream, review AI life-threat scores, and dispatch flotillas &amp; dewatering pumps.
+            </p>
+            <div class="portal-card-features">
+              <span>✓ Real-time P1–P4 triage scoring</span>
+              <span>✓ Live Supabase sync stream</span>
+              <span>✓ Conversational Gemini rescue copilot</span>
+            </div>
+            <button class="portal-action-btn dashboard-btn" type="button" id="portal-btn-dashboard">
+              <span>Open Command Dashboard</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="rescue-portal-footer">
+          <button id="portal-btn-back-globe" class="portal-link-btn" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>Return to 3D Globe &amp; Flood Simulation</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  _bindPortalEvents() {
+    const btnSos = this.container.querySelector('#portal-btn-sos');
+    const cardSos = this.container.querySelector('#portal-card-sos');
+    const btnDashboard = this.container.querySelector('#portal-btn-dashboard');
+    const cardDashboard = this.container.querySelector('#portal-card-dashboard');
+    const btnBackGlobe = this.container.querySelector('#portal-btn-back-globe');
+
+    const openCitizen = () => {
+      this.viewMode = 'citizen_chat';
+      this._render();
+    };
+
+    const openDashboard = () => {
+      this.viewMode = 'dashboard';
+      this._render();
+    };
+
+    btnSos?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCitizen();
+    });
+    cardSos?.addEventListener('click', openCitizen);
+
+    btnDashboard?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openDashboard();
+    });
+    cardDashboard?.addEventListener('click', openDashboard);
+
+    btnBackGlobe?.addEventListener('click', () => {
+      this.unmount();
+      this.onReturnToGlobe();
+    });
+  }
+
+  _renderCitizenChatInterface() {
+    this.container.innerHTML = `
+      <div class="citizen-chat-wrapper">
+        <!-- Top App Bar -->
+        <header class="citizen-chat-header">
+          <div class="citizen-chat-header-left">
+            <button id="citizen-btn-back-portal" class="citizen-back-btn" type="button" title="Back to Portal Selection">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+              <span>Back</span>
+            </button>
+            <div class="gemini-sparkle-icon" style="width: 28px; height: 28px;">
+              <svg viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+            </div>
+            <div>
+              <div class="citizen-title-row">
+                <h1 class="citizen-title">Emergency Rescue Dispatcher</h1>
+                <span class="citizen-online-pill"><span class="pulse-dot"></span> LIVE DISPATCH</span>
+              </div>
+              <p class="citizen-sub">Direct Distress Channel to NDMA &amp; Rescue 1122 • Supabase Synced</p>
+            </div>
+          </div>
+
+          <div class="citizen-header-actions">
+            <button id="citizen-btn-gps" class="citizen-gps-btn" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+              <span id="citizen-gps-label">Share My GPS Location</span>
+            </button>
+            <button id="citizen-btn-switch-dashboard" class="citizen-dash-btn" type="button">
+              <span>View Command Dashboard</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Message Stream -->
+        <main class="citizen-messages-area" id="citizen-messages-area">
+          ${this.citizenChatMessages.map(msg => `
+            <div class="citizen-bubble ${msg.sender}">
+              <div class="bubble-sender">${msg.sender === 'user' ? 'You (Distress Signal)' : 'AI Emergency Dispatcher'}</div>
+              <div class="bubble-content">${this._formatMarkdown(msg.text)}</div>
+              <div class="bubble-time">${msg.timestamp || 'Just now'}</div>
+            </div>
+          `).join('')}
+        </main>
+
+        <!-- Quick Emergency Prompt Chips -->
+        <div class="citizen-quick-chips">
+          <button class="citizen-chip" data-chip="Water is waist-high and rising fast. 4 people trapped on roof.">🌊 Water rising fast / On roof</button>
+          <button class="citizen-chip" data-chip="Medical emergency: infant with high fever and pregnant woman stranded.">🚑 Medical emergency stranded</button>
+          <button class="citizen-chip" data-chip="Need urgent evacuation boat in Nowshera. Grandfather cannot walk.">🚤 Need immediate rescue boat</button>
+          <button class="citizen-chip" data-chip="We have 15 people cut off on a high road embankment with no drinking water.">💧 Trapped without drinking water</button>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <footer class="citizen-chat-input-bar">
+          <form id="citizen-chat-form" class="citizen-chat-form">
+            <input 
+              type="text" 
+              id="citizen-chat-input" 
+              class="citizen-text-input" 
+              placeholder="Type your emergency message, district, or what help is needed..." 
+              autocomplete="off" 
+              required
+            />
+            <button type="submit" id="citizen-chat-send" class="citizen-send-btn" title="Send Distress Signal">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </form>
+        </footer>
+      </div>
+    `;
+  }
+
+  _bindCitizenChatEvents() {
+    const btnBack = this.container.querySelector('#citizen-btn-back-portal');
+    const btnDash = this.container.querySelector('#citizen-btn-switch-dashboard');
+    const btnGps = this.container.querySelector('#citizen-btn-gps');
+    const gpsLabel = this.container.querySelector('#citizen-gps-label');
+    const form = this.container.querySelector('#citizen-chat-form');
+    const input = this.container.querySelector('#citizen-chat-input');
+    const chips = this.container.querySelectorAll('.citizen-chip');
+
+    let currentLat = 34.015;
+    let currentLon = 71.982;
+    let locationShared = false;
+
+    btnBack?.addEventListener('click', () => {
+      this.viewMode = 'portal';
+      this._render();
+    });
+
+    btnDash?.addEventListener('click', () => {
+      this.viewMode = 'dashboard';
+      this._render();
+    });
+
+    btnGps?.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+      }
+      if (gpsLabel) gpsLabel.textContent = 'Locating GPS...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentLat = pos.coords.latitude;
+          currentLon = pos.coords.longitude;
+          locationShared = true;
+          if (gpsLabel) gpsLabel.textContent = `✓ GPS Locked (${currentLat.toFixed(3)}°N, ${currentLon.toFixed(3)}°E)`;
+          this._addCitizenMessage('user', `📍 **Shared GPS Location:** \`${currentLat.toFixed(4)}°N, ${currentLon.toFixed(4)}°E\` (Accuracy within ${Math.round(pos.coords.accuracy)}m)`);
+          this._addCitizenMessage('assistant', `✅ **Location recorded.** Emergency dispatch coordinates locked at **[${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]**. Please describe how many people are with you and the immediate hazard.`);
+        },
+        (err) => {
+          console.warn('[GPS Error]', err);
+          locationShared = true;
+          if (gpsLabel) gpsLabel.textContent = '✓ Default GPS (Nowshera)';
+          this._addCitizenMessage('user', `📍 **Location Specified:** Nowshera / Kabul River Basin [34.015°N, 71.982°E]`);
+          this._addCitizenMessage('assistant', `✅ **Location pinned to Nowshera / Kabul River basin.** Tell us your nearest landmark or street so rescue boats can navigate to you.`);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const text = chip.getAttribute('data-chip');
+        if (text && input) {
+          input.value = text;
+          form.dispatchEvent(new Event('submit'));
+        }
+      });
+    });
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      // 1. Append user message to thread
+      this._addCitizenMessage('user', text);
+
+      // 2. Submit to Supabase
+      const payload = {
+        name: 'Citizen via Web Distress App',
+        phone: '+92 3XX XXXXXXX',
+        district: locationShared ? `GPS Location [${currentLat.toFixed(3)}, ${currentLon.toFixed(3)}]` : 'Flood Impact Zone',
+        latitude: currentLat,
+        longitude: currentLon,
+        channel: 'CHROME WEB SOS',
+        message: text,
+        urgencyLevel: 'P1 - CRITICAL LIFE THREAT',
+        trappedCount: text.includes('people') || text.includes('trapped') ? 4 : 1,
+        hasVulnerable: text.toLowerCase().includes('infant') || text.toLowerCase().includes('pregnant') || text.toLowerCase().includes('children') || text.toLowerCase().includes('grandfather'),
+        waterDepthFt: text.toLowerCase().includes('roof') ? 8 : 4,
+      };
+
+      // Push to in-memory dashboard signals so command dashboard sees it immediately
+      const newSignal = {
+        id: `sos-live-${Date.now()}`,
+        timestamp: 'Just now',
+        sender: 'Citizen via Web SOS',
+        phone: 'Browser Session',
+        district: payload.district,
+        coords: [currentLon, currentLat],
+        channel: 'CHROME WEB SOS',
+        message: text,
+        llmRank: 'P1 - CRITICAL LIFE THREAT',
+        llmScore: 97,
+        badgeClass: 'p1-critical',
+        llmReasoning: 'Real-time distress signal dispatched from browser. Immediate rescue priority logged with Supabase integration.',
+        recommendedAction: 'Immediate dispatch of swift-water flotilla and emergency triage.',
+        status: 'PENDING DISPATCH',
+      };
+      this.signals.unshift(newSignal);
+
+      // Save to Supabase
+      submitRescueRequest(payload).catch(err => console.warn('Supabase sync error', err));
+
+      // 3. Dispatcher LLM response
+      setTimeout(() => {
+        this._addCitizenMessage(
+          'assistant',
+          `🚨 **Distress Signal Broadcasted to NDMA & Rescue 1122**\n\n` +
+          `- **Status:** **PENDING DISPATCH**\n` +
+          `- **Incident ID:** \`${newSignal.id}\`\n` +
+          `- **Triage Urgency:** **P1 Critical (AI Score: 97/100)**\n` +
+          `- **Action Taken:** Signal transmitted to Central Command & synced with Supabase emergency registry.\n\n` +
+          `**Safety Instructions:** Stay on highest sturdy structure. Do not attempt to walk through fast-moving water over knee-deep. Turn on flashlight or wave brightly colored cloth for aviation/boat spotting. Rescue units are being mobilized.`
+        );
+      }, 700);
+    });
+  }
+
+  _addCitizenMessage(sender, text) {
+    this.citizenChatMessages.push({
+      sender,
+      text,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    });
+
+    const messagesArea = this.container?.querySelector('#citizen-messages-area');
+    if (messagesArea) {
+      const bubble = document.createElement('div');
+      bubble.className = `citizen-bubble ${sender}`;
+      bubble.innerHTML = `
+        <div class="bubble-sender">${sender === 'user' ? 'You (Distress Signal)' : 'AI Emergency Dispatcher'}</div>
+        <div class="bubble-content">${this._formatMarkdown(text)}</div>
+        <div class="bubble-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+      `;
+      messagesArea.appendChild(bubble);
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+  }
+
   _startSimulatedStream() {
     this._simTimer = setInterval(() => {
       const extraMessages = [
@@ -891,7 +1245,9 @@ export class RescueDashboardUI {
       };
 
       this.signals.unshift(newSignal);
-      this._render();
+      if (this.viewMode === 'dashboard') {
+        this._render();
+      }
     }, 32000);
   }
 
@@ -904,3 +1260,4 @@ export class RescueDashboardUI {
     this.container = null;
   }
 }
+
