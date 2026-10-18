@@ -657,6 +657,22 @@ a separately reviewed authentication proxy if remote access is required.
 
 ---
 
+## 🌡️ Agahi Climate Intelligence
+
+Grid-level multi-hazard risk scores (flood, heat, terrain, air quality, vegetation, and a weighted composite) for three areas of interest: **Sukkur**, **Karachi** and **Swat–Kabul**. Open **Risk Intel** in the top pill bar to get the colour-coded grid layer, a dashboard (KPIs, top cells, EN/UR advisory, downloadable briefing) and a per-cell card on click. The hazard dropdown switches the layer between Composite, Flood, Heat, Terrain, Air and Vegetation. Missing data is shown grey as "no data", never as low risk. Air values are relative indicators, not ground concentrations.
+
+**Copilot** (second pill) answers questions about the grids using the four climate tools (`get_climate_risk`, `rank_climate_risk`, `get_aoi_risk_summary`, `get_climate_advisory`). Every number in an answer is checked against tool output; an ungrounded answer is replaced by a deterministic summary. The same tools are available to MCP clients and the voice agent. The quick-question chips work without a key; free-text questions need `OPENAI_API_KEY` in `.env` (model override: `OPENAI_AGAHI_MODEL`, default `gpt-5-mini`).
+
+Grids live in `public/data/agahi/grid/<aoi>.json`. Regenerate them with the keyless Open-Meteo pipeline (Node 20+, needs internet; see `pipeline/agahi/README.md`):
+
+```bash
+node pipeline/agahi/openmeteo_grid.mjs sukkur
+node pipeline/agahi/openmeteo_grid.mjs karachi
+node pipeline/agahi/openmeteo_grid.mjs swat_kabul
+```
+
+---
+
 ## 📋 Responsible & Open
 
 God's Eye View runs on **public data, clear sources, and local-first execution.** No secrets, no private datasets, no mystery scraping — anything involving a private key is brokered server-side. It has the visual grammar of a classified ops room, built entirely from open signals and inspectable code.
