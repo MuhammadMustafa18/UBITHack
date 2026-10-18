@@ -82,13 +82,13 @@ function buildBriefing({ entry, grid, summary, top, today }) {
     .map((s) => `<li>${esc(s)}</li>`)
     .join('');
   const name = entry?.name || summary.aoi;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agahi briefing — ${esc(name)} — ${esc(today)}</title><style>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agaahi briefing — ${esc(name)} — ${esc(today)}</title><style>
 body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;max-width:820px;margin:24px auto;padding:0 16px;color:#202124;line-height:1.5}
 h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:24px 0 8px;border-bottom:1px solid #dadce0;padding-bottom:4px}h3{font-size:15px;margin:0 0 6px}
 table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #dadce0;padding:4px 8px;text-align:left}th{background:#f1f3f4}
 .meta{color:#5f6368;font-size:12px}.adv{border:1px solid #dadce0;border-radius:8px;padding:10px 14px;margin:10px 0}.adv ul{margin:6px 0;padding-inline-start:20px}.note{color:#b06000;font-size:12px;margin:6px 0 0}
 </style></head><body>
-<h1>Agahi Climate Intelligence — ${esc(name)}</h1>
+<h1>Agaahi Climate Intelligence — ${esc(name)}</h1>
 <p class="meta">Pipeline: ${esc(PIPELINE_LABELS[grid.pipeline] || grid.pipeline || NO_DATA)} · Data generated: ${esc(grid.generatedAt || NO_DATA)} · Briefing date: ${esc(today)}</p>
 <h2>Summary</h2><table><tbody>${kpiRows}</tbody></table>
 <h2>Mean hazard score (0–100)</h2><table><tbody>${hazardRows}</tbody></table>

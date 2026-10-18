@@ -1,5 +1,5 @@
 /**
- * FloodTrace Pakistan — Cohere-Inspired Enterprise AI Command Theme
+ * Agaahi — Cohere-Inspired Enterprise AI Command Theme
  * A sober, high-trust, editorial geospatial command center.
  * Features:
  * - Monumental display headlines, negative letter-tracking
@@ -749,7 +749,6 @@
   gap: 6px;
   overflow-x: auto;
   padding: 4px 2px;
-  scrollbar-width: thin;
 }
 
 .sim-origin-chip {

@@ -948,9 +948,6 @@ body.cockpit-mode #view-switcher button {
   pointer-events: auto;
   text-shadow: 0 0 8px
     color-mix(in srgb, var(--cockpit-accent) 45%, transparent);
-  scrollbar-color: color-mix(in srgb, var(--cockpit-accent) 45%, transparent)
-    transparent;
-  scrollbar-width: thin;
   transition:
     width 180ms ease,
     background-color 180ms ease,
@@ -1259,9 +1256,6 @@ body.cockpit-mode #view-switcher button {
   pointer-events: auto;
   text-shadow: 0 0 8px
     color-mix(in srgb, var(--cockpit-accent) 45%, transparent);
-  scrollbar-color: color-mix(in srgb, var(--cockpit-accent) 45%, transparent)
-    transparent;
-  scrollbar-width: thin;
   transition:
     width 180ms ease,
     background-color 180ms ease,

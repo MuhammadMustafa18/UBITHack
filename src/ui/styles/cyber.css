@@ -41,8 +41,6 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(165, 188, 199, 0.35) transparent;
 }
 
 :root[data-ui-theme='cyber'] .cctv-panel-inner > .cyber-panel-body {
@@ -68,8 +66,6 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(165, 188, 199, 0.35) transparent;
 }
 
 :root[data-ui-theme='cyber'] #pp-toggles > .pp-panel-body > * {

@@ -42,8 +42,6 @@
     0 8px 32px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset,
     0 1px 0 rgba(255, 255, 255, 0.06) inset;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 212, 255, 0.46) rgba(255, 255, 255, 0.06);
 }
 
 /* Class-qualified, not id-qualified, so a theme's header rule still wins. */
@@ -586,7 +584,6 @@ html:not([lang='en']) .sl-meta-row .sl-nearest-btn {
 .panel-floating[style*='height'] .sl-settings {
   flex: 0 1 auto;
   overflow-y: auto;
-  scrollbar-width: thin;
 }
 
 /* ── Expanded viewer ─────────────────────────────────────────────────────── */

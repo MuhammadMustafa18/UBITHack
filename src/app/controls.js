@@ -34,7 +34,7 @@ export function createApplicationControls({
   defer(() => styleManager.hud.destroy());
   defer(() => styleManager.dispose());
 
-  // Initialize FloodTrace Pakistan Disaster Simulation Engine & UI
+  // Initialize Agaahi Disaster Simulation Engine & UI
   const floodSimulationEngine = new FloodSimulationEngine(viewer);
   const simulationBarUI = new SimulationBarUI(floodSimulationEngine);
 

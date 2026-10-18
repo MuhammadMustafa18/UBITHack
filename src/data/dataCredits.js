@@ -528,11 +528,11 @@ export const AGAAHI_CORRIDOR_CREDIT = {
     '2022 flood extent <a href="https://unosat.org/products/3346" target="_blank" rel="noopener">UNOSAT product 3346</a>',
 };
 
-/** Registered when the Agahi risk grid shows a satellite (gee) pipeline grid. */
+/** Registered when the Agaahi risk grid shows a satellite (gee) pipeline grid. */
 export const AGAHI_GRID_CREDIT = {
   key: 'agahi-grid',
   html:
-    'Agahi risk grid: Copernicus Sentinel-1 and Sentinel-5P (ESA); ' +
+    'Agaahi risk grid: Copernicus Sentinel-1 and Sentinel-5P (ESA); ' +
     'MODIS land surface temperature and NDVI (NASA); SRTM elevation; ' +
     'JRC Global Surface Water; MERIT Hydro; HydroSHEDS; ' +
     '<a href="https://hub.worldpop.org" target="_blank" rel="noopener">WorldPop</a> (CC BY 4.0); ' +
@@ -543,7 +543,7 @@ export const AGAHI_GRID_CREDIT = {
 export const AGAHI_OPENMETEO_CREDIT = {
   key: 'agahi-grid-openmeteo',
   html:
-    'Agahi risk grid (fallback): ' +
+    'Agaahi risk grid (fallback): ' +
     '<a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> weather and air quality (CC BY 4.0), ' +
     'Copernicus Atmosphere Monitoring Service (CAMS) and ERA5 reanalysis (Copernicus Climate Change Service)',
 };

@@ -376,7 +376,7 @@ export function initFirstRunExperience({
   const description = root.querySelector('#first-run-description');
   if (description)
     description.textContent = t(
-      'It feels like a forbidden cockpit—then you realize the sources are public and the data is real.',
+      'Pakistan’s rivers in 3D, built only on public satellite, weather and gauge data. Pick where to start.',
     );
 
   const status = root.querySelector('[data-first-run-status]');

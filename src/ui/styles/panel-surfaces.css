@@ -151,8 +151,6 @@
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--glass-border-hover) transparent;
   /* Keep an inset focus ring inside the intentional scrolling boundary. */
   padding: 3px;
 }

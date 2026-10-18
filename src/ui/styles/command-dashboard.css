@@ -582,8 +582,6 @@ body.cd-active .cd-header-actions .gmaps-round-btn:hover {
   min-height: 0;
   padding: 10px 12px 12px;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--sc-border-strong) transparent;
 }
 
 .cd-tiles {
@@ -1081,8 +1079,6 @@ body.cd-active .cd-header-actions .gmaps-round-btn:hover {
   padding: 0;
   overflow-y: auto;
   list-style: none;
-  scrollbar-width: thin;
-  scrollbar-color: var(--sc-border-strong) transparent;
 }
 
 .cd-sos-row {
@@ -1955,7 +1951,6 @@ body.cd-low-bandwidth .cd-more-menu {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x proximity;
-    scrollbar-width: thin;
   }
 
   .cd-tile {
@@ -2014,4 +2009,142 @@ body.cd-low-bandwidth .cd-more-menu {
   .cd-nav-slot .gmaps-filter-bar {
     margin: 0;
   }
+}
+
+body.map-grayscale .cesium-widget canvas {
+  filter: grayscale(1);
+}
+
+body.cd-active.cd-fullmap .cd-col,
+body.cd-active.cd-fullmap .cd-strip,
+body.cd-active.cd-fullmap .cd-timeline,
+body.cd-active.cd-fullmap .cd-system,
+body.cd-active.cd-fullmap .tactical-ai-toggle-btn,
+body.cd-active.cd-fullmap .tactical-ai-panel,
+body.cd-active.cd-fullmap #lg-stack {
+  display: none !important;
+}
+
+body.cd-active.cd-fullmap .cd-header {
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+body.cd-active.cd-fullmap .cd-modebar {
+  top: 16px;
+  left: 16px;
+}
+
+body.cd-active.cd-fullmap .cd-modebar .cd-mode-group:first-child,
+body.cd-active.cd-fullmap .cd-modebar .cd-mode:not(.cd-mode-full) {
+  display: none;
+}
+
+#toast {
+  top: auto !important;
+  right: auto !important;
+  bottom: 16px;
+  left: 50% !important;
+  transform: translate(-50%, 12px) !important;
+  max-width: min(420px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px !important;
+  background: #09090b !important;
+  color: #fafafa !important;
+  border: 1px solid #3f3f46 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  font-family: 'Inter', var(--sc-font, sans-serif) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  line-height: 1.4;
+  white-space: nowrap;
+  z-index: 2147483000 !important;
+}
+
+#toast::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fafafa;
+}
+
+#toast.visible {
+  transform: translate(-50%, 0) !important;
+}
+
+@media (min-width: 821px) {
+  body.cd-active #toast {
+    bottom: calc(var(--cd-strip-off, 0px) + 12px);
+    left: calc(var(--cd-left-w, 0px) + (100vw - var(--cd-left-w, 0px) - var(--cd-right-w, 0px)) / 2) !important;
+  }
+
+  body.cd-active.cd-fullmap #toast {
+    bottom: 24px;
+    left: 50% !important;
+  }
+}
+
+#first-run-launcher {
+  z-index: 1300 !important;
+  background: rgba(9, 9, 11, 0.96) !important;
+  border: 1px solid #27272a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6) !important;
+  color: #fafafa !important;
+}
+
+#first-run-launcher .first-run-scanline {
+  display: none;
+}
+
+#first-run-launcher .first-run-header,
+#first-run-launcher .first-run-footer,
+#first-run-launcher .first-run-kicker,
+#first-run-launcher .first-run-note {
+  color: #a1a1aa !important;
+}
+
+#first-run-launcher h2 {
+  font-family: 'Space Grotesk', var(--sc-font, sans-serif) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  color: #fafafa !important;
+}
+
+#first-run-launcher #first-run-description {
+  color: #a1a1aa !important;
+}
+
+#first-run-launcher .first-run-choices button {
+  background: transparent !important;
+  border: 1px solid #27272a !important;
+  color: #fafafa !important;
+}
+
+#first-run-launcher .first-run-choices button:hover,
+#first-run-launcher .first-run-choices button:focus-visible {
+  background: #18181b !important;
+  border-color: #52525b !important;
+}
+
+#first-run-launcher .first-run-choices button > .material-symbols-outlined,
+#first-run-launcher .first-run-arrow {
+  color: #fafafa !important;
+}
+
+#first-run-launcher .first-run-choices small {
+  color: #a1a1aa !important;
+}
+
+#first-run-launcher .first-run-suppress input {
+  accent-color: #fafafa;
 }

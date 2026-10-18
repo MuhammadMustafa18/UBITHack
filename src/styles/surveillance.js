@@ -2,7 +2,7 @@ import { msg } from '../i18n/index.js';
 
 /**
  * Night Vision / NVG — PVS-14 Image Intensifier Emulation
- * P43 phosphor green, intensifier tube bloom, circular vignette,
+ * P43 phosphor green, intensifier tube bloom, edge vignette,
  * scintillation noise, honeycomb pattern, auto-gain, HUD overlay.
  *
  * Exposed uniforms:
@@ -46,15 +46,6 @@ export const nightVisionShader = {
       float c = hash(i + vec2(0.0, 1.0));
       float d = hash(i + vec2(1.0, 1.0));
       return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-    }
-
-    // ── Barrel distortion (NVG lens) ──────────────────────
-    vec2 barrelDistort(vec2 uv, float strength) {
-      vec2 c = uv * 2.0 - 1.0;
-      float r2 = dot(c, c);
-      float distort = 1.0 + r2 * strength * 0.5 + r2 * r2 * strength * 0.15;
-      c *= distort;
-      return c * 0.5 + 0.5;
     }
 
     // ── Honeycomb pattern (fiber optic plate texture) ─────
@@ -128,40 +119,17 @@ export const nightVisionShader = {
       return digit(localP, dv);
     }
 
-    // ── Crosshair (thin, subtle NVG reticle) ──────────────
-    float crosshair(vec2 uv) {
-      vec2 c = uv - 0.5;
-      float h = smoothstep(0.001, 0.0004, abs(c.y)) *
-                step(0.01, abs(c.x)) * step(abs(c.x), 0.025);
-      float v = smoothstep(0.001, 0.0004, abs(c.x)) *
-                step(0.01, abs(c.y)) * step(abs(c.y), 0.025);
-      return clamp(h + v, 0.0, 1.0);
-    }
-
     void main() {
       vec2 uv = v_textureCoordinates;
       vec2 dims = colorTextureDimensions;
       vec2 texel = 1.0 / dims;
 
       // ── Barrel distortion (NVG lens distortion) ─────────
-      float dist = 0.5 * intensity;
-      vec2 distUV = barrelDistort(uv, dist);
+      vec2 distUV = uv;
 
-      // ── Circular vignette mask (NVG tube field of view) ──
-      vec2 centered = uv * 2.0 - 1.0;
-      float aspect = dims.x / dims.y;
-      centered.x *= aspect;
-      float radius = length(centered);
-      float tubeMask = pow(1.0 - smoothstep(0.6, 1.05, radius), 0.7);
-      // Tube brightness falloff (center brightest)
-      float tubeShading = 1.0 - radius * radius * 0.3;
-      tubeShading = max(tubeShading, 0.0);
-
-      // If outside tube, render black
-      if (tubeMask < 0.001) {
-        out_FragColor = vec4(vec3(0.0), 1.0);
-        return;
-      }
+      vec2 edge = smoothstep(0.0, 0.08, uv) * smoothstep(0.0, 0.08, 1.0 - uv);
+      float tubeMask = mix(0.72, 1.0, sqrt(edge.x * edge.y));
+      float tubeShading = 1.0;
 
       // Black outside distorted area
       if (distUV.x < 0.0 || distUV.x > 1.0 || distUV.y < 0.0 || distUV.y > 1.0) {
@@ -233,7 +201,7 @@ export const nightVisionShader = {
       // ── Tube shading (brightness falloff from center) ───
       nvgColor *= tubeShading;
 
-      // ── Circular vignette (dark edges, NVG tube shape) ──
+      // ── Edge vignette (full-frame) ──
       nvgColor *= tubeMask;
 
       // ── HUD Overlay ─────────────────────────────────────
@@ -253,10 +221,6 @@ export const nightVisionShader = {
                      step(0.2, gainArea.y) * step(gainArea.y, 0.8);
         nvgColor += phosphor * gLbl * 0.2 * intensity;
       }
-
-      // Center crosshair (thin, subtle)
-      float ch = crosshair(uv);
-      nvgColor += phosphor * ch * 0.4 * intensity;
 
       // Bottom-left: Timestamp (7-segment)
       float ts = renderTimestamp(uv);

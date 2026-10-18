@@ -122,16 +122,6 @@ export const thermalShader = {
       return 0.0;
     }
 
-    // ── Crosshair ─────────────────────────────────────────
-    float crosshair(vec2 uv) {
-      vec2 c = uv - 0.5;
-      float h = smoothstep(0.0015, 0.0005, abs(c.y)) *
-                step(0.015, abs(c.x)) * step(abs(c.x), 0.04);
-      float v = smoothstep(0.0015, 0.0005, abs(c.x)) *
-                step(0.015, abs(c.y)) * step(abs(c.y), 0.04);
-      return clamp(h + v, 0.0, 1.0);
-    }
-
     // ── Scale bar (right edge) ────────────────────────────
     float scaleBar(vec2 uv) {
       // Vertical bar on right edge
@@ -146,21 +136,10 @@ export const thermalShader = {
       vec2 texel = 1.0 / dims;
       vec2 hudUV = uv; // preserve original UV for HUD overlay
 
-      // ── Circular vignette mask (FLIR optics field of view) ──
-      vec2 centered = uv * 2.0 - 1.0;
-      float aspect = dims.x / dims.y;
-      centered.x *= aspect;
-      float radius = length(centered);
-      float lensMask = pow(1.0 - smoothstep(0.6, 1.05, radius), 0.7);
-      // Tube brightness falloff (center brightest)
-      float lensShading = 1.0 - radius * radius * 0.25;
-      lensShading = max(lensShading, 0.0);
-
-      // If outside lens, render black
-      if (lensMask < 0.001) {
-        out_FragColor = vec4(vec3(0.0), 1.0);
-        return;
-      }
+      // ── Rectangular edge vignette (full-frame sensor) ──
+      vec2 edge = smoothstep(0.0, 0.08, uv) * smoothstep(0.0, 0.08, 1.0 - uv);
+      float lensMask = mix(0.72, 1.0, sqrt(edge.x * edge.y));
+      float lensShading = 1.0;
 
       // ── Sensor resolution pixelation (authentic FLIR resolution limits) ──
       float pixSize = mix(1.0, pixelation, intensity);
@@ -256,9 +235,6 @@ export const thermalShader = {
         hud += step(0.1, modeArea.x) * step(modeArea.x, 0.9) *
                step(0.2, modeArea.y) * step(modeArea.y, 0.8) * 0.4;
       }
-
-      // Center crosshair
-      hud += crosshair(hudUV) * 0.7;
 
       // Top-right: simulated temperature readout (derived from center luminance)
       float centerLuma = dot(texture(colorTexture, vec2(0.5)).rgb, vec3(0.299, 0.587, 0.114));

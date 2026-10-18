@@ -836,8 +836,8 @@ test('markup, startup ordering and accessibility remain pinned', () => {
   // passing edit — changing it needs the owner, not a nicer-sounding rewrite.
   assert.ok(
     html.includes(
-      '<p id="first-run-description" data-i18n-runtime>It feels like a forbidden cockpit' +
-        '—then you realize the sources are public and the data is real.</p>',
+      '<p id="first-run-description" data-i18n-runtime>Pakistan’s rivers in 3D, built only on public satellite, ' +
+        'weather and gauge data. Pick where to start.</p>',
     ),
     'the owner-authored first-run line must ship exactly as written',
   );

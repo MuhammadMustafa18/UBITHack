@@ -71,7 +71,6 @@ const TIME_SCALE_BUTTONS = [
 ];
 const STYLE_BUTTONS = [
   ['1', 'normal', 'Normal'],
-  ['2', 'retro', 'CRT'],
   ['3', 'surveillance', 'Night Vision'],
   ['4', 'thermal', 'FLIR'],
 ];
@@ -285,6 +284,8 @@ export class CommandDashboard {
         this.syncModes();
       },
       'mode-grid': () => this.toggleGrid(),
+      'mode-gray': () => this.toggleBodyMode('map-grayscale'),
+      'mode-full': () => this.toggleBodyMode('cd-fullmap'),
       lowbw: () => this.setLowBandwidth(!this.lowBandwidth),
       lang: (el) => this.setLanguage(el.dataset.lang),
       hamburger: (el, e) => this.toggleLayersMenu(e),
@@ -371,8 +372,8 @@ export class CommandDashboard {
       <div class="cd-brand">
         ${LOGO}
         <div class="cd-brand-text">
-          <div class="cd-brand-name">FloodTrace Pakistan</div>
-          <div class="cd-brand-sub">River · People · Infrastructure · Ahead of risk</div>
+          <div class="cd-brand-name">Agaahi</div>
+          <div class="cd-brand-sub">Flood intelligence · Pakistan</div>
         </div>
       </div>
       <div class="cd-search-slot"></div>
@@ -392,7 +393,7 @@ export class CommandDashboard {
         <button type="button" class="cd-icon-btn cd-hamburger" data-act="hamburger" aria-label="Map layers menu" aria-pressed="false" title="Map layers">${icon('menu')}</button>
       </div>
       <div class="cd-more-menu" role="group" aria-label="More tools" hidden></div>`,
-      'FloodTrace header',
+      'Agaahi header',
     );
     const searchSlot = header.querySelector('.cd-search-slot');
     const navSlot = header.querySelector('.cd-nav-slot');
@@ -473,6 +474,11 @@ export class CommandDashboard {
       }
     });
     this.listen(document, 'keydown', (e) => {
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.target?.matches?.('input, textarea, select, [contenteditable]')) {
+        const k = e.key.toLowerCase();
+        if (k === 'g') this.toggleBodyMode('map-grayscale');
+        if (k === 'm') this.toggleBodyMode('cd-fullmap');
+      }
       if (e.key === 'Escape' && !menu.hidden) {
         this.toggleMore(false);
         this.r['tab-more'].focus();
@@ -522,7 +528,7 @@ export class CommandDashboard {
           <div class="cd-actions" data-r="actions"></div>
         </div>
       </section>
-      <section class="cd-card cd-copilot" aria-label="Agahi Copilot">
+      <section class="cd-card cd-copilot" aria-label="Agaahi Copilot">
         <div class="cd-slot" data-r="copilot-slot"></div>
       </section>`,
       'Forecast and copilot',
@@ -533,7 +539,7 @@ export class CommandDashboard {
     if (typeof copilot?.dock === 'function') {
       copilot.dock(slot);
     } else {
-      slot.innerHTML = `<div class="cd-slot-fallback"><p>Ask the grounded Agahi climate copilot.</p><button type="button" class="cd-btn cd-btn-primary cd-btn-block" data-act="open-copilot">Open Agahi Copilot</button></div>`;
+      slot.innerHTML = `<div class="cd-slot-fallback"><p>Ask the grounded Agaahi climate copilot.</p><button type="button" class="cd-btn cd-btn-primary cd-btn-block" data-act="open-copilot">Open Agaahi Copilot</button></div>`;
       slot.querySelector('[data-act]').addEventListener('click', () => {
         document.getElementById('gmaps-pill-copilot')?.click();
       });
@@ -698,6 +704,8 @@ export class CommandDashboard {
       <div class="cd-mode-group" role="group" aria-label="Map overlays">
         <button type="button" class="cd-mode" data-act="mode-labels" data-r="mode-labels" aria-pressed="false">Labels</button>
         <button type="button" class="cd-mode" data-act="mode-grid" data-r="mode-grid" aria-pressed="false">Grid</button>
+        <button type="button" class="cd-mode" data-act="mode-gray" data-r="mode-gray" aria-pressed="false"><kbd>G</kbd>Grayscale</button>
+        <button type="button" class="cd-mode cd-mode-full" data-act="mode-full" data-r="mode-full" aria-pressed="false"><kbd>M</kbd>Full map</button>
       </div>`,
       'Map modes',
     );
@@ -1163,7 +1171,7 @@ export class CommandDashboard {
     [...items]
       .sort((a, b) => (a.w === peak ? -1 : b.w === peak ? 1 : a.f - b.f))
       .forEach((it) => {
-        if (it.f > 0 && labeled.every((o) => Math.abs(o.f - it.f) >= 0.17)) labeled.push(it);
+        if (it.f > 0 && labeled.every((o) => Math.abs(o.f - it.f) >= 0.26)) labeled.push(it);
       });
     r['tl-markers'].innerHTML = items
       .map((it) => {
@@ -1347,6 +1355,13 @@ export class CommandDashboard {
     };
     set(r['mode-labels'], Boolean(document.getElementById('gmaps-check-labels')?.checked));
     set(r['mode-grid'], Boolean(ui.riskLayer?.grid) || this.gridLoading);
+    set(r['mode-gray'], document.body.classList.contains('map-grayscale'));
+    set(r['mode-full'], document.body.classList.contains('cd-fullmap'));
+  }
+
+  toggleBodyMode(cls) {
+    document.body.classList.toggle(cls);
+    this.syncModes();
   }
 
   syncState() {
@@ -1485,6 +1500,6 @@ export class CommandDashboard {
     }
     this.roots.forEach((el) => el.remove());
     this.roots = [];
-    document.body.classList.remove('cd-active', 'cd-no-right', 'cd-low-bandwidth');
+    document.body.classList.remove('cd-active', 'cd-no-right', 'cd-low-bandwidth', 'cd-fullmap', 'map-grayscale');
   }
 }
