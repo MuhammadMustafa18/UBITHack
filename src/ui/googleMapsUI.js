@@ -276,12 +276,14 @@ export const PAKISTAN_LOCATIONS = {
 };
 
 export class GoogleMapsUI {
-  constructor({ viewer, navigation, simulationBarUI, floodEngine, styleManager }) {
+  constructor({ viewer, navigation, simulationBarUI, floodEngine, styleManager, catalog }) {
     this.viewer = viewer;
     this.navigation = navigation;
     this.simulationBarUI = simulationBarUI;
     this.floodEngine = floodEngine;
     this.styleManager = styleManager;
+    this.catalog = catalog || null;
+    this.flightsLayer = catalog?.get?.('flights') || null;
     this.activeCategory = null;
     this.layersMenuOpen = false;
 
@@ -468,6 +470,11 @@ export class GoogleMapsUI {
             <input type="checkbox" id="gmaps-check-weather" />
             <span class="toggle-switch"></span>
             <span>Rainfall Radar Overlay</span>
+          </label>
+          <label class="layer-toggle-row">
+            <input type="checkbox" id="gmaps-check-plane" />
+            <span class="toggle-switch"></span>
+            <span>Live Flights (Plane Mode)</span>
           </label>
         </div>
       </div>
@@ -702,6 +709,16 @@ export class GoogleMapsUI {
       e.stopPropagation();
       this.layersMenuOpen = !this.layersMenuOpen;
       layersMenu.classList.toggle('hidden', !this.layersMenuOpen);
+      // Keep the plane-mode checkbox in sync with the live flights-layer state
+      if (this.layersMenuOpen) {
+        const dataManager = this.styleManager?.dataManager;
+        const planeCheck = document.getElementById('gmaps-check-plane');
+        if (planeCheck && dataManager) {
+          const entry = dataManager.layers?.get?.('flights');
+          planeCheck.checked = Boolean(entry?.enabled);
+          document.body.classList.toggle('plane-mode-active', Boolean(entry?.enabled));
+        }
+      }
     });
 
     layersClose?.addEventListener('click', (e) => {
@@ -737,6 +754,9 @@ export class GoogleMapsUI {
     });
     document.getElementById('gmaps-check-labels')?.addEventListener('change', (e) => {
       this.pakistanLayers?.setLabelsVisible(e.target.checked);
+    });
+    document.getElementById('gmaps-check-plane')?.addEventListener('change', (e) => {
+      this.setFlightsLayerEnabled(e.target.checked);
     });
 
     // Close dropdown on outside click
@@ -1230,6 +1250,29 @@ export class GoogleMapsUI {
       const deg = Cesium.Math.toDegrees(heading);
       needle.style.transform = `rotate(${-deg}deg)`;
     });
+  }
+
+  /**
+   * Plane Mode: explicitly enable/disable the live civil-flights data layer.
+   * Off by default so the map stays clean; flight HUD chrome only shows
+   * while plane mode is active (body.plane-mode-active in google-maps-theme.css).
+   */
+  setFlightsLayerEnabled(enabled) {
+    const dataManager = this.styleManager?.dataManager;
+    if (!this.flightsLayer || !dataManager) {
+      this._showToast('Air traffic layer unavailable in this build');
+      document.getElementById('gmaps-check-plane').checked = false;
+      return;
+    }
+    dataManager
+      .setEnabled('flights', enabled, { origin: 'user' })
+      .catch((error) =>
+        console.warn('[GoogleMapsUI] flights toggle failed:', error),
+      );
+    document.body.classList.toggle('plane-mode-active', enabled);
+    this._showToast(
+      enabled ? 'Plane mode ON — live air traffic' : 'Plane mode OFF — map clean',
+    );
   }
 
   _showToast(msg) {

@@ -182,7 +182,9 @@ export class FloodSimulationEngine {
   }
 
   getCurrentTelemetry() {
-    const scale = TIME_SCALES[this.timeScale];
+    const waypoints = this.waypoints || [];
+    if (!waypoints.length) return null;
+    const scale = TIME_SCALES[this.timeScale] || TIME_SCALES.hourly;
     const lastWp = waypoints[waypoints.length - 1];
     let currentWp = waypoints[0];
     let nextWp = waypoints[1] || currentWp;
@@ -267,7 +269,11 @@ export class FloodSimulationEngine {
   }
 
   launch() {
-    if (this.active) return;
+    if (this._animationFrame) {
+      cancelAnimationFrame(this._animationFrame);
+      this._animationFrame = null;
+    }
+    this._clearPrimitives();
     this.active = true;
     this.playing = true;
     this.scaleUnits = 0;

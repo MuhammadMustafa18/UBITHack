@@ -3,12 +3,41 @@
  * Replaces sci-fi HUD with clean, modern, high-contrast Google Maps UI.
  */
 
-/* Hide legacy sci-fi dark HUD chrome */
+/* Hide legacy sci-fi dark HUD chrome and reconnaissance overlays by default */
 #title-bar,
 #top-center-actions,
 #command-dock,
-#style-indicator {
+#style-indicator,
+#intel-hud,
+#right-context-rail,
+#military-awareness-panel,
+#pp-toggles,
+#global-context-panel,
+#weather-panel,
+#recent-imagery-panel,
+#cockpit-hud,
+.hud-classification,
+#global-loading-status,
+#traffic-sync-chip,
+#cctv-sync-chip,
+.flight-contact-window,
+#world-overlay-root {
   display: none !important;
+}
+
+/* When Plane Mode is explicitly enabled by the user, allow clean air traffic display */
+body.plane-mode-active #intel-hud,
+body.plane-mode-active #right-context-rail {
+  /* Keep background clean and unobtrusive even if plane mode is on */
+  display: block !important;
+}
+
+/* Specific styling for Plane Mode pill */
+.gmaps-pill-planes.active {
+  background: #fef7e0 !important;
+  color: #b06000 !important;
+  border-color: #f9ab00 !important;
+  font-weight: 600;
 }
 
 /* ==========================================================================

@@ -16,7 +16,7 @@ export function startApplicationChrome({
   const minimumDelay = new Promise((resolve) => {
     resolveDelay = resolve;
   });
-  const delayTimer = setTimeout(resolveDelay, 1000);
+  const delayTimer = setTimeout(resolveDelay, 250);
   const revealFirstRun = () => {
     if (disposed || signal.aborted || firstRun) return;
     firstRun = initializeWelcome?.({ styleManager, dataManager });
@@ -33,7 +33,7 @@ export function startApplicationChrome({
       loadingScreen.addEventListener('transitionend', revealFirstRun, {
         once: true,
       });
-      revealTimer = setTimeout(revealFirstRun, 900);
+      revealTimer = setTimeout(revealFirstRun, 150);
     });
   const keySetup = Promise.resolve(
     signal.aborted ? null : initializeSettings?.({ signal }),

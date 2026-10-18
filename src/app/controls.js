@@ -1,7 +1,6 @@
 import { catalogControlServices } from './catalog.js';
 import { StyleManager } from '../ui/composition.js';
 import { flyToAustin } from '../camera.js';
-import { initCockpitCloudEffects } from '../cockpitCloudEffects.js';
 import { t } from '../i18n/index.js';
 import { FloodSimulationEngine } from '../simulation/floodEngine.js';
 import { SimulationBarUI } from '../simulation/simulationBar.js';
@@ -46,6 +45,7 @@ export function createApplicationControls({
     simulationBarUI,
     floodEngine: floodSimulationEngine,
     styleManager,
+    catalog,
   });
 
   const simBtn = document.getElementById('sim-disaster-btn');
@@ -56,14 +56,9 @@ export function createApplicationControls({
   }
   defer(() => floodSimulationEngine.exit());
 
-  // The previous multi-canvas weather compositor remains disabled. Cockpit
-  // clouds use a separate, capped low-resolution GPU pass that never attaches
-  // Cesium fog or post-process stages and is fully stopped in map mode.
+  // Weather & cockpit GPU passes stripped for lightweight, high-performance execution
   const weatherEffects = null;
-  const cockpitCloudEffects = initCockpitCloudEffects(viewer, {
-    weatherService: operations.requests.weather,
-  });
-  defer(() => cockpitCloudEffects?.destroy());
+  const cockpitCloudEffects = null;
 
   // If no share link state, do default fly-to Pakistan
   if (!styleManager.hasShareState) {

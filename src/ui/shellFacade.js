@@ -934,6 +934,11 @@ export class ShellFacade {
     return this._layerBindings.attachDataManager(...args);
   }
 
+  /** Read-only access to the connected layer data manager (null until attached). */
+  get dataManager() {
+    return this._layerBindings._dataManager || null;
+  }
+
   _handleShareTrackingRestoreStatus(result) {
     return this._shareRestoration._handleShareTrackingRestoreStatus(
       ...arguments,
